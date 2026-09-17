@@ -1,5 +1,14 @@
 import { SiteFrame } from "./site-frame";
 import { chineseText, type Language } from "./languages";
+import { MediaSocialLinks } from "./media-social-links";
+
+const programs = {
+  dataScience: "https://graduateprograms.brown.edu/graduate-program/data-science-scm",
+  mathematics: "https://catalogue.usc.edu/preview_program.php?catoid=21&poid=29763&returnto=8873",
+  economics: "https://catalogue.usc.edu/preview_program.php?catoid=21&poid=30612&hl=economics+and+data+science&returnto=search",
+  religion: "https://catalogue.usc.edu/preview_program.php?catoid=21&poid=29825&hl=religion&returnto=search",
+  globalStudies: "https://catalogue.usc.edu/preview_program.php?catoid=21&poid=29609&hl=global+studies&returnto=search",
+};
 
 export function HomePage({ language = "en" }: { language?: Language }) {
   const zh = language !== "en";
@@ -29,7 +38,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
       <section className="editorial-section" aria-labelledby="background-title">
         <h2 className="section-label" id="background-title">{zh ? t("教育与经历") : "Background"}</h2>
         <div className="section-body">
-          <p>{zh ? <>{t("我于 2026 年获得")}<a href="https://brown.edu/">{t("布朗大学")}</a>{t("数据科学硕士学位。此前，我在")}<a href="https://usc.edu/">{t("南加州大学")}</a>{t("学习应用数学、经济学与数据科学、宗教学及全球研究。")}</> : <>I received my Sc.M. in Data Science from <a href="https://brown.edu/">Brown University</a> in 2026. Previously, I studied applied and computational mathematics, economics and data science, religious studies, and global studies at the <a href="https://usc.edu/">University of Southern California</a>.</>}</p>
+          <p>{zh ? <>{t("我于 2026 年获得")}<a href="https://brown.edu/">{t("布朗大学")}</a><a href={programs.dataScience}>{t("数据科学硕士")}</a>{t("学位。此前，我在")}<a href="https://usc.edu/">{t("南加州大学")}</a>{t("学习")}<a href={programs.mathematics}>{t("应用数学")}</a>、<a href={programs.economics}>{t("经济学与数据科学")}</a>、<a href={programs.religion}>{t("宗教学")}</a>及<a href={programs.globalStudies}>全球研究</a>。</> : <>I received my <a href={programs.dataScience}>Sc.M. in Data Science</a> from <a href="https://brown.edu/">Brown University</a> in 2026. Previously, I studied <a href={programs.mathematics}>applied and computational mathematics</a>, <a href={programs.economics}>economics and data science</a>, <a href={programs.religion}>religious studies</a>, and <a href={programs.globalStudies}>global studies</a> at the <a href="https://usc.edu/">University of Southern California</a>.</>}</p>
           <p>{zh ? <>在加入<a href="https://haas.berkeley.edu/">{t("伯克利哈斯商学院")}</a>{t("与")}<a href="https://www.va.gov/">{t("美国退伍军人事务部")}</a>{t("之前，我曾担任研究助理，与")}<a href="https://brown.edu/">{t("布朗大学")}</a>的 </> : <>Before joining <a href="https://haas.berkeley.edu/">Berkeley Haas</a> and the <a href="https://www.va.gov/">VA</a>, I worked with </>}<a href="https://home.watson.brown.edu/people/faculty/watson-faculty/robert-blair">{zh ? "Robert Blair 教授" : "Prof. Robert Blair"}</a>{zh ? <>及<a href="https://usc.edu/">{t("南加州大学")}</a>的 </> : <> at <a href="https://brown.edu/">Brown</a> and </>}<a href="https://dornsife.usc.edu/profile/yuehao-bai/">{zh ? "Yuehao Bai 教授" : "Prof. Yuehao Bai"}</a>{zh ? <>合作。我也曾在 <a href="https://www.rocketmortgage.com/">Rocket Mortgage</a>{t("担任数据科学实习生，并在")}<a href="https://www.ey.com/zh_cn">安永（EY）</a>{t("担任精算咨询实习生。")}</> : <> at <a href="https://usc.edu/">USC</a> as a Research Assistant. My industry experience includes internships in data science at <a href="https://www.rocketmortgage.com/">Rocket Mortgage</a> and actuarial consulting at <a href="https://www.ey.com/zh_cn">EY</a>.</>}</p>
         </div>
       </section>
@@ -40,6 +49,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
           <p className="news-meta">{zh ? t("南加州大学 官方网站 · ") : "USC Dornsife · "}<time dateTime="2024-05-02">{zh ? "2024 年 5 月 2 日" : "May 2, 2024"}</time></p>
           <h3 lang="en"><a href="https://dornsife.usc.edu/news/stories/international-student-renaissance-scholar-earns-four-bachelors-degrees/">International student graduates with 4 bachelor’s degrees from USC Dornsife</a></h3>
           <p className="news-reprint"><a href="https://we-are.usc.edu/2024/05/23/international-student-graduates-with-4-bachelors-degrees-from-usc-dornsife/">{zh ? t("另见 We Are SC 报道") : "Also featured in We Are SC"}</a> · <time dateTime="2024-05-23">{zh ? "2024 年 5 月 23 日" : "May 23, 2024"}</time></p>
+          <MediaSocialLinks language={language} />
           </article>
           {zh && (
             <article className="news-story">

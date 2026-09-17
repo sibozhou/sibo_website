@@ -108,10 +108,10 @@ p, h1, h2, h3 { margin: 0; }
 .site-nav a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 9px; }
 .site-nav a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 9px; }
 .intro { padding: 100px 0 90px 192px; }
-.home-intro { position: relative; isolation: isolate; padding-left: 38%; }
-.hero-art { position: absolute; top: 0; bottom: 0; left: -56px; width: calc(60% + 56px); pointer-events: none; mask-image: linear-gradient(to right, transparent, #000 12%, #000 48%, transparent 100%), linear-gradient(to bottom, transparent, #000 14%, #000 76%, transparent); mask-composite: intersect; }
-.hero-photo { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 52% 48%; filter: saturate(.25) contrast(.9); opacity: .52; }
-.hero-content { position: relative; z-index: 1; }
+.home-intro { position: relative; isolation: isolate; }
+.hero-art { position: absolute; top: 0; bottom: 0; right: -56px; width: 54%; pointer-events: none; mask-image: linear-gradient(to right, transparent 36%, #000 68%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 14%, #000 76%, transparent); mask-composite: intersect; }
+.hero-photo { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 52% 48%; filter: saturate(.9) contrast(.98); opacity: .86; }
+.hero-content { position: relative; z-index: 1; max-width: 560px; }
 .eyebrow, .section-label { font-family: var(--sans); font-size: var(--type-small); font-weight: 500; line-height: 1.6; letter-spacing: 0; }
 .eyebrow { color: var(--ink); margin-bottom: 24px; }
 h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; letter-spacing: -.03em; font-weight: 400; }
@@ -132,6 +132,14 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .news-story h3 a:hover { text-decoration: underline; }
 .news-reprint { margin-top: 18px; color: var(--muted); font-size: var(--type-small); }
 .news-reprint a { display: inline-block; padding: 10px 0; }
+.social-links { display: flex; gap: 8px; list-style: none; margin: 4px 0 0 -12px; padding: 0; }
+.social-links a { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; color: var(--ink); }
+.social-links a:hover { color: var(--accent); }
+.social-icon { display: block; width: 20px; height: 20px; background: currentColor; mask-repeat: no-repeat; mask-position: center; mask-size: contain; }
+.social-icon-x { mask-image: url("./icons/x.svg"); }
+.social-icon-instagram { mask-image: url("./icons/instagram.svg"); }
+.social-icon-linkedin { mask-image: url("./icons/linkedin.svg"); }
+.social-icon-facebook { mask-image: url("./icons/facebook.svg"); }
 .recognition-links { list-style: none; margin: 24px 0 0; padding: 0; border-top: 1px solid var(--rule); }
 .recognition-links li { padding-top: 18px; }
 .recognition-links a { display: inline-block; padding: 8px 0; font-size: var(--type-small); font-weight: 500; }
@@ -159,8 +167,8 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 @media (max-width: 800px) {
   .site-shell { width: calc(100% - 64px); }
   .intro { padding: 72px 0 64px; }
-  .home-intro { padding-left: 34%; }
-  .hero-art { left: -32px; width: calc(56% + 32px); }
+  .hero-art { right: -32px; width: 58%; mask-image: linear-gradient(to right, transparent 45%, #000 80%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 14%, #000 76%, transparent); }
+  .hero-content { max-width: 78%; }
   .editorial-section { grid-template-columns: 112px minmax(0, 1fr); gap: 28px; }
   .site-header { min-height: 96px; }
 }
@@ -172,7 +180,8 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
   .intro { padding: 60px 0 52px; }
   .home-intro { padding-top: 28px; padding-left: 0; }
   .hero-art { position: relative; top: auto; bottom: auto; left: -20px; width: calc(100% + 40px); height: 320px; margin-bottom: -16px; mask-image: linear-gradient(to right, transparent, #000 12%, #000 66%, transparent), linear-gradient(to bottom, transparent, #000 12%, #000 65%, transparent); }
-  .hero-photo { object-position: 50% 43%; opacity: .6; }
+  .hero-photo { object-position: 50% 43%; opacity: .9; }
+  .hero-content { max-width: none; }
   .eyebrow { margin-bottom: 20px; }
   .editorial-section { grid-template-columns: 1fr; gap: 24px; padding: 30px 0 38px; }
   .section-label { display: flex; justify-content: space-between; }

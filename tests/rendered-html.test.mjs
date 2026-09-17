@@ -61,6 +61,12 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.doesNotMatch(workingPapers, /Diagnostic Considerations for Neurolymphomatosis/);
       assert.match(publications, /Diagnostic Considerations for Neurolymphomatosis/);
       assert.match(publications, /https:\/\/doi.org\/10.3390\/cancers18132068/);
+      if (chinese) {
+        assert.match(markup, /共同第一作者/);
+        assert.doesNotMatch(markup, /同等贡献|同等貢獻/);
+      } else {
+        assert.match(markup, /Equal contribution/);
+      }
     } else {
       assert.match(markup, /Sibo Zhou/);
       assert.ok(markup.includes(traditional ? "加州大學柏克萊分校哈斯商學院" : chinese ? "加州大学伯克利分校哈斯商学院" : "UC Berkeley Haas"));
@@ -70,6 +76,20 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       const background = markup.match(/<section[^>]*aria-labelledby="background-title"[^]*?<\/section>/)?.[0] ?? "";
       assert.match(background, /href="https:\/\/haas.berkeley.edu\/"/);
       assert.match(background, /href="https:\/\/www.va.gov\/"/);
+      for (const program of ["graduate-program/data-science-scm", "poid=29763", "poid=30612", "poid=29825", "poid=29609"]) {
+        assert.ok(background.includes(program), `Missing program link: ${program}`);
+      }
+      const social = markup.match(/<ul class="social-links"[^]*?<\/ul>/)?.[0] ?? "";
+      assert.equal((social.match(/<a /g) ?? []).length, traditional ? 4 : 3);
+      for (const platform of ["x", "instagram", "linkedin", ...(traditional ? ["facebook"] : [])]) {
+        assert.ok(social.includes("social-icon-" + platform));
+      }
+      assert.equal(social.includes("838944394937168"), traditional);
+      assert.match(social, /1787955243994726820/);
+      assert.match(social, /C72E_FaSwvP/);
+      assert.match(social, /7192238670182014976-9dWk/);
+      assert.equal(social.replace(/<[^>]*>/g, "").trim(), "");
+      assert.equal((social.match(/aria-label="[^"]+"/g) ?? []).length, (traditional ? 4 : 3) + 1);
       if (chinese) {
         assert.match(markup, traditional ? /擔任研究專員/ : /担任研究专员/);
         assert.doesNotMatch(markup, /初级研究专员/);

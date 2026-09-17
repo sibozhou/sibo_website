@@ -12,7 +12,7 @@ const papers = [
     title: "The Natural History of Lymphomatosis Cerebri: An Analytical Assessment",
     authors: <>Laura Schroeder*, <strong>Sibo Zhou*</strong>, Elizabeth Xu*, Shiva Gautam, and Eric T. Wong</>,
     note: "* Equal contribution. American Neurological Association Annual Meeting, 2026. Presenting author: Sibo Zhou.",
-    noteZh: "* 同等贡献。2026 年美国神经病学协会年会；报告人：Sibo Zhou。",
+    noteZh: "* 共同第一作者。2026 年美国神经病学协会年会；报告人：Sibo Zhou。",
   },
   {
     title: "The Natural History of Glioblastoma in Multiple Sclerosis Patients",
