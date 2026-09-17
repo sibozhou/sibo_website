@@ -48,7 +48,7 @@ export default function Research() {
               {paper.note && <p className="paper-note">{paper.note}</p>}
             </article>
           ))}
-          <p className="availability-note">For inquiries about these papers, <a href="mailto:sibozhou@berkeley.edu">please contact me <span aria-hidden="true">↗</span></a>.</p>
+          <p className="availability-note">For inquiries about these papers, <a href="mailto:sibozhou@berkeley.edu">please contact me <span className="link-arrow" aria-hidden="true">↗</span></a>.</p>
         </div>
       </section>
       <section className="editorial-section" id="publications" aria-labelledby="publications-title">
@@ -60,8 +60,8 @@ export default function Research() {
             <p className="authors">Francesca Rothell, Mary Ann Nguyen, Elizabeth Xu, Quan Ho, <strong>Sibo Zhou</strong>, Shiva Gautam, and Eric T. Wong</p>
             <p className="paper-note"><em>Cancers (Basel)</em>. 2026;18(13):2068. Published June 25, 2026.</p>
             <div className="text-links">
-              <a href="https://doi.org/10.3390/cancers18132068">Read article <span aria-hidden="true">↗</span></a>
-              <a href="https://pubmed.ncbi.nlm.nih.gov/42449612/">PubMed <span aria-hidden="true">↗</span></a>
+              <a href="https://doi.org/10.3390/cancers18132068">Read article <span className="link-arrow" aria-hidden="true">↗</span></a>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/42449612/">PubMed <span className="link-arrow" aria-hidden="true">↗</span></a>
             </div>
           </article>
         </div>
