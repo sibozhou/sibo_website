@@ -187,6 +187,9 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
   .editorial-section { grid-template-columns: 1fr; gap: 24px; padding: 30px 0 38px; }
   .section-label { display: flex; justify-content: space-between; }
   .section-count { margin-top: 0; }
+  .news-story + .news-story { margin-top: 32px; padding-top: 0; border-top: 0; }
+  .recognition-links { border-top: 0; }
+  .recognition-links li:first-child { padding-top: 0; }
   .paper { padding-left: 28px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
