@@ -51,8 +51,8 @@ export default function Home() {
       <section className="editorial-section contact-section" aria-labelledby="contact-title">
         <h2 className="section-label" id="contact-title">Get in touch</h2>
         <div className="section-body">
-          <a className="contact-email" href="mailto:sibozhou@berkeley.edu">sibozhou@berkeley.edu <span className="link-arrow" aria-hidden="true">↗</span></a>
-          <a className="linkedin-link" href="https://www.linkedin.com/in/sibo-zhou88">LinkedIn <span className="link-arrow" aria-hidden="true">↗</span></a>
+          <a className="contact-link" href="mailto:sibozhou@berkeley.edu">sibozhou@berkeley.edu <span className="link-arrow" aria-hidden="true">↗</span></a>
+          <a className="contact-link" href="https://www.linkedin.com/in/sibo-zhou88">linkedin.com/in/sibo-zhou88 <span className="link-arrow" aria-hidden="true">↗</span></a>
         </div>
       </section>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
