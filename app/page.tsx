@@ -9,10 +9,7 @@ export default function Home() {
         {/* A pre-sized static image keeps the portrait independent of an image server. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="portrait" src="sibo-zhou.jpg" alt="Sibo Zhou" width={675} height={900} fetchPriority="high" />
-        <h1 id="intro-title" className="name-heading">
-          <span>Sibo Zhou<span className="name-period">.</span></span>
-          <span className="chinese-name" lang="zh-Hans">周思博</span>
-        </h1>
+        <h1 id="intro-title">Sibo Zhou<span className="name-period">.</span></h1>
         <p className="lead">Understanding people and health through economics and data.</p>
         <div className="intro-copy">
           <p>I am a Predoctoral Scholar at UC Berkeley’s Haas School of Business and a Research Statistician at the U.S. Department of Veterans Affairs, working with Prof. David Chan.</p>

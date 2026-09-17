@@ -31,7 +31,7 @@ p, h1, h2, h3 { margin: 0; }
 .skip-link:focus { transform: translateY(0); color: var(--paper); }
 .site-shell { width: min(960px, calc(100% - 112px)); margin: 0 auto; }
 .site-header { display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 112px; border-bottom: 1px solid var(--rule); }
-.wordmark { font-family: var(--serif); font-size: 27px; letter-spacing: -1px; text-decoration: none; }
+.wordmark { font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 27px; font-weight: 700; font-synthesis: none; letter-spacing: .04em; text-decoration: none; }
 .site-nav { display: flex; gap: 30px; }
 .site-nav a { display: inline-flex; align-items: center; min-height: 44px; font-family: var(--mono); font-size: 12px; text-decoration: none; color: var(--muted); }
 .site-nav a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 9px; }
@@ -43,9 +43,6 @@ p, h1, h2, h3 { margin: 0; }
 .eyebrow { color: var(--accent); margin-bottom: 24px; }
 h1 { font-family: var(--serif); font-size: clamp(64px, 7.7vw, 100px); line-height: 1.02; letter-spacing: -.055em; font-weight: 400; }
 .name-period { color: var(--accent); }
-.name-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 14px 24px; }
-.name-heading > span { white-space: nowrap; }
-.chinese-name { color: #000; font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: clamp(28px, 3.2vw, 38px); font-weight: 700; font-synthesis: none; line-height: 1.25; letter-spacing: .06em; }
 .lead { margin-top: 30px; font-size: clamp(20px, 2.4vw, 25px); line-height: 1.5; letter-spacing: -.025em; }
 .intro-copy { max-width: 620px; margin-top: 30px; color: #4b4f47; }
 .intro-copy p + p, .section-body p + p { margin-top: 18px; }
