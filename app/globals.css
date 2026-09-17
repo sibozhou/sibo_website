@@ -63,6 +63,7 @@
 
 :root {
   --paper: #f7f6f2;
+  --header-height: 112px;
   --ink: #242622;
   --muted: #64675f;
   --rule: #d8d9d1;
@@ -89,7 +90,7 @@ html[lang="zh-Hant"] {
 }
 html:lang(zh) h1 { letter-spacing: 0; }
 html:lang(zh) .lead { letter-spacing: 0; }
-html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; scroll-padding-top: var(--header-height); }
 body { margin: 0; font-family: var(--sans); font-size: var(--type-body); line-height: 1.7; -webkit-font-smoothing: antialiased; }
 ::selection { background: #dce4d6; }
 a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 5px; }
@@ -100,7 +101,7 @@ p, h1, h2, h3 { margin: 0; }
 .skip-link { position: fixed; top: 12px; left: 12px; z-index: 10; padding: 8px 16px; background: var(--ink); color: var(--paper); transform: translateY(-160%); }
 .skip-link:focus { transform: translateY(0); color: var(--paper); }
 .site-shell { width: min(960px, calc(100% - 112px)); margin: 0 auto; }
-.site-header { display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 112px; border-bottom: 1px solid var(--rule); }
+.site-header { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: var(--header-height); background: var(--paper); border-bottom: 1px solid var(--rule); }
 .wordmark { font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 27px; font-weight: 700; font-synthesis: none; letter-spacing: .04em; text-decoration: none; }
 .wordmark-english { font-family: var(--serif); font-weight: 400; letter-spacing: -1px; }
 .site-nav { display: flex; gap: 30px; }
@@ -171,11 +172,11 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
   .hero-art { right: -32px; width: 58%; mask-image: linear-gradient(to right, transparent 15%, rgba(0, 0, 0, .04) 26%, rgba(0, 0, 0, .15) 40%, rgba(0, 0, 0, .36) 54%, rgba(0, 0, 0, .62) 65%, rgba(0, 0, 0, .84) 73%, rgba(0, 0, 0, .96) 77%, #000 80%, #000 96%, transparent), linear-gradient(to bottom, transparent, #000 14%, #000 76%, transparent); }
   .hero-content { max-width: 78%; }
   .editorial-section { grid-template-columns: 112px minmax(0, 1fr); gap: 28px; }
-  .site-header { min-height: 96px; }
+  html { --header-height: 96px; }
 }
 @media (max-width: 540px) {
   .site-shell { width: calc(100% - 40px); }
-  .site-header { min-height: 84px; }
+  html { --header-height: 84px; }
   .wordmark { font-size: 24px; }
   .site-nav { gap: 20px; }
   .intro { padding: 60px 0 52px; }
@@ -195,6 +196,7 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 @media print {
   html { background: white; }
+  .site-header { position: static; background: transparent; }
   .site-shell { width: 100%; }
   .site-nav, .skip-link, .section-jumps { display: none; }
   .intro { padding: 32px 0; }
