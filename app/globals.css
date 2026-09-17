@@ -34,6 +34,9 @@ p, h1, h2, h3 { margin: 0; }
 .eyebrow { color: var(--accent); margin-bottom: 24px; }
 h1 { font-family: var(--serif); font-size: clamp(64px, 7.7vw, 100px); line-height: 1.02; letter-spacing: -.055em; font-weight: 400; }
 .name-period { color: var(--accent); }
+.name-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 16px 28px; }
+.name-heading > span { white-space: nowrap; }
+.chinese-name { color: var(--muted); font-family: "Songti SC", "Noto Serif CJK SC", SimSun, serif; font-size: clamp(20px, 2.2vw, 25px); font-weight: 400; line-height: 1.5; letter-spacing: .16em; }
 .lead { margin-top: 30px; font-size: clamp(20px, 2.4vw, 25px); line-height: 1.5; letter-spacing: -.025em; }
 .intro-copy { max-width: 620px; margin-top: 30px; color: #4b4f47; }
 .intro-copy p + p, .section-body p + p { margin-top: 18px; }
