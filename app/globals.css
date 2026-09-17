@@ -28,6 +28,8 @@ p, h1, h2, h3 { margin: 0; }
 .site-nav a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 9px; }
 .site-nav a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 9px; }
 .intro { padding: 100px 0 90px 192px; }
+.home-intro { position: relative; }
+.portrait { position: absolute; top: 104px; left: 0; display: block; width: 152px; height: auto; border-radius: 3px; }
 .eyebrow, .section-label { font-family: var(--mono); font-size: 11px; font-weight: 400; line-height: 1.6; letter-spacing: .055em; }
 .eyebrow { color: var(--accent); margin-bottom: 24px; }
 h1 { font-family: var(--serif); font-size: clamp(64px, 7.7vw, 100px); line-height: 1.02; letter-spacing: -.055em; font-weight: 400; }
@@ -42,6 +44,13 @@ h1 { font-family: var(--serif); font-size: clamp(64px, 7.7vw, 100px); line-heigh
 .editorial-section { display: grid; grid-template-columns: 152px minmax(0, 1fr); gap: 40px; padding: 42px 0 48px; border-top: 1px solid var(--rule); scroll-margin-top: 32px; }
 .section-label { color: var(--muted); padding-top: 4px; }
 .section-body { max-width: 620px; color: #4b4f47; }
+.news-story { max-width: 620px; }
+.news-meta { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.news-story h3 { margin-top: 12px; font-family: var(--serif); font-size: clamp(23px, 2.7vw, 29px); line-height: 1.35; letter-spacing: -.025em; font-weight: 400; }
+.news-story h3 a { text-decoration: none; }
+.news-story h3 a:hover { text-decoration: underline; }
+.news-reprint { margin-top: 18px; color: var(--muted); font-size: 12px; }
+.news-reprint a { display: inline-block; padding: 10px 0; }
 .contact-section { padding-bottom: 74px; }
 .contact-email { display: inline-block; margin-top: 10px; font-family: var(--serif); font-size: clamp(20px, 2.8vw, 30px); letter-spacing: -.03em; color: var(--ink); overflow-wrap: anywhere; }
 .linkedin-link { display: block; width: fit-content; padding: 12px 0; font-family: var(--mono); font-size: 12px; }
@@ -63,6 +72,7 @@ h1 { font-family: var(--serif); font-size: clamp(64px, 7.7vw, 100px); line-heigh
 @media (max-width: 800px) {
   .site-shell { width: calc(100% - 64px); }
   .intro { padding: 72px 0 64px; }
+  .portrait { position: static; width: 144px; margin-bottom: 28px; }
   .editorial-section { grid-template-columns: 112px minmax(0, 1fr); gap: 28px; }
   .site-header { min-height: 96px; }
 }
@@ -72,6 +82,7 @@ h1 { font-family: var(--serif); font-size: clamp(64px, 7.7vw, 100px); line-heigh
   .wordmark { font-size: 24px; }
   .site-nav { gap: 20px; }
   .intro { padding: 60px 0 52px; }
+  .portrait { width: 120px; }
   .eyebrow { font-size: 10px; margin-bottom: 20px; }
   h1 { font-size: clamp(54px, 15vw, 76px); }
   .lead { font-size: 21px; }

@@ -5,8 +5,10 @@ export const dynamic = "force-static";
 export default function Home() {
   return (
     <SiteFrame page="home">
-      <section className="intro" aria-labelledby="intro-title">
-        <p className="eyebrow">Health economics · Data science</p>
+      <section className="intro home-intro" aria-labelledby="intro-title">
+        {/* A pre-sized static image keeps the portrait independent of an image server. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="portrait" src="sibo-zhou.jpg" alt="Sibo Zhou" width={675} height={900} fetchPriority="high" />
         <h1 id="intro-title">Sibo Zhou<span className="name-period">.</span></h1>
         <p className="lead">Education, health, and behavior.<br />Evidence from natural experiments.</p>
         <div className="intro-copy">
@@ -24,6 +26,14 @@ export default function Home() {
           <p>I received my Sc.M. in Data Science from Brown University in 2026. Previously, I studied applied and computational mathematics, economics and data science, religious studies, and global studies at the University of Southern California.</p>
           <p>Before joining Berkeley and the VA, I worked with Prof. Robert Blair at Brown and Prof. Yuehao Bai at USC. I have also taught as a teaching assistant in statistical learning, data engineering, research methods, and data science.</p>
         </div>
+      </section>
+      <section className="editorial-section" aria-labelledby="news-title">
+        <h2 className="section-label" id="news-title">In the news</h2>
+        <article className="news-story">
+          <p className="news-meta">USC Dornsife · <time dateTime="2024-05-02">May 2, 2024</time></p>
+          <h3><a href="https://dornsife.usc.edu/news/stories/international-student-renaissance-scholar-earns-four-bachelors-degrees/">International student graduates with 4 bachelor’s degrees from USC Dornsife <span aria-hidden="true">↗</span></a></h3>
+          <p className="news-reprint"><a href="https://we-are.usc.edu/2024/05/23/international-student-graduates-with-4-bachelors-degrees-from-usc-dornsife/">Also featured in We Are SC</a> · <time dateTime="2024-05-23">May 23, 2024</time></p>
+        </article>
       </section>
       <section className="editorial-section contact-section" aria-labelledby="contact-title">
         <h2 className="section-label" id="contact-title">Get in touch</h2>
