@@ -97,10 +97,17 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       if (chinese) {
         assert.match(markup, traditional ? /擔任研究專員/ : /担任研究专员/);
         assert.doesNotMatch(markup, /初级研究专员/);
-        assert.match(markup, traditional ? /南加州大學 官方網站/ : /南加州大学 官方网站/);
+        assert.match(markup, traditional ? /南加州大學 · / : /南加州大学 · /);
+        assert.doesNotMatch(markup, /官方网站|官方網站/);
         assert.match(markup, traditional ? /南加州大學 Dornsife 文理學院/ : /南加州大学 Dornsife 文理学院/);
         const articles = markup.match(/<article class="news-story">[^]*?<\/article>/g) ?? [];
         assert.equal(articles.length, 2);
+        assert.ok(markup.indexOf(articles[0]) < markup.indexOf(articles[1]));
+        assert.ok(markup.indexOf(articles[1]) < markup.indexOf(reprint));
+        assert.ok(markup.indexOf(reprint) < markup.indexOf(social));
+        assert.match(reprint, traditional ? /^<p class="news-reprint">另見 / : /^<p class="news-reprint">另见 /);
+        assert.match(reprint, traditional ? / 報導<\/p>$/ : / 报道<\/p>$/);
+        assert.match(reprint, />We Are SC<\/a>/);
         assert.match(articles[1], traditional ? /USC南加大中國 微信公眾號/ : /USC南加大中国 微信公众号/);
         assert.match(articles[1], /dateTime="2024-05-14"|datetime="2024-05-14"/);
         assert.match(articles[1], traditional ? /「我只是想不斷探索」｜2024 USC文藝復興學者獎學金得主、優秀畢業生周思博/ : /“我只是想不断探索”｜2024 USC文艺复兴学者奖学金获得者、优秀毕业生周思博/);
