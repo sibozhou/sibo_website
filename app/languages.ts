@@ -2,8 +2,8 @@ export type Language = "en" | "zh" | "zh-hant";
 
 export const languages = [
   { id: "en", path: "", tag: "en", label: "English" },
-  { id: "zh", path: "zh/", tag: "zh-Hans", label: "简体中文版" },
-  { id: "zh-hant", path: "zh-hant/", tag: "zh-Hant", label: "繁體中文版" },
+  { id: "zh", path: "zh/", tag: "zh-Hans", label: "简体中文" },
+  { id: "zh-hant", path: "zh-hant/", tag: "zh-Hant", label: "繁體中文" },
 ] as const;
 
 // Editorial translations, not automatic character conversion.
@@ -29,14 +29,14 @@ const traditional = {
   "与": "與",
   "美国退伍军人事务部": "美國退伍軍人事務部",
   "之前，我曾担任研究助理，与": "之前，我曾擔任研究助理，與",
-  "合作。我也曾在 Rocket Mortgage 担任数据科学实习生，并在安永（EY）担任精算咨询实习生。": "合作。我也曾在 Rocket Mortgage 擔任資料科學實習生，並在安永（EY）擔任精算顧問實習生。",
+  "担任数据科学实习生，并在": "擔任資料科學實習生，並在",
+  "担任精算咨询实习生。": "擔任精算顧問實習生。",
   "荣誉与报道": "榮譽與報導",
-  "南加州大学 官方网站 · ": "南加州大學官方網站 · ",
+  "南加州大学 官方网站 · ": "南加州大學 官方網站 · ",
   "另见 We Are SC 报道": "另見 We Are SC 報導",
   "USC南加大中国 微信公众号 · ": "USC南加大中國 微信公眾號 · ",
   "“我只是想不断探索”｜2024 USC文艺复兴学者奖学金获得者、优秀毕业生周思博": "「我只是想不斷探索」｜2024 USC文藝復興學者獎學金得主、優秀畢業生周思博",
   "南加州大学图书馆 · 学者荣誉墙 · 2024 年": "南加州大學圖書館 · 學者榮譽牆 · 2024 年",
-  "南加州大学 Dornsife Scholar 奖": "南加州大學 Dornsife Scholar 獎",
   "南加州大学 Dornsife 文理学院 · 2024 年获奖者": "南加州大學 Dornsife 文理學院 · 2024 年得獎者",
   "联系我": "聯絡我",
   "作者按姓氏字母顺序排列。": "作者依姓氏字母順序排列。",

@@ -34,8 +34,8 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     const switches = [...markup.matchAll(/<a class="language-switch"[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)];
     const alternatives = [
       { tag: "en", path: "", label: "English" },
-      { tag: "zh-Hans", path: "zh/", label: "简体中文版" },
-      { tag: "zh-Hant", path: "zh-hant/", label: "繁體中文版" },
+      { tag: "zh-Hans", path: "zh/", label: "简体中文" },
+      { tag: "zh-Hant", path: "zh-hant/", label: "繁體中文" },
     ].filter((option) => option.tag !== languageTag);
     assert.equal(switches.length, 2);
     switches.forEach(([, href, label], index) => {
@@ -66,13 +66,14 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.ok(markup.includes(traditional ? "加州大學柏克萊分校哈斯商學院" : chinese ? "加州大学伯克利分校哈斯商学院" : "UC Berkeley Haas"));
       assert.equal(markup.includes("https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw"), chinese);
       assert.match(markup, /Steven and Kathryn Sample Renaissance Scholar Prize/);
+      assert.match(markup, /USC Dornsife Scholar Prize/);
       const background = markup.match(/<section[^>]*aria-labelledby="background-title"[^]*?<\/section>/)?.[0] ?? "";
       assert.match(background, /href="https:\/\/haas.berkeley.edu\/"/);
       assert.match(background, /href="https:\/\/www.va.gov\/"/);
       if (chinese) {
         assert.match(markup, traditional ? /擔任研究專員/ : /担任研究专员/);
         assert.doesNotMatch(markup, /初级研究专员/);
-        assert.match(markup, traditional ? /南加州大學官方網站/ : /南加州大学 官方网站/);
+        assert.match(markup, traditional ? /南加州大學 官方網站/ : /南加州大学 官方网站/);
         assert.match(markup, traditional ? /南加州大學 Dornsife 文理學院/ : /南加州大学 Dornsife 文理学院/);
         const articles = markup.match(/<article class="news-story">[^]*?<\/article>/g) ?? [];
         assert.equal(articles.length, 2);
