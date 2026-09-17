@@ -31,7 +31,7 @@ export default function Research() {
     <SiteFrame page="research">
       <section className="intro research-intro" aria-labelledby="research-title">
         <h1 id="research-title">Research<span className="name-period">.</span></h1>
-        <p className="research-description">My interests span health economics, machine learning, and data science. The work below includes studies of education and health, alongside collaborative research in neuro-oncology.</p>
+        <p className="research-description">My interests span health economics, machine learning, and statistics. The work below includes studies of education and health, alongside collaborative research in neuro-oncology.</p>
         <div className="text-links section-jumps" aria-label="Research sections">
           <a href="#working-papers">Working papers <span aria-hidden="true">↓</span></a>
           <a href="#publications">Publications <span aria-hidden="true">↓</span></a>

@@ -13,7 +13,7 @@ export default function Home() {
         <p className="lead">Understanding people and health through economics and data.</p>
         <div className="intro-copy">
           <p>I am a Predoctoral Scholar at UC Berkeley’s Haas School of Business and a Research Statistician at the U.S. Department of Veterans Affairs, working with Prof. David Chan.</p>
-          <p>My interests span health economics, machine learning, and data science. With a background in mathematics, economics, and the humanities, I am interested in combining quantitative methods with an understanding of human behavior to study health and well-being.</p>
+          <p>My interests span health economics, machine learning, and statistics. With a background in mathematics, economics, and the humanities, I am interested in combining quantitative methods with an understanding of human behavior to study health and well-being.</p>
           <p>I also collaborate with Prof. Eric T. Wong at Brown University on natural-history studies in neuro-oncology.</p>
         </div>
         <div className="text-links">
