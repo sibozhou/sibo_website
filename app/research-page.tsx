@@ -26,7 +26,7 @@ export function ResearchPage({ language = "en" }: { language?: Language }) {
   return (
     <SiteFrame page="research" language={language}>
       <section className="intro research-intro" aria-labelledby="research-title">
-        <h1 id="research-title">{zh ? "研究" : "Research"}{!zh && <span className="name-period">.</span>}</h1>
+        <h1 id="research-title">{zh ? "研究" : "Research"}</h1>
         <p className="research-description">{zh ? t("我的研究兴趣涵盖健康经济学、机器学习与统计学。以下列出我在教育与健康领域的研究，以及参与的神经肿瘤学合作研究。") : "My interests span health economics, machine learning, and statistics. The work below includes studies of education and health, alongside collaborative research in neuro-oncology."}</p>
         <div className="text-links section-jumps" aria-label={zh ? t("研究分类") : "Research sections"}>
           <a href="#working-papers">{zh ? t("工作论文") : "Working papers"}</a>
