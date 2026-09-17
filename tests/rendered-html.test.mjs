@@ -1,47 +1,46 @@
 import assert from "node:assert/strict";
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-const templateRoot = new URL("../", import.meta.url);
+const output = new URL("../dist/client/", import.meta.url);
+const site = "https://sibozhou.github.io/sibo_website/";
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
+for (const route of ["", "research/"]) {
+  test(`static ${route || "home"} page and every local link resolve on GitHub Pages`, async () => {
+    const html = await readFile(new URL(route + "index.html", output), "utf8");
+    const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
+    assert.equal((markup.match(/<h1\b/g) ?? []).length, 1);
+    assert.match(markup, /aria-current="page"/);
+    assert.match(markup, /id="main-content"/);
+    assert.match(markup, /rel="canonical"/);
+    assert.doesNotMatch(markup, /codex-preview|Building your site|213-910-6886|We investigated whether/i);
+    if (route) {
+      assert.match(markup, /Research — Sibo Zhou/);
+      assert.match(markup, /Education selectively improves TB and HIV knowledge/);
+      assert.equal((markup.match(/class="paper"/g) ?? []).length, 4);
+      assert.match(markup, /id="publications"/);
+    } else {
+      assert.match(markup, /Understanding health care decisions/);
+      assert.match(markup, /UC Berkeley/);
+      assert.match(html, /application\/ld\+json/);
+    }
 
-  return worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
-    }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
-    },
-  );
+    for (const [, value] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
+      const url = new URL(value.replaceAll("&amp;", "&"), site + route);
+      if (url.origin !== new URL(site).origin || !["https:", "http:"].includes(url.protocol)) continue;
+      assert.ok(url.pathname.startsWith("/sibo_website/"), `Incorrect base path: ${value}`);
+      const path = url.pathname.slice("/sibo_website/".length);
+      const target = path.endsWith("/") ? path + "index.html" : path;
+      await access(new URL(target, output));
+      if (url.hash && target.endsWith(".html")) {
+        const linkedHtml = await readFile(new URL(target, output), "utf8");
+        assert.ok(linkedHtml.includes('id="' + url.hash.slice(1) + '"'), `Missing anchor: ${value}`);
+      }
+    }
+  });
 }
 
-test("server-renders Sibo Zhou's research profile", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
-
-  const html = await response.text();
-  assert.match(html, /<title>Sibo Zhou — Research<\/title>/i);
-  assert.match(html, /I study decisions in health care/);
-  assert.match(html, /Selected research/);
-  assert.match(html, /Education selectively improves TB and HIV knowledge/);
-  assert.match(html, /Haas School of Business, UC Berkeley/);
-  assert.match(html, /href="Sibo_Zhou_CV\.pdf"/);
-  assert.match(html, /application\/ld\+json/);
-  assert.doesNotMatch(html, /codex-preview|Building your site|react-loading-skeleton/i);
-  assert.doesNotMatch(html, /213-910-6886|We investigated whether/);
-});
-
-test("ships the downloadable CV", async () => {
-  await access(new URL("public/Sibo_Zhou_CV.pdf", templateRoot));
+test("downloadable CV is a PDF", async () => {
+  const pdf = await readFile(new URL("Sibo_Zhou_CV.pdf", output));
+  assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
 });

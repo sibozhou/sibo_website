@@ -37,7 +37,7 @@ jobs:
         run: npm run build
 
       - name: Verify static output
-        run: test -f dist/client/index.html && test -f dist/client/Sibo_Zhou_CV.pdf
+        run: node --test tests/rendered-html.test.mjs
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5

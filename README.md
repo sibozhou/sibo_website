@@ -1,7 +1,14 @@
-# Sibo Zhou — Research
+# Sibo Zhou — Personal Website
 
-A concise academic profile for Sibo Zhou, focused on research, appointments,
-teaching, and a downloadable CV.
+A two-page academic website inspired by Physical Intelligence's restrained
+typography and editorial layout.
+
+- Home: introduction, background, contact details, and downloadable CV.
+- Research: working papers and publications, with status and authorship from the CV.
+
+The supplied CV contains no journal publications or public manuscript links.
+The Research page preserves working-paper status and the conference presentation
+note. Add publication citations and paper links when they are available.
 
 ## Development
 
@@ -19,9 +26,22 @@ npm test
 ```
 
 The site uses Next-compatible React components through vinext and is packaged
-as a static export for GitHub Pages.
+as a static export for GitHub Pages. Both pages are pre-rendered HTML and work
+without JavaScript. There are no runtime API, database, login, or server requirements.
+The inherited Worker tooling is used during the build, not deployed to GitHub Pages.
+
+Edit `app/page.tsx` for Home, `app/research/page.tsx` for papers, and
+`app/globals.css` for the shared design. Replace `public/Sibo_Zhou_CV.pdf`
+to update the downloadable CV.
 
 ## Deployment
 
 Every push to `main` runs the GitHub Pages workflow and publishes `dist/client`
 to [sibozhou.github.io/sibo_website](https://sibozhou.github.io/sibo_website/).
+The Research page is available at `/sibo_website/research/`.
+Repository Settings → Pages must use **GitHub Actions** as its source.
+
+The workflow checks both generated pages, internal navigation, anchors, stylesheet
+and script paths, and the PDF before uploading. An artifact-service failure happens
+after the build and is not evidence of an application error; inspect the failing
+step before changing repository permissions.
