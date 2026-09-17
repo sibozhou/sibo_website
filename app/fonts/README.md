@@ -18,8 +18,13 @@ same fonts as the English pages. These self-hosted subsets cover the Chinese
 characters used in the page content, avoiding third-party requests by visitors.
 System Chinese fonts provide a fallback for new characters until regeneration.
 
+Traditional Chinese uses Noto Sans TC (400 and 500) and Noto Serif TC (400),
+with regional glyph forms matching the Traditional Chinese copy. The editorial
+translations are maintained in `app/languages.ts`.
+
 After changing Chinese copy, run `node scripts/update-chinese-fonts.mjs` to
-regenerate the three page subsets from the official Google Fonts CSS API.
+regenerate all six page subsets from the official Google Fonts CSS API.
 Upstream sans-serif font: https://github.com/google/fonts/tree/main/ofl/notosanssc
 Both families use the SIL Open Font License 1.1. See OFL.txt for Noto Serif SC
 and OFL-NotoSansSC.txt for Noto Sans SC, including their copyright notices.
+For Traditional Chinese, see OFL-NotoSansTC.txt and OFL-NotoSerifTC.txt.

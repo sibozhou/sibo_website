@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
+import { languages, type Language } from "./languages";
 
-export function SiteFrame({ page, language = "en", children }: { page: "home" | "research"; language?: "en" | "zh"; children: ReactNode }) {
+export function SiteFrame({ page, language = "en", children }: { page: "home" | "research"; language?: Language; children: ReactNode }) {
   const root = page === "home" ? "./" : "../";
-  const zh = language === "zh";
+  const zh = language !== "en";
+  const traditional = language === "zh-hant";
   const siteRoot = zh ? root + "../" : root;
   const alternate = siteRoot + (zh ? "" : "zh/") + (page === "research" ? "research/" : "");
   return (
@@ -11,15 +13,19 @@ export function SiteFrame({ page, language = "en", children }: { page: "home" | 
       <div className="site-shell">
         <header className="site-header">
           <a className={zh ? "wordmark wordmark-english" : "wordmark"} href={alternate} hrefLang={zh ? "en" : "zh-Hans"} aria-label={zh ? "Sibo Zhou — Switch to English" : "周思博 — 切换至中文"} title={zh ? "Switch to English" : "切换至中文"}><span lang={zh ? "en" : "zh-Hans"}>{zh ? "Sibo Zhou" : "周思博"}</span></a>
-          <nav className="site-nav" aria-label={zh ? "主导航" : "Primary navigation"}>
-            <a href={root} aria-current={page === "home" ? "page" : undefined}>{zh ? "首页" : "Home"}</a>
+          <nav className="site-nav" aria-label={traditional ? "主要導覽" : zh ? "主导航" : "Primary navigation"}>
+            <a href={root} aria-current={page === "home" ? "page" : undefined}>{traditional ? "首頁" : zh ? "首页" : "Home"}</a>
             <a href={root + "research/"} aria-current={page === "research" ? "page" : undefined}>{zh ? "研究" : "Research"}</a>
           </nav>
         </header>
         <main id="main-content" tabIndex={-1}>{children}</main>
         <footer className="site-footer">
           <p>© {new Date().getFullYear()} {zh ? "周思博" : "Sibo Zhou"}</p>
-          <a className="language-switch" href={alternate} hrefLang={zh ? "en" : "zh-Hans"} lang={zh ? "en" : "zh-Hans"}>{zh ? "Switch to English" : "中文版"}</a>
+          <nav className="language-options" aria-label={traditional ? "語言選擇" : zh ? "语言选择" : "Languages"}>
+            {languages.filter((option) => option.id !== language).map((option) => (
+              <a key={option.id} className="language-switch" href={siteRoot + option.path + (page === "research" ? "research/" : "")} hrefLang={option.tag} lang={option.tag}>{option.label}</a>
+            ))}
+          </nav>
         </footer>
       </div>
     </>

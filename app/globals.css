@@ -1,6 +1,33 @@
 @import "tailwindcss";
 
 @font-face {
+  font-family: "Noto Sans TC";
+  src: url("./fonts/noto-sans-tc-regular-zh.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+3000-303F, U+3400-9FFF, U+FF00-FFEF;
+}
+
+@font-face {
+  font-family: "Noto Sans TC";
+  src: url("./fonts/noto-sans-tc-medium-zh.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  unicode-range: U+3000-303F, U+3400-9FFF, U+FF00-FFEF;
+}
+
+@font-face {
+  font-family: "Noto Serif TC";
+  src: url("./fonts/noto-serif-tc-regular-zh.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+3000-303F, U+3400-9FFF, U+FF00-FFEF;
+}
+
+@font-face {
   font-family: "Noto Sans SC";
   src: url("./fonts/noto-sans-sc-regular-zh.ttf") format("truetype");
   font-style: normal;
@@ -56,8 +83,12 @@ html[lang="zh-Hans"] {
   --serif: "Noto Serif SC", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", SimSun, serif;
   --sans: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
-html[lang="zh-Hans"] h1 { letter-spacing: 0; }
-html[lang="zh-Hans"] .lead { letter-spacing: 0; }
+html[lang="zh-Hant"] {
+  --serif: "Noto Serif TC", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti TC", "PMingLiU", serif;
+  --sans: "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+html:lang(zh) h1 { letter-spacing: 0; }
+html:lang(zh) .lead { letter-spacing: 0; }
 html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
 body { margin: 0; font-family: var(--sans); font-size: var(--type-body); line-height: 1.7; -webkit-font-smoothing: antialiased; }
 ::selection { background: #dce4d6; }
@@ -108,8 +139,10 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .contact-link + .contact-link { margin-top: 12px; }
 .news-meta, .contact-link { line-height: 1.2; text-box-trim: trim-start; text-box-edge: cap alphabetic; }
 .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; border-top: 1px solid var(--rule); padding: 24px 0 36px; color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
-.language-switch { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-left: auto; }
+.language-options { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px 24px; margin-left: auto; }
+.language-switch { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; }
 .language-switch:lang(zh-Hans) { font-family: "Noto Sans SC", var(--sans); }
+.language-switch:lang(zh-Hant) { font-family: "Noto Sans TC", var(--sans); }
 .research-intro { padding-bottom: 60px; }
 .research-description { max-width: 580px; margin-top: 28px; color: var(--ink); font-size: var(--type-body); line-height: 1.7; }
 .section-jumps { margin-top: 24px; }
