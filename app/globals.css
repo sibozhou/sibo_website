@@ -118,6 +118,9 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .lead { margin-top: 30px; font-size: var(--type-lead); line-height: 1.5; letter-spacing: -.015em; }
 .intro-copy { max-width: 620px; margin-top: 30px; color: var(--ink); }
 .intro-copy p + p, .section-body p + p { margin-top: 18px; }
+/* Inline-link treatment: keep typography unchanged and make destinations discoverable. */
+.intro-copy p a, .section-body p a { text-decoration-line: underline; text-decoration-color: rgb(36 38 34 / 35%); text-decoration-thickness: 1px; text-underline-offset: .2em; text-decoration-skip-ink: auto; }
+.intro-copy p a:hover, .intro-copy p a:focus-visible, .section-body p a:hover, .section-body p a:focus-visible { color: var(--accent); text-decoration-color: currentColor; }
 .text-links { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-top: 30px; }
 .text-links a { display: inline-flex; min-height: 44px; align-items: center; gap: 10px; font-family: var(--sans); font-size: var(--type-small); font-weight: 500; }
 .file-label { display: inline-block; color: var(--muted); font-family: var(--sans); font-size: var(--type-small); font-weight: 400; letter-spacing: 0; text-decoration: none; }
@@ -129,7 +132,7 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .news-meta { color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
 .news-story h3 { margin-top: 12px; font-family: var(--serif); font-size: var(--type-heading); line-height: 1.2; letter-spacing: -.02em; font-weight: 400; }
 .news-story h3 a { text-decoration: none; }
-.news-story h3 a:hover { text-decoration: underline; }
+.news-story h3 a:hover, .news-story h3 a:focus-visible { color: var(--accent); text-decoration: underline; }
 .news-reprint { margin-top: 18px; color: var(--muted); font-size: var(--type-small); }
 .news-reprint a { display: inline-block; padding: 10px 0; }
 .social-links { display: flex; gap: 8px; list-style: none; margin: 4px 0 0 -12px; padding: 0; }
@@ -143,7 +146,8 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .social-icon-wechat { mask-image: url("./icons/wechat.svg"); }
 .recognition-links { list-style: none; margin: 24px 0 0; padding: 0; border-top: 1px solid var(--rule); }
 .recognition-links li { padding-top: 18px; }
-.recognition-links a { display: inline-block; padding: 8px 0; font-size: var(--type-small); font-weight: 500; }
+.recognition-links a { display: inline-block; padding: 8px 0; font-size: var(--type-small); font-weight: 500; text-decoration: none; }
+.recognition-links a:hover, .recognition-links a:focus-visible { color: var(--accent); text-decoration: underline; }
 .recognition-links p { color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
 .contact-section { padding-bottom: 74px; }
 .contact-link { display: block; width: fit-content; max-width: 100%; font-family: var(--serif); font-size: var(--type-contact); letter-spacing: -.02em; color: var(--ink); overflow-wrap: anywhere; }
