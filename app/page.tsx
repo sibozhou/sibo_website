@@ -8,10 +8,10 @@ export default function Home() {
       <section className="intro" aria-labelledby="intro-title">
         <p className="eyebrow">Health economics · Data science</p>
         <h1 id="intro-title">Sibo Zhou<span className="name-period">.</span></h1>
-        <p className="lead">Understanding health care decisions.<br />Improving the evidence behind them.</p>
+        <p className="lead">Education, health, and behavior.<br />Evidence from natural experiments.</p>
         <div className="intro-copy">
           <p>I am a Predoctoral Scholar at UC Berkeley’s Haas School of Business and a Research Statistician at the U.S. Department of Veterans Affairs, working with Prof. David Chan.</p>
-          <p>My research uses causal inference and health care data to study physician decision-making and patient outcomes. I also collaborate with Prof. Eric T. Wong at Brown University on natural-history studies in neuro-oncology.</p>
+          <p>My research examines how education shapes health knowledge, disease-related stigma, and health behaviors, using natural experiments and causal inference. I also collaborate with Prof. Eric T. Wong at Brown University on natural-history studies in neuro-oncology.</p>
         </div>
         <div className="text-links">
           <a className="primary-link" href="research/">Explore my research <span aria-hidden="true">↗</span></a>

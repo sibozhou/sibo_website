@@ -4,9 +4,9 @@ import { SiteFrame } from "../site-frame";
 export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Research — Sibo Zhou",
-  description: "Working papers and research by Sibo Zhou on health, education, and clinical outcomes.",
+  description: "Publications and working papers by Sibo Zhou on health, education, and clinical outcomes.",
   alternates: { canonical: "https://sibozhou.github.io/sibo_website/research/" },
-  openGraph: { title: "Research — Sibo Zhou", description: "Working papers on health, education, and clinical outcomes.", url: "https://sibozhou.github.io/sibo_website/research/" },
+  openGraph: { title: "Research — Sibo Zhou", description: "Publications and working papers on health, education, and clinical outcomes.", url: "https://sibozhou.github.io/sibo_website/research/" },
 };
 
 const papers = [
@@ -24,10 +24,6 @@ const papers = [
     title: "The Natural History of Glioblastoma in Multiple Sclerosis Patients",
     authors: <>Nazim Khan*, Rohan Cherukuru*, <strong>Sibo Zhou</strong>, Hsien-Chung Chen, Clark C Chen, Jonathan Cahill, Shiva Gautam, and Eric T. Wong</>,
   },
-  {
-    title: "Diagnostic Considerations for Neurolymphomatosis: A Natural History Analysis",
-    authors: <>Francesca Rothell*, Mary Ann Nguyen*, Elizabeth Xu, Quan Ho, <strong>Sibo Zhou</strong>, Shiva Gautam, and Eric T. Wong</>,
-  },
 ];
 
 export default function Research() {
@@ -36,14 +32,14 @@ export default function Research() {
       <section className="intro research-intro" aria-labelledby="research-title">
         <p className="eyebrow">Working papers &amp; publications</p>
         <h1 id="research-title">Research<span className="name-period">.</span></h1>
-        <p className="research-description">My work spans health economics, causal inference, and clinical outcomes—with a focus on how evidence informs decisions.</p>
+        <p className="research-description">I use natural experiments and causal inference to study education, health knowledge, stigma, and health behaviors. My collaborative work also includes natural-history studies in neuro-oncology.</p>
         <div className="text-links section-jumps" aria-label="Research sections">
           <a href="#working-papers">Working papers <span aria-hidden="true">↓</span></a>
           <a href="#publications">Publications <span aria-hidden="true">↓</span></a>
         </div>
       </section>
       <section className="editorial-section papers-section" id="working-papers" aria-labelledby="working-title">
-        <h2 className="section-label" id="working-title">Working papers<span className="section-count">01—04</span></h2>
+        <h2 className="section-label" id="working-title">Working papers<span className="section-count">01—03</span></h2>
         <div className="paper-list">
           {papers.map((paper, index) => (
             <article className="paper" key={paper.title}>
@@ -57,8 +53,19 @@ export default function Research() {
         </div>
       </section>
       <section className="editorial-section" id="publications" aria-labelledby="publications-title">
-        <h2 className="section-label" id="publications-title">Publications</h2>
-        <div className="section-body"><p>My current manuscripts are listed above as working papers. Published articles will be added here as they become available.</p></div>
+        <h2 className="section-label" id="publications-title">Publications<span className="section-count">2026</span></h2>
+        <div className="paper-list">
+          <article className="paper">
+            <span className="paper-number" aria-hidden="true">01</span>
+            <h3><a href="https://doi.org/10.3390/cancers18132068">Diagnostic Considerations for Neurolymphomatosis: A Natural History Analysis</a></h3>
+            <p className="authors">Francesca Rothell, Mary Ann Nguyen, Elizabeth Xu, Quan Ho, <strong>Sibo Zhou</strong>, Shiva Gautam, and Eric T. Wong</p>
+            <p className="paper-note"><em>Cancers (Basel)</em>. 2026;18(13):2068. Published June 25, 2026.</p>
+            <div className="text-links">
+              <a href="https://doi.org/10.3390/cancers18132068">Read article <span aria-hidden="true">↗</span></a>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/42449612/">PubMed <span aria-hidden="true">↗</span></a>
+            </div>
+          </article>
+        </div>
       </section>
     </SiteFrame>
   );

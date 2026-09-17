@@ -6,9 +6,9 @@ typography and editorial layout.
 - Home: introduction, background, contact details, and downloadable CV.
 - Research: working papers and publications, with status and authorship from the CV.
 
-The supplied CV contains no journal publications or public manuscript links.
-The Research page preserves working-paper status and the conference presentation
-note. Add publication citations and paper links when they are available.
+The Research page lists three working papers and one published article in
+`Cancers (Basel)` (2026), using the CV and the author's updated publication
+citation. The published article links to its DOI and PubMed record.
 
 ## Development
 

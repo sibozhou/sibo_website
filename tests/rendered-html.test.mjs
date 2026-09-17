@@ -19,8 +19,14 @@ for (const route of ["", "research/"]) {
       assert.match(markup, /Education selectively improves TB and HIV knowledge/);
       assert.equal((markup.match(/class="paper"/g) ?? []).length, 4);
       assert.match(markup, /id="publications"/);
+      const workingPapers = markup.match(/<section[^>]*id="working-papers"[\s\S]*?<\/section>/)?.[0] ?? "";
+      const publications = markup.match(/<section[^>]*id="publications"[\s\S]*?<\/section>/)?.[0] ?? "";
+      assert.equal((workingPapers.match(/class="paper"/g) ?? []).length, 3);
+      assert.doesNotMatch(workingPapers, /Diagnostic Considerations for Neurolymphomatosis/);
+      assert.match(publications, /Diagnostic Considerations for Neurolymphomatosis/);
+      assert.match(publications, /https:\/\/doi.org\/10.3390\/cancers18132068/);
     } else {
-      assert.match(markup, /Understanding health care decisions/);
+      assert.match(markup, /Education, health, and behavior/);
       assert.match(markup, /UC Berkeley/);
       assert.match(html, /application\/ld\+json/);
     }
