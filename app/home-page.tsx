@@ -48,7 +48,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
           <article className="news-story">
           <p className="news-meta">{zh ? t("南加州大学 官方网站 · ") : "USC Dornsife · "}<time dateTime="2024-05-02">{zh ? "2024 年 5 月 2 日" : "May 2, 2024"}</time></p>
           <h3 lang="en"><a href="https://dornsife.usc.edu/news/stories/international-student-renaissance-scholar-earns-four-bachelors-degrees/">International student graduates with 4 bachelor’s degrees from USC Dornsife</a></h3>
-          <p className="news-reprint"><a href="https://we-are.usc.edu/2024/05/23/international-student-graduates-with-4-bachelors-degrees-from-usc-dornsife/">{zh ? t("另见 We Are SC 报道") : "Also featured in We Are SC"}</a> · <time dateTime="2024-05-23">{zh ? "2024 年 5 月 23 日" : "May 23, 2024"}</time></p>
+          <p className="news-reprint"><a href="https://we-are.usc.edu/2024/05/23/international-student-graduates-with-4-bachelors-degrees-from-usc-dornsife/">{zh ? t("另见 We Are SC 报道") : "Also featured in We Are SC"}</a>{zh ? "及 " : " and "}<a href="https://dornsife.usc.edu/religion/news-events/">School of Religion</a></p>
           <MediaSocialLinks language={language} />
           </article>
           {zh && (
