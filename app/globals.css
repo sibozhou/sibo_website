@@ -81,7 +81,6 @@ h1 { font-family: var(--serif); font-size: clamp(64px, 7.7vw, 100px); line-heigh
 .authors { margin-top: 16px; font-size: 14px; line-height: 1.8; color: var(--muted); }
 .authors strong { font-weight: 600; color: var(--ink); }
 .paper-note { margin-top: 12px; font-size: 12px; line-height: 1.75; color: var(--muted); }
-.availability-note { font-size: 13px; color: var(--muted); }
 @media (min-width: 1500px) { .site-shell { margin-left: max(56px, calc((100vw - 1200px) / 2)); } }
 @media (max-width: 800px) {
   .site-shell { width: calc(100% - 64px); }

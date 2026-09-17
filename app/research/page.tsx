@@ -48,7 +48,6 @@ export default function Research() {
               {paper.note && <p className="paper-note">{paper.note}</p>}
             </article>
           ))}
-          <p className="availability-note">For inquiries about these papers, <a href="mailto:sibozhou@berkeley.edu">please contact me <span className="link-arrow" aria-hidden="true">↗</span></a>.</p>
         </div>
       </section>
       <section className="editorial-section" id="publications" aria-labelledby="publications-title">
