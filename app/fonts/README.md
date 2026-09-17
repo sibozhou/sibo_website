@@ -9,3 +9,17 @@ Source: https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&text=%E5
 Upstream: https://github.com/google/fonts/tree/main/ofl/notoserifsc
 
 License: SIL Open Font License 1.1; see OFL.txt.
+
+## Chinese pages
+
+Noto Sans SC (400 and 500) is used for Chinese body text and navigation;
+Noto Serif SC (400) is used for Chinese page headings. Latin text retains the
+same fonts as the English pages. These self-hosted subsets cover the Chinese
+characters used in the page content, avoiding third-party requests by visitors.
+System Chinese fonts provide a fallback for new characters until regeneration.
+
+After changing Chinese copy, run `node scripts/update-chinese-fonts.mjs` to
+regenerate the three page subsets from the official Google Fonts CSS API.
+Upstream sans-serif font: https://github.com/google/fonts/tree/main/ofl/notosanssc
+Both families use the SIL Open Font License 1.1. See OFL.txt for Noto Serif SC
+and OFL-NotoSansSC.txt for Noto Sans SC, including their copyright notices.

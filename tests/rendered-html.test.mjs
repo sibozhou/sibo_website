@@ -6,7 +6,7 @@ const output = new URL("../dist/client/", import.meta.url);
 const site = process.env.PAGES_SITE_URL ?? "https://sibozhou.com/";
 const basePath = new URL(site).pathname;
 
-for (const route of ["", "research/"]) {
+for (const route of ["", "research/", "zh/", "zh/research/"]) {
   test(`static ${route || "home"} page and every local link resolve on GitHub Pages`, async () => {
     const html = await readFile(new URL(route + "index.html", output), "utf8");
     const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
@@ -15,8 +15,20 @@ for (const route of ["", "research/"]) {
     assert.match(markup, /id="main-content"/);
     assert.ok(markup.includes('href="https://sibozhou.com/' + route + '"'));
     assert.doesNotMatch(markup, /codex-preview|Building your site|213-910-6886|We investigated whether/i);
-    if (route) {
-      assert.match(markup, /Research — Sibo Zhou/);
+    const chinese = route.startsWith("zh/");
+    const research = route.endsWith("research/");
+    assert.ok(markup.includes(`<html lang="${chinese ? "zh-Hans" : "en"}"`));
+    const alternateRoute = chinese ? route.slice(3) : "zh/" + route;
+    for (const className of ["wordmark", "language-switch"]) {
+      const link = markup.match(new RegExp(`<a class="${className}[^\"]*"[^>]*href="([^\"]+)"[^>]*>([\\s\\S]*?)<\\/a>`));
+      assert.ok(link, `Missing ${className}`);
+      assert.equal(new URL(link[1], site + route).href, site + alternateRoute);
+      assert.ok(link[2].includes(className === "wordmark" ? (chinese ? "Sibo Zhou" : "周思博") : (chinese ? "Switch to English" : "中文版")));
+    }
+    assert.match(markup, /hrefLang="en"|hreflang="en"/);
+    assert.match(markup, /hrefLang="zh-Hans"|hreflang="zh-Hans"/);
+    if (research) {
+      assert.ok(markup.includes(chinese ? "研究 — 周思博" : "Research — Sibo Zhou"));
       assert.match(markup, /Education selectively improves TB and HIV knowledge/);
       assert.equal((markup.match(/class="paper"/g) ?? []).length, 4);
       assert.match(markup, /id="publications"/);
@@ -28,7 +40,13 @@ for (const route of ["", "research/"]) {
       assert.match(publications, /https:\/\/doi.org\/10.3390\/cancers18132068/);
     } else {
       assert.match(markup, /Sibo Zhou/);
-      assert.match(markup, /UC Berkeley/);
+      assert.ok(markup.includes(chinese ? "加州大学伯克利分校哈斯商学院" : "UC Berkeley Haas"));
+      assert.equal(markup.includes("https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw"), chinese);
+      for (const href of ["https://haas.berkeley.edu/", "https://www.va.gov/", "https://haas.berkeley.edu/faculty/david-chan/", "https://neurosurgery.med.brown.edu/people/eric-t-wong-md", "https://home.watson.brown.edu/people/faculty/watson-faculty/robert-blair", "https://dornsife.usc.edu/profile/yuehao-bai/"]) {
+        const link = markup.split(`href="${href}"`)[1]?.split("</a>")[0];
+        assert.ok(link, `Missing biography link: ${href}`);
+        assert.doesNotMatch(link, /link-arrow|↗/);
+      }
       assert.match(html, /application\/ld\+json/);
     }
 
@@ -50,4 +68,12 @@ for (const route of ["", "research/"]) {
 test("downloadable CV is a PDF", async () => {
   const pdf = await readFile(new URL("Sibo_Zhou_CV.pdf", output));
   assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
+});
+
+test("Chinese research preserves English paper titles and authors", async () => {
+  const english = await readFile(new URL("research/index.html", output), "utf8");
+  const chinese = await readFile(new URL("zh/research/index.html", output), "utf8");
+  for (const pattern of [/<h3\b[^>]*>[\s\S]*?<\/h3>/g, /<p class="authors"[^>]*>[\s\S]*?<\/p>/g]) {
+    assert.deepEqual(chinese.match(pattern), english.match(pattern));
+  }
 });

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
+import { languageAlternates } from "../site-metadata";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sibozhou.com/"),
   title: "Sibo Zhou — Health Economics & Statistics",
-  alternates: { canonical: "https://sibozhou.com/" },
+  alternates: languageAlternates("home", "en"),
   description:
     "Sibo Zhou is a predoctoral scholar and research statistician with interests in health economics, machine learning, and statistics.",
   authors: [{ name: "Sibo Zhou" }],

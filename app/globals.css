@@ -1,6 +1,31 @@
 @import "tailwindcss";
 
 @font-face {
+  font-family: "Noto Sans SC";
+  src: url("./fonts/noto-sans-sc-regular-zh.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+3000-303F, U+3400-9FFF, U+FF00-FFEF;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("./fonts/noto-sans-sc-medium-zh.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  unicode-range: U+3000-303F, U+3400-9FFF, U+FF00-FFEF;
+}
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url("./fonts/noto-serif-sc-regular-zh.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+3000-303F, U+3400-9FFF, U+FF00-FFEF;
+}
+
+@font-face {
   font-family: "Noto Serif SC";
   src: url("./fonts/noto-serif-sc-bold-name.ttf") format("truetype");
   font-style: normal;
@@ -27,6 +52,12 @@
   --type-arrow: 12px;
 }
 * { box-sizing: border-box; }
+html[lang="zh-Hans"] {
+  --serif: "Noto Serif SC", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", SimSun, serif;
+  --sans: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+html[lang="zh-Hans"] h1 { letter-spacing: 0; }
+html[lang="zh-Hans"] .lead { letter-spacing: 0; }
 html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
 body { margin: 0; font-family: var(--sans); font-size: var(--type-body); line-height: 1.7; -webkit-font-smoothing: antialiased; }
 ::selection { background: #dce4d6; }
@@ -40,6 +71,7 @@ p, h1, h2, h3 { margin: 0; }
 .site-shell { width: min(960px, calc(100% - 112px)); margin: 0 auto; }
 .site-header { display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 112px; border-bottom: 1px solid var(--rule); }
 .wordmark { font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 27px; font-weight: 700; font-synthesis: none; letter-spacing: .04em; text-decoration: none; }
+.wordmark-english { font-family: var(--serif); font-weight: 400; letter-spacing: -1px; }
 .site-nav { display: flex; gap: 30px; }
 .site-nav a { display: inline-flex; align-items: center; min-height: 44px; font-family: var(--sans); font-size: var(--type-small); font-weight: 500; text-decoration: none; color: var(--ink); }
 .site-nav a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 9px; }
@@ -73,7 +105,10 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .contact-section { padding-bottom: 74px; }
 .contact-link { display: block; width: fit-content; max-width: 100%; font-family: var(--serif); font-size: var(--type-contact); letter-spacing: -.02em; color: var(--ink); overflow-wrap: anywhere; }
 .contact-link + .contact-link { margin-top: 12px; }
+.news-meta, .contact-link { line-height: 1.2; text-box-trim: trim-start; text-box-edge: cap alphabetic; }
 .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; border-top: 1px solid var(--rule); padding: 24px 0 36px; color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
+.language-switch { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-left: auto; }
+.language-switch:lang(zh-Hans) { font-family: "Noto Sans SC", var(--sans); }
 .research-intro { padding-bottom: 60px; }
 .research-description { max-width: 580px; margin-top: 28px; color: var(--ink); font-size: var(--type-body); line-height: 1.7; }
 .section-jumps { margin-top: 24px; }
