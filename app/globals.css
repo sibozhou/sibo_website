@@ -74,7 +74,6 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .contact-link { display: block; width: fit-content; max-width: 100%; font-family: var(--serif); font-size: var(--type-contact); letter-spacing: -.02em; color: var(--ink); overflow-wrap: anywhere; }
 .contact-link + .contact-link { margin-top: 12px; }
 .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; border-top: 1px solid var(--rule); padding: 24px 0 36px; color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
-.site-footer a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
 .research-intro { padding-bottom: 60px; }
 .research-description { max-width: 580px; margin-top: 28px; color: var(--ink); font-size: var(--type-body); line-height: 1.7; }
 .section-jumps { margin-top: 24px; }

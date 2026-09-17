@@ -16,7 +16,6 @@ export function SiteFrame({ page, children }: { page: "home" | "research"; child
         <main id="main-content" tabIndex={-1}>{children}</main>
         <footer className="site-footer">
           <p>© {new Date().getFullYear()} Sibo Zhou</p>
-          <a href={root + "Sibo_Zhou_CV.pdf"}>Curriculum vitae <span className="file-label">PDF</span></a>
         </footer>
       </div>
     </>
