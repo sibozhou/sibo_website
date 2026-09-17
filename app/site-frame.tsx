@@ -19,7 +19,7 @@ export function SiteFrame({ page, language = "en", children }: { page: "home" | 
         <main id="main-content" tabIndex={-1}>{children}</main>
         <footer className="site-footer">
           <p>© {new Date().getFullYear()} {zh ? "周思博" : "Sibo Zhou"}</p>
-          <a className="language-switch" href={alternate} hrefLang={zh ? "en" : "zh-Hans"} lang={zh ? "en" : "zh-Hans"}>{zh ? "Switch to English" : "中文版"} <span className="link-arrow" aria-hidden="true">↗</span></a>
+          <a className="language-switch" href={alternate} hrefLang={zh ? "en" : "zh-Hans"} lang={zh ? "en" : "zh-Hans"}>{zh ? "Switch to English" : "中文版"}</a>
         </footer>
       </div>
     </>

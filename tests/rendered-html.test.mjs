@@ -17,6 +17,9 @@ for (const route of ["", "research/", "zh/", "zh/research/"]) {
     assert.doesNotMatch(markup, /codex-preview|Building your site|213-910-6886|We investigated whether/i);
     const chinese = route.startsWith("zh/");
     const research = route.endsWith("research/");
+    const arrowLinks = [...markup.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>[^]*?<\/a>/g)]
+      .filter(([link]) => /[↗↓→]/.test(link));
+    assert.deepEqual(arrowLinks.map(([, href]) => href), research ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
     assert.ok(markup.includes(`<html lang="${chinese ? "zh-Hans" : "en"}"`));
     const alternateRoute = chinese ? route.slice(3) : "zh/" + route;
     for (const className of ["wordmark", "language-switch"]) {
@@ -42,6 +45,21 @@ for (const route of ["", "research/", "zh/", "zh/research/"]) {
       assert.match(markup, /Sibo Zhou/);
       assert.ok(markup.includes(chinese ? "加州大学伯克利分校哈斯商学院" : "UC Berkeley Haas"));
       assert.equal(markup.includes("https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw"), chinese);
+      assert.match(markup, /Steven and Kathryn Sample Renaissance Scholar Prize/);
+      const background = markup.match(/<section[^>]*aria-labelledby="background-title"[^]*?<\/section>/)?.[0] ?? "";
+      assert.match(background, /href="https:\/\/www.berkeley.edu\/"/);
+      assert.match(background, /href="https:\/\/www.va.gov\/"/);
+      if (chinese) {
+        assert.match(markup, /担任研究专员/);
+        assert.doesNotMatch(markup, /初级研究专员/);
+        assert.match(markup, /南加州大学官网/);
+        assert.match(markup, /南加州大学 Dornsife 文理学院/);
+        const articles = markup.match(/<article class="news-story">[^]*?<\/article>/g) ?? [];
+        assert.equal(articles.length, 2);
+        assert.match(articles[1], /USC南加大中国 微信公众号/);
+        assert.match(articles[1], /dateTime="2024-05-14"|datetime="2024-05-14"/);
+        assert.match(articles[1], /“我只是想不断探索”｜2024 USC文艺复兴学者奖学金获得者、优秀毕业生周思博/);
+      }
       for (const href of ["https://haas.berkeley.edu/", "https://www.va.gov/", "https://haas.berkeley.edu/faculty/david-chan/", "https://neurosurgery.med.brown.edu/people/eric-t-wong-md", "https://home.watson.brown.edu/people/faculty/watson-faculty/robert-blair", "https://dornsife.usc.edu/profile/yuehao-bai/"]) {
         const link = markup.split(`href="${href}"`)[1]?.split("</a>")[0];
         assert.ok(link, `Missing biography link: ${href}`);

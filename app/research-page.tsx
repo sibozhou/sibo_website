@@ -27,8 +27,8 @@ export function ResearchPage({ language = "en" }: { language?: "en" | "zh" }) {
         <h1 id="research-title">{zh ? "研究" : "Research"}{!zh && <span className="name-period">.</span>}</h1>
         <p className="research-description">{zh ? "我的研究兴趣涵盖健康经济学、机器学习与统计学。以下列出我在教育与健康领域的研究，以及参与的神经肿瘤学合作研究。" : "My interests span health economics, machine learning, and statistics. The work below includes studies of education and health, alongside collaborative research in neuro-oncology."}</p>
         <div className="text-links section-jumps" aria-label={zh ? "研究分类" : "Research sections"}>
-          <a href="#working-papers">{zh ? "工作论文" : "Working papers"} <span className="link-arrow" aria-hidden="true">↓</span></a>
-          <a href="#publications">{zh ? "已发表论文" : "Publications"} <span className="link-arrow" aria-hidden="true">↓</span></a>
+          <a href="#working-papers">{zh ? "工作论文" : "Working papers"}</a>
+          <a href="#publications">{zh ? "已发表论文" : "Publications"}</a>
         </div>
       </section>
       <section className="editorial-section papers-section" id="working-papers" aria-labelledby="working-title">
@@ -53,8 +53,8 @@ export function ResearchPage({ language = "en" }: { language?: "en" | "zh" }) {
             <p className="authors" lang="en">Francesca Rothell, Mary Ann Nguyen, Elizabeth Xu, Quan Ho, <strong>Sibo Zhou</strong>, Shiva Gautam, and Eric T. Wong</p>
             <p className="paper-note"><em>Cancers (Basel)</em>. 2026;18(13):2068. {zh ? "发表于 2026 年 6 月 25 日。" : "Published June 25, 2026."}</p>
             <div className="text-links">
-              <a href="https://doi.org/10.3390/cancers18132068">{zh ? "阅读全文" : "Read article"} <span className="link-arrow" aria-hidden="true">↗</span></a>
-              <a href="https://pubmed.ncbi.nlm.nih.gov/42449612/">PubMed <span className="link-arrow" aria-hidden="true">↗</span></a>
+              <a href="https://doi.org/10.3390/cancers18132068">{zh ? "阅读全文" : "Read article"}</a>
+              <a href="https://pubmed.ncbi.nlm.nih.gov/42449612/">PubMed</a>
             </div>
           </article>
         </div>
