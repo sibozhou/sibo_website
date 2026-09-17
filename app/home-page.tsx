@@ -8,9 +8,11 @@ export function HomePage({ language = "en" }: { language?: Language }) {
   return (
     <SiteFrame page="home" language={language}>
       <section className="intro home-intro" aria-labelledby="intro-title">
-        {/* A pre-sized static image keeps the portrait independent of an image server. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="portrait" src={assets + "sibo-zhou.jpg"} alt={zh ? "周思博" : "Sibo Zhou"} width={675} height={900} fetchPriority="high" />
+        <div className="hero-art">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="hero-photo" src={assets + "sibo-zhou-coast.jpg"} alt={zh ? "周思博" : "Sibo Zhou"} width={1012} height={1800} fetchPriority="high" />
+        </div>
+        <div className="hero-content">
         <h1 id="intro-title">{zh ? "周思博" : "Sibo Zhou"}{!zh && <span className="name-period">.</span>}</h1>
         <p className="lead">{zh ? t("以经济学与数据，理解人的行为与健康。") : "Understanding people and health through economics and data."}</p>
         <div className="intro-copy">
@@ -21,6 +23,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
         <div className="text-links">
           <a className="primary-link" href="research/">{zh ? "了解我的研究" : "Explore my research"}</a>
           <a href={assets + "Sibo_Zhou_CV.pdf"}>{zh ? t("个人简历（英文）") : "Curriculum vitae"} <span className="file-label">PDF</span></a>
+        </div>
         </div>
       </section>
       <section className="editorial-section" aria-labelledby="background-title">
