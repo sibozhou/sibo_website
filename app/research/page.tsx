@@ -30,9 +30,8 @@ export default function Research() {
   return (
     <SiteFrame page="research">
       <section className="intro research-intro" aria-labelledby="research-title">
-        <p className="eyebrow">Working papers &amp; publications</p>
         <h1 id="research-title">Research<span className="name-period">.</span></h1>
-        <p className="research-description">I use natural experiments and causal inference to study education, health knowledge, stigma, and health behaviors. My collaborative work also includes natural-history studies in neuro-oncology.</p>
+        <p className="research-description">My interests span health economics, machine learning, and data science. The work below includes studies of education and health, alongside collaborative research in neuro-oncology.</p>
         <div className="text-links section-jumps" aria-label="Research sections">
           <a href="#working-papers">Working papers <span aria-hidden="true">↓</span></a>
           <a href="#publications">Publications <span aria-hidden="true">↓</span></a>

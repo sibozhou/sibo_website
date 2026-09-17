@@ -10,10 +10,11 @@ export default function Home() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="portrait" src="sibo-zhou.jpg" alt="Sibo Zhou" width={675} height={900} fetchPriority="high" />
         <h1 id="intro-title">Sibo Zhou<span className="name-period">.</span></h1>
-        <p className="lead">Education, health, and behavior.<br />Evidence from natural experiments.</p>
+        <p className="lead">Understanding people and health through economics and data.</p>
         <div className="intro-copy">
           <p>I am a Predoctoral Scholar at UC Berkeley’s Haas School of Business and a Research Statistician at the U.S. Department of Veterans Affairs, working with Prof. David Chan.</p>
-          <p>My research examines how education shapes health knowledge, disease-related stigma, and health behaviors, using natural experiments and causal inference. I also collaborate with Prof. Eric T. Wong at Brown University on natural-history studies in neuro-oncology.</p>
+          <p>My interests span health economics, machine learning, and data science. With a background in mathematics, economics, and the humanities, I am interested in combining quantitative methods with an understanding of human behavior to study health and well-being.</p>
+          <p>I also collaborate with Prof. Eric T. Wong at Brown University on natural-history studies in neuro-oncology.</p>
         </div>
         <div className="text-links">
           <a className="primary-link" href="research/">Explore my research <span aria-hidden="true">↗</span></a>

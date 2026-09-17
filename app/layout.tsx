@@ -6,14 +6,14 @@ export const metadata: Metadata = {
   title: "Sibo Zhou — Health Economics & Data Science",
   alternates: { canonical: "https://sibozhou.github.io/sibo_website/" },
   description:
-    "Sibo Zhou studies how education shapes health knowledge, disease-related stigma, and health behaviors using natural experiments and causal inference.",
+    "Sibo Zhou is a predoctoral scholar and research statistician with interests in health economics, machine learning, and data science.",
   authors: [{ name: "Sibo Zhou" }],
   creator: "Sibo Zhou",
   openGraph: {
     title: "Sibo Zhou — Health Economics & Data Science",
     url: "https://sibozhou.github.io/sibo_website/",
     description:
-      "Research on education, health knowledge, stigma, and health behaviors using natural experiments and causal inference.",
+      "Sibo Zhou’s interests in health economics, machine learning, and data science, informed by a background in mathematics, economics, and the humanities.",
     type: "profile",
     firstName: "Sibo",
     lastName: "Zhou",

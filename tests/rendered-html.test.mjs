@@ -26,7 +26,7 @@ for (const route of ["", "research/"]) {
       assert.match(publications, /Diagnostic Considerations for Neurolymphomatosis/);
       assert.match(publications, /https:\/\/doi.org\/10.3390\/cancers18132068/);
     } else {
-      assert.match(markup, /Education, health, and behavior/);
+      assert.match(markup, /Sibo Zhou/);
       assert.match(markup, /UC Berkeley/);
       assert.match(html, /application\/ld\+json/);
     }
