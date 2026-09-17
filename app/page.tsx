@@ -25,16 +25,28 @@ export default function Home() {
         <h2 className="section-label" id="background-title">Background</h2>
         <div className="section-body">
           <p>I received my Sc.M. in Data Science from Brown University in 2026. Previously, I studied applied and computational mathematics, economics and data science, religious studies, and global studies at the University of Southern California.</p>
-          <p>Before joining Berkeley and the VA, I worked with Prof. Robert Blair at Brown and Prof. Yuehao Bai at USC. I have also taught as a teaching assistant in statistical learning, data engineering, research methods, and data science.</p>
+          <p>Before joining Berkeley and the VA, I worked with Prof. Robert Blair at Brown and Prof. Yuehao Bai at USC. I have also taught as a teaching assistant in statistical learning, data engineering, qualitative research methods, and data science.</p>
         </div>
       </section>
       <section className="editorial-section" aria-labelledby="news-title">
-        <h2 className="section-label" id="news-title">In the news</h2>
-        <article className="news-story">
+        <h2 className="section-label" id="news-title">Recognition &amp; media</h2>
+        <div>
+          <article className="news-story">
           <p className="news-meta">USC Dornsife · <time dateTime="2024-05-02">May 2, 2024</time></p>
           <h3><a href="https://dornsife.usc.edu/news/stories/international-student-renaissance-scholar-earns-four-bachelors-degrees/">International student graduates with 4 bachelor’s degrees from USC Dornsife <span aria-hidden="true">↗</span></a></h3>
           <p className="news-reprint"><a href="https://we-are.usc.edu/2024/05/23/international-student-graduates-with-4-bachelors-degrees-from-usc-dornsife/">Also featured in We Are SC</a> · <time dateTime="2024-05-23">May 23, 2024</time></p>
-        </article>
+          </article>
+          <ul className="recognition-links">
+            <li>
+              <a href="https://libraries.usc.edu/wallofscholars?award=1551">USC Renaissance Scholar Prize <span aria-hidden="true">↗</span></a>
+              <p>USC Libraries · Wall of Scholars · 2024</p>
+            </li>
+            <li>
+              <a href="https://dornsife.usc.edu/dornsife-scholars-program/2024-dornsife-scholar-award-recipients/">USC Dornsife Scholar Award <span aria-hidden="true">↗</span></a>
+              <p>USC Dornsife · 2024 recipients</p>
+            </li>
+          </ul>
+        </div>
       </section>
       <section className="editorial-section contact-section" aria-labelledby="contact-title">
         <h2 className="section-label" id="contact-title">Get in touch</h2>
@@ -46,7 +58,7 @@ export default function Home() {
       </section>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context": "https://schema.org", "@type": "Person", name: "Sibo Zhou",
-        url: "https://sibozhou.github.io/sibo_website/",
+        url: "https://sibozhou.com/",
         jobTitle: ["Predoctoral Scholar", "Research Statistician"],
         email: "mailto:sibozhou@berkeley.edu",
         sameAs: ["https://www.linkedin.com/in/sibo-zhou88"],

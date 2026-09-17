@@ -28,15 +28,20 @@ jobs:
           cache: npm
 
       - name: Configure GitHub Pages
+        id: pages
         uses: actions/configure-pages@v6
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build static site
+        env:
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
         run: npm run build
 
       - name: Verify static output
+        env:
+          PAGES_SITE_URL: ${{ steps.pages.outputs.base_url }}/
         run: node --test tests/rendered-html.test.mjs
 
       - name: Upload GitHub Pages artifact

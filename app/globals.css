@@ -51,6 +51,10 @@ h1 { font-family: var(--serif); font-size: clamp(64px, 7.7vw, 100px); line-heigh
 .news-story h3 a:hover { text-decoration: underline; }
 .news-reprint { margin-top: 18px; color: var(--muted); font-size: 12px; }
 .news-reprint a { display: inline-block; padding: 10px 0; }
+.recognition-links { list-style: none; margin: 24px 0 0; padding: 0; border-top: 1px solid var(--rule); }
+.recognition-links li { padding-top: 18px; }
+.recognition-links a { display: inline-block; padding: 8px 0; font-size: 15px; }
+.recognition-links p { color: var(--muted); font-family: var(--mono); font-size: 10px; }
 .contact-section { padding-bottom: 74px; }
 .contact-email { display: inline-block; margin-top: 10px; font-family: var(--serif); font-size: clamp(20px, 2.8vw, 30px); letter-spacing: -.03em; color: var(--ink); overflow-wrap: anywhere; }
 .linkedin-link { display: block; width: fit-content; padding: 12px 0; font-family: var(--mono); font-size: 12px; }

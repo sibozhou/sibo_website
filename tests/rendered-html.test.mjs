@@ -3,7 +3,8 @@ import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const output = new URL("../dist/client/", import.meta.url);
-const site = "https://sibozhou.github.io/sibo_website/";
+const site = process.env.PAGES_SITE_URL ?? "https://sibozhou.com/";
+const basePath = new URL(site).pathname;
 
 for (const route of ["", "research/"]) {
   test(`static ${route || "home"} page and every local link resolve on GitHub Pages`, async () => {
@@ -12,7 +13,7 @@ for (const route of ["", "research/"]) {
     assert.equal((markup.match(/<h1\b/g) ?? []).length, 1);
     assert.match(markup, /aria-current="page"/);
     assert.match(markup, /id="main-content"/);
-    assert.match(markup, /rel="canonical"/);
+    assert.ok(markup.includes('href="https://sibozhou.com/' + route + '"'));
     assert.doesNotMatch(markup, /codex-preview|Building your site|213-910-6886|We investigated whether/i);
     if (route) {
       assert.match(markup, /Research — Sibo Zhou/);
@@ -34,8 +35,8 @@ for (const route of ["", "research/"]) {
     for (const [, value] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
       const url = new URL(value.replaceAll("&amp;", "&"), site + route);
       if (url.origin !== new URL(site).origin || !["https:", "http:"].includes(url.protocol)) continue;
-      assert.ok(url.pathname.startsWith("/sibo_website/"), `Incorrect base path: ${value}`);
-      const path = url.pathname.slice("/sibo_website/".length);
+      assert.ok(url.pathname.startsWith(basePath), `Incorrect base path: ${value}`);
+      const path = url.pathname.slice(basePath.length);
       const target = path.endsWith("/") ? path + "index.html" : path;
       await access(new URL(target, output));
       if (url.hash && target.endsWith(".html")) {

@@ -5,8 +5,8 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Research — Sibo Zhou",
   description: "Publications and working papers by Sibo Zhou on health, education, and clinical outcomes.",
-  alternates: { canonical: "https://sibozhou.github.io/sibo_website/research/" },
-  openGraph: { title: "Research — Sibo Zhou", description: "Publications and working papers on health, education, and clinical outcomes.", url: "https://sibozhou.github.io/sibo_website/research/" },
+  alternates: { canonical: "https://sibozhou.com/research/" },
+  openGraph: { title: "Research — Sibo Zhou", description: "Publications and working papers on health, education, and clinical outcomes.", url: "https://sibozhou.com/research/" },
 };
 
 const papers = [
