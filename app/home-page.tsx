@@ -4,10 +4,10 @@ import { MediaSocialLinks } from "./media-social-links";
 
 const programs = {
   dataScience: "https://graduateprograms.brown.edu/graduate-program/data-science-scm",
-  mathematics: "https://catalogue.usc.edu/preview_program.php?catoid=21&poid=29763&returnto=8873",
-  economics: "https://catalogue.usc.edu/preview_program.php?catoid=21&poid=30612&hl=economics+and+data+science&returnto=search",
-  religion: "https://catalogue.usc.edu/preview_program.php?catoid=21&poid=29825&hl=religion&returnto=search",
-  globalStudies: "https://catalogue.usc.edu/preview_program.php?catoid=21&poid=29609&hl=global+studies&returnto=search",
+  mathematics: "https://catalogue.usc.edu/preview_program.php?catoid=22&poid=31855&hl",
+  economics: "https://catalogue.usc.edu/preview_program.php?catoid=22&poid=32704&hl",
+  religion: "https://catalogue.usc.edu/preview_program.php?catoid=22&poid=31917&hl",
+  globalStudies: "https://catalogue.usc.edu/preview_program.php?catoid=22&poid=31701&hl",
 };
 
 export function HomePage({ language = "en" }: { language?: Language }) {
@@ -39,7 +39,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
         <h2 className="section-label" id="background-title">{zh ? t("教育与经历") : "Background"}</h2>
         <div className="section-body">
           <p>{zh ? <>{t("我于 2026 年获得")}<a href="https://brown.edu/">{t("布朗大学")}</a><a href={programs.dataScience}>{t("数据科学硕士")}</a>{t("学位。此前，我在")}<a href="https://usc.edu/">{t("南加州大学")}</a>{t("学习")}<a href={programs.mathematics}>{t("应用数学")}</a>、<a href={programs.economics}>{t("经济学与数据科学")}</a>、<a href={programs.religion}>{t("宗教学")}</a>及<a href={programs.globalStudies}>全球研究</a>。</> : <>I received my <a href={programs.dataScience}>Sc.M. in Data Science</a> from <a href="https://brown.edu/">Brown University</a> in 2026. Previously, I studied <a href={programs.mathematics}>applied and computational mathematics</a>, <a href={programs.economics}>economics and data science</a>, <a href={programs.religion}>religious studies</a>, and <a href={programs.globalStudies}>global studies</a> at the <a href="https://usc.edu/">University of Southern California</a>.</>}</p>
-          <p>{zh ? <>在加入<a href="https://haas.berkeley.edu/">{t("伯克利哈斯商学院")}</a>{t("与")}<a href="https://www.va.gov/">{t("美国退伍军人事务部")}</a>{t("之前，我曾担任研究助理，与")}<a href="https://brown.edu/">{t("布朗大学")}</a>的 </> : <>Before joining <a href="https://haas.berkeley.edu/">Berkeley Haas</a> and the <a href="https://www.va.gov/">VA</a>, I worked with </>}<a href="https://home.watson.brown.edu/people/faculty/watson-faculty/robert-blair">{zh ? "Robert Blair 教授" : "Prof. Robert Blair"}</a>{zh ? <>及<a href="https://usc.edu/">{t("南加州大学")}</a>的 </> : <> at <a href="https://brown.edu/">Brown</a> and </>}<a href="https://dornsife.usc.edu/profile/yuehao-bai/">{zh ? "Yuehao Bai 教授" : "Prof. Yuehao Bai"}</a>{zh ? <>合作。我也曾在 <a href="https://www.rocketmortgage.com/">Rocket Mortgage</a>{t("担任数据科学实习生，并在")}<a href="https://www.ey.com/zh_cn">安永（EY）</a>{t("担任精算咨询实习生。")}</> : <> at <a href="https://usc.edu/">USC</a> as a Research Assistant. My industry experience includes internships in data science at <a href="https://www.rocketmortgage.com/">Rocket Mortgage</a> and actuarial consulting at <a href="https://www.ey.com/zh_cn">EY</a>.</>}</p>
+          <p>{zh ? <>在加入<a href="https://haas.berkeley.edu/">{t("伯克利哈斯商学院")}</a>{t("与")}<a href="https://www.va.gov/">{t("美国退伍军人事务部")}</a>{t("之前，我曾担任研究助理，与")}<a href="https://brown.edu/">{t("布朗大学")}</a>的 </> : <>Before joining <a href="https://haas.berkeley.edu/">Haas</a> and the <a href="https://www.va.gov/">VA</a>, I worked with </>}<a href="https://home.watson.brown.edu/people/faculty/watson-faculty/robert-blair">{zh ? "Robert Blair 教授" : "Prof. Robert Blair"}</a>{zh ? <>及<a href="https://usc.edu/">{t("南加州大学")}</a>的 </> : <> at <a href="https://brown.edu/">Brown</a> and </>}<a href="https://dornsife.usc.edu/profile/yuehao-bai/">{zh ? "Yuehao Bai 教授" : "Prof. Yuehao Bai"}</a>{zh ? <>合作。我也曾在 <a href="https://www.rocketmortgage.com/">Rocket Mortgage</a>{t("担任数据科学实习生，并在")}<a href="https://www.ey.com/zh_cn">安永（EY）</a>{t("担任精算咨询实习生。")}</> : <> at <a href="https://usc.edu/">USC</a> as a Research Assistant. My industry experience includes internships in data science at <a href="https://www.rocketmortgage.com/">Rocket Mortgage</a> and actuarial consulting at <a href="https://www.ey.com/zh_cn">EY</a>.</>}</p>
         </div>
       </section>
       <section className="editorial-section" aria-labelledby="news-title">
@@ -55,7 +55,6 @@ export function HomePage({ language = "en" }: { language?: Language }) {
               <h3><a href="https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw">{t("“我只是想不断探索”｜2024 USC文艺复兴学者奖学金获得者、优秀毕业生周思博")}</a></h3>
             </article>
           )}
-          <p className="news-reprint">{zh ? t("另见") + " " : "Also featured in "}<a href="https://we-are.usc.edu/2024/05/23/international-student-graduates-with-4-bachelors-degrees-from-usc-dornsife/">We Are SC</a>{zh ? " 及 " : " and "}<a href="https://dornsife.usc.edu/religion/news-events/">School of Religion</a>{zh ? " " + t("报道") : ""}</p>
           <MediaSocialLinks language={language} />
           <ul className="recognition-links">
             <li>

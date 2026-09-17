@@ -70,17 +70,23 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     } else {
       assert.match(markup, /Sibo Zhou/);
       assert.ok(markup.includes(traditional ? "加州大學柏克萊分校哈斯商學院" : chinese ? "加州大学伯克利分校哈斯商学院" : "UC Berkeley Haas"));
-      assert.equal(markup.includes("https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw"), chinese);
+      assert.ok(markup.includes("https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw"));
       assert.match(markup, /Steven and Kathryn Sample Renaissance Scholar Prize/);
       assert.match(markup, /USC Dornsife Scholar Prize/);
       const background = markup.match(/<section[^>]*aria-labelledby="background-title"[^]*?<\/section>/)?.[0] ?? "";
       assert.match(background, /href="https:\/\/haas.berkeley.edu\/"/);
       assert.match(background, /href="https:\/\/www.va.gov\/"/);
-      for (const program of ["graduate-program/data-science-scm", "poid=29763", "poid=30612", "poid=29825", "poid=29609"]) {
+      for (const program of ["graduate-program/data-science-scm", "catoid=22&amp;poid=31855", "catoid=22&amp;poid=32704", "catoid=22&amp;poid=31917", "catoid=22&amp;poid=31701"]) {
         assert.ok(background.includes(program), `Missing program link: ${program}`);
       }
       const social = markup.match(/<ul class="social-links"[^]*?<\/ul>/)?.[0] ?? "";
-      assert.equal((social.match(/<a /g) ?? []).length, 4);
+      assert.equal((social.match(/<a /g) ?? []).length, chinese ? 4 : 5);
+      assert.equal(social.includes("social-icon-wechat"), !chinese);
+      if (!chinese) {
+        const icons = [...social.matchAll(/social-icon social-icon-([a-z]+)/g)].map((match) => match[1]);
+        assert.deepEqual(icons, ["x", "instagram", "linkedin", "facebook", "wechat"]);
+        assert.ok(social.includes("https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw"));
+      }
       for (const platform of ["x", "instagram", "linkedin", "facebook"]) {
         assert.ok(social.includes("social-icon-" + platform));
       }
@@ -90,10 +96,8 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.match(social, /C72E_FaSwvP/);
       assert.match(social, /7192238670182014976-9dWk/);
       assert.equal(social.replace(/<[^>]*>/g, "").trim(), "");
-      assert.equal((social.match(/aria-label="[^"]+"/g) ?? []).length, 5);
-      const reprint = markup.match(/<p class="news-reprint">[^]*?<\/p>/)?.[0] ?? "";
-      assert.match(reprint, /href="https:\/\/dornsife.usc.edu\/religion\/news-events\/"/);
-      assert.doesNotMatch(reprint, /<time/);
+      assert.equal((social.match(/aria-label="[^"]+"/g) ?? []).length, chinese ? 5 : 6);
+      assert.doesNotMatch(markup, /news-reprint|We Are SC|School of Religion/);
       if (chinese) {
         assert.match(markup, traditional ? /擔任研究專員/ : /担任研究专员/);
         assert.doesNotMatch(markup, /初级研究专员/);
@@ -103,11 +107,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
         const articles = markup.match(/<article class="news-story">[^]*?<\/article>/g) ?? [];
         assert.equal(articles.length, 2);
         assert.ok(markup.indexOf(articles[0]) < markup.indexOf(articles[1]));
-        assert.ok(markup.indexOf(articles[1]) < markup.indexOf(reprint));
-        assert.ok(markup.indexOf(reprint) < markup.indexOf(social));
-        assert.match(reprint, traditional ? /^<p class="news-reprint">另見 / : /^<p class="news-reprint">另见 /);
-        assert.match(reprint, traditional ? / 報導<\/p>$/ : / 报道<\/p>$/);
-        assert.match(reprint, />We Are SC<\/a>/);
+        assert.ok(markup.indexOf(articles[1]) < markup.indexOf(social));
         assert.match(articles[1], traditional ? /USC南加大中國 微信公眾號/ : /USC南加大中国 微信公众号/);
         assert.match(articles[1], /dateTime="2024-05-14"|datetime="2024-05-14"/);
         assert.match(articles[1], traditional ? /「我只是想不斷探索」｜2024 USC文藝復興學者獎學金得主、優秀畢業生周思博/ : /“我只是想不断探索”｜2024 USC文艺复兴学者奖学金获得者、优秀毕业生周思博/);
