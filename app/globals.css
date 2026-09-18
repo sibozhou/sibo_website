@@ -189,6 +189,32 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .editorial-section { grid-template-columns: 112px minmax(0, 1fr); gap: 28px; }
   html { --header-height: 72px; }
 }
+/* Tablet widths, plus larger touch-first tablets in landscape. */
+@media screen and (min-width: 541px) and (max-width: 1099px), screen and (min-width: 1100px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  html { --header-height: 72px; --type-title: clamp(48px, 5.5vw, 64px); }
+  .site-shell { width: calc(100% - clamp(64px, 8vw, 96px)); }
+  .site-header, .editorial-section, .site-footer { margin-right: 0; }
+  .intro { padding: 48px 0; }
+  .home-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .85fr); gap: 32px; align-items: center; }
+  .hero-heading { grid-column: 1; grid-row: 1; max-width: none; }
+  .hero-art { position: relative; grid-column: 2; grid-row: 1; inset: auto; width: 100%; height: 340px; margin: 0; clip-path: none; transform: none; mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent); }
+  .hero-photo { object-position: 50% 46%; opacity: .9; }
+  .hero-content { grid-column: 1 / -1; grid-row: 2; width: 100%; max-width: 688px; }
+  .home-intro .intro-copy { max-width: none; margin-top: 0; }
+  .lead { font-size: 22px; }
+  .editorial-section { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 40px 0; }
+  .section-label { display: flex; justify-content: space-between; }
+  .section-count { margin-top: 0; }
+  .section-body, .news-story, .recognition-links, .research-description { max-width: 688px; }
+  .paper { padding-left: 32px; }
+  .contact-link { min-height: 44px; padding: 12px 0; }
+  .contact-link + .contact-link { margin-top: 0; }
+}
+@media screen and (min-width: 541px) and (max-width: 700px) {
+  .home-intro { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .hero-heading, .hero-art, .hero-content { grid-column: 1; grid-row: auto; }
+  .hero-art { height: 320px; }
+}
 @media (max-width: 540px) {
   .site-shell { width: calc(100% - 40px); }
   .site-header, .editorial-section, .site-footer { margin-right: 0; }
