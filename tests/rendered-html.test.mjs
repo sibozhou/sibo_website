@@ -196,7 +196,10 @@ test("coastal-sage text pairings retain readable contrast", async () => {
     const values = [luminance(color(text)), luminance(color(background))].sort((a, b) => a - b);
     assert.ok((values[1] + 0.05) / (values[0] + 0.05) >= 4.5, `${text} on ${background} has insufficient contrast`);
   }
-  assert.match(css, /background: var\(--accent-surface\); color: var\(--ink\)/);
+  assert.match(css, /background: var\(--paper\); color: var\(--ink\)/);
+  assert.match(css, /\.disclosure-toggle::before \{[^}]*background: linear-gradient\(to right, var\(--accent-surface\)[^}]*var\(--paper\) 100%\)/);
+  assert.match(css, /\.disclosure-toggle:hover::before \{ opacity: 0; \}/);
+  assert.match(css, /\.disclosure-toggle, \.disclosure-toggle::before, \.disclosure-panel \{ transition: none; \}/);
 });
 
 test("downloadable CV is a PDF", async () => {
