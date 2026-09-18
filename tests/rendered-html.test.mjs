@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
+import { runInNewContext } from "node:vm";
 
 const output = new URL("../dist/client/", import.meta.url);
 const site = process.env.PAGES_SITE_URL ?? "https://sibozhou.com/";
@@ -9,6 +10,7 @@ const basePath = new URL(site).pathname;
 for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-hant/research/"]) {
   test(`static ${route || "home"} page and every local link resolve on GitHub Pages`, async () => {
     const html = await readFile(new URL(route + "index.html", output), "utf8");
+    assert.match(html, /<head>[^]*?<script id="seasonal-theme">[^]*?<\/script>[^]*?<\/head>/);
     const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
     assert.equal((markup.match(/<h1\b/g) ?? []).length, 1);
     assert.match(markup, /aria-current="page"/);
@@ -198,10 +200,63 @@ test("oxblood text pairings retain readable contrast", async () => {
     const values = [luminance(color(text)), luminance(color(background))].sort((a, b) => a - b);
     assert.ok((values[1] + 0.05) / (values[0] + 0.05) >= 4.5, `${text} on ${background} has insufficient contrast`);
   }
-  assert.match(css, /background: var\(--paper\); color: var\(--paper\)/);
+  assert.match(css, /background: var\(--paper\); color: var\(--bar-label\)/);
   assert.match(css, /\.disclosure-toggle::before \{[^}]*background: linear-gradient\(to right, var\(--accent-surface\)[^}]*var\(--paper\) 100%\)/);
   assert.match(css, /\.disclosure-toggle:hover::before \{ opacity: 0; \}/);
   assert.match(css, /\.disclosure-toggle, \.disclosure-toggle::before, \.disclosure-panel \{ transition: none; \}/);
+});
+
+test("seasonal palette follows all months, midnight boundaries, and resumed pages", async () => {
+  const html = await readFile(new URL("index.html", output), "utf8");
+  const script = html.match(/<script id="seasonal-theme">([^]*?)<\/script>/)?.[1];
+  assert.ok(script);
+  const icon = await readFile(new URL("favicon-summer.svg", output), "utf8");
+  assert.match(icon, /fill="#9AAFA6"/);
+  let now = new Date(2026, 0, 15, 12);
+  let scheduled;
+  let delay;
+  let metadataChanged;
+  const events = {};
+  const root = { dataset: {} };
+  const favicon = { href: "https://sibozhou.com/favicon.svg" };
+  runInNewContext(script, {
+    Date: class extends Date { constructor(...args) { super(...(args.length ? args : [now.getTime()])); } },
+    URL,
+    document: {
+      documentElement: root, head: {}, hidden: false,
+      querySelectorAll: () => [favicon],
+      addEventListener: (name, callback) => { events[name] = callback; },
+    },
+    window: { addEventListener: (name, callback) => { events[name] = callback; } },
+    MutationObserver: class { constructor(callback) { metadataChanged = callback; } observe() {} },
+    setTimeout: (callback, ms) => { scheduled = callback; delay = ms; return 1; },
+    clearTimeout: () => {},
+  });
+  const check = (summer) => {
+    assert.equal(root.dataset.season, summer ? "summer" : "winter");
+    assert.equal(favicon.href, "https://sibozhou.com/" + (summer ? "favicon-summer.svg" : "favicon.svg"));
+    assert.ok(delay > 0 && delay <= 25 * 60 * 60 * 1000);
+  };
+  for (let month = 0; month < 12; month++) {
+    now = new Date(2026, month, 15, 12);
+    events.pageshow();
+    check(month >= 3 && month <= 8);
+  }
+  for (const month of [2, 8]) {
+    now = new Date(2026, month + 1, 1, 0, 0, -1);
+    events.visibilitychange();
+    assert.equal(delay, 1000);
+    check(month === 8);
+    now = new Date(2026, month + 1, 1);
+    scheduled();
+    check(month === 2);
+  }
+  now = new Date(2027, 5, 1);
+  events.visibilitychange();
+  check(true);
+  favicon.href = "https://sibozhou.com/favicon.svg";
+  metadataChanged();
+  check(true);
 });
 
 test("downloadable CV is a PDF", async () => {

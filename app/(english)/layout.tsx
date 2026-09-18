@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../globals.css";
 import { languageAlternates } from "../site-metadata";
+import { SeasonalTheme } from "../seasonal-theme";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sibozhou.com/"),
@@ -32,7 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head><SeasonalTheme /></head>
       <body>{children}</body>
     </html>
   );
