@@ -126,7 +126,7 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .section-label { color: var(--ink); padding-top: 4px; }
 .section-body { max-width: 620px; color: var(--ink); }
 .news-story { max-width: 620px; }
-.news-story + .news-story { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--rule); }
+.news-story + .news-story { margin-top: 28px; padding-top: 28px; }
 .news-meta { color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
 .news-story h3 { margin-top: 12px; font-family: var(--serif); font-size: var(--type-heading); line-height: 1.2; letter-spacing: -.02em; font-weight: 400; }
 .news-story h3 a { text-decoration: none; }
