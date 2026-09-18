@@ -166,7 +166,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 }
 .disclosure-panel { display: grid; grid-template-rows: 0fr; visibility: hidden; opacity: 0; transition: grid-template-rows 320ms cubic-bezier(.22, 1, .36, 1), opacity 240ms ease, visibility 320ms; }
 .disclosure-clip { min-height: 0; overflow: hidden; }
-.disclosure-content { margin-left: var(--disclosure-indent); padding-bottom: calc(var(--disclosure-space) - 4px); }
+.disclosure-content { margin-left: var(--disclosure-indent); padding-top: 4px; padding-bottom: calc(var(--disclosure-space) - 4px); }
 .home-disclosure[data-open="true"] .disclosure-toggle { background: var(--paper); color: var(--accent); }
 .home-disclosure[data-open="true"] .disclosure-panel { grid-template-rows: 1fr; visibility: visible; opacity: 1; }
 .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; border-top: 1px solid var(--rule); padding: 24px 0 36px; color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
