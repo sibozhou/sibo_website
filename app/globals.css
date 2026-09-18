@@ -112,7 +112,7 @@ p, h1, h2, h3 { margin: 0; }
 .site-nav a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 9px; }
 .intro { padding: 96px 0 80px 192px; }
 .home-intro { position: relative; isolation: isolate; }
-.hero-art { position: absolute; top: 0; bottom: 0; right: -56px; width: 54%; pointer-events: none; clip-path: inset(0 4% 0 0); transform: translateY(-20px); mask-image: linear-gradient(to right, transparent 6%, rgba(0, 0, 0, .06) 18%, rgba(0, 0, 0, .2) 30%, rgba(0, 0, 0, .4) 42%, rgba(0, 0, 0, .65) 50%, rgba(0, 0, 0, .85) 56%, rgba(0, 0, 0, .96) 60%, #000 62%), linear-gradient(to bottom, transparent, #000 14%, #000 76%, transparent); mask-composite: intersect; }
+.hero-art { position: absolute; top: 0; bottom: 0; right: -56px; width: 54%; pointer-events: none; clip-path: inset(0 4% 0 0); transform: translateY(-20px); mask-image: linear-gradient(to right, transparent 6%, rgba(0, 0, 0, .06) 18%, rgba(0, 0, 0, .2) 30%, rgba(0, 0, 0, .4) 42%, rgba(0, 0, 0, .65) 50%, rgba(0, 0, 0, .85) 56%, rgba(0, 0, 0, .96) 60%, #000 62%), linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent); mask-composite: intersect; }
 .hero-photo { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 52% 48%; filter: saturate(.9) contrast(.98); opacity: .86; }
 .hero-heading, .hero-content { position: relative; z-index: 1; max-width: 560px; }
 .eyebrow, .section-label { font-family: var(--sans); font-size: var(--type-small); font-weight: 500; line-height: 1.6; letter-spacing: 0; }
@@ -173,7 +173,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 @media screen and (min-width: 801px) {
   .site-shell { width: calc(100% - clamp(64px, 8vw, 144px)); }
   .site-header, .editorial-section, .site-footer { margin-right: 0; }
-  .hero-art { right: 0; width: min(54%, 680px); clip-path: none; }
+  .hero-art { right: 0; bottom: -20px; width: min(54%, 680px); clip-path: none; }
   .hero-heading, .hero-content { max-width: 640px; }
   .intro-copy { max-width: none; }
   .section-body, .news-story, .recognition-links { max-width: 688px; }
