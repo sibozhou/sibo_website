@@ -13,11 +13,17 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     assert.equal((markup.match(/<h1\b/g) ?? []).length, 1);
     assert.match(markup, /aria-current="page"/);
     assert.match(markup, /id="main-content"/);
+    const favicon = markup.match(/<link\b(?=[^>]*rel="icon")[^>]*>/)?.[0] ?? "";
+    assert.match(favicon, /type="image\/svg\+xml"/);
+    assert.equal(new URL(favicon.match(/href="([^"]+)"/)?.[1] ?? "", site + route).href, "https://sibozhou.com/favicon.svg");
     assert.ok(markup.includes('href="https://sibozhou.com/' + route + '"'));
     assert.doesNotMatch(markup, /codex-preview|Building your site|213-910-6886|We investigated whether/i);
     const traditional = route.startsWith("zh-hant/");
     const chinese = traditional || route.startsWith("zh/");
     const research = route.endsWith("research/");
+    const title = research ? chinese ? "研究 — 周思博" : "Research — Sibo Zhou" : traditional ? "認識周思博" : chinese ? "认识周思博" : "Meet Sibo Zhou";
+    assert.ok(markup.includes(`<title>${title}</title>`));
+    assert.ok(markup.includes(`property="og:title" content="${title}"`));
     const arrowLinks = [...markup.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>[^]*?<\/a>/g)]
       .filter(([link]) => /[↗↓→]/.test(link));
     assert.deepEqual(arrowLinks.map(([, href]) => href), research ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
@@ -155,6 +161,12 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     }
   });
 }
+
+test("favicon is the muted-oxblood circle", async () => {
+  const icon = await readFile(new URL("favicon.svg", output), "utf8");
+  assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#754C47"/);
+  assert.doesNotMatch(icon, /<path/);
+});
 
 test("downloadable CV is a PDF", async () => {
   const pdf = await readFile(new URL("Sibo_Zhou_CV.pdf", output));
