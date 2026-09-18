@@ -78,17 +78,15 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.doesNotMatch(intro, /natural-history|自然病程|My interests span|我的研究兴趣|我的研究興趣/);
       const copy = intro.match(/<div class="intro-copy">[^]*?<\/div>/)?.[0] ?? "";
       const paragraphs = [...copy.matchAll(/<p>([^]*?)<\/p>/g)].map(([, paragraph]) => paragraph.replace(/<[^>]*>/g, ""));
-      assert.equal(paragraphs.length, 3);
+      assert.equal(paragraphs.length, 2);
       if (!chinese) {
         assert.deepEqual(paragraphs, [
           "I am a Predoctoral Scholar at UC Berkeley Haas and a Research Statistician at the VA, working with Prof. David Chan on health economics research.",
           "I also collaborate with Prof. Eric T. Wong at Brown University on studies in neuro-oncology.",
-          "With a background in the sciences and the humanities, I am interested in combining quantitative methods with an understanding of human behavior to study health and well-being.",
         ]);
       } else {
         assert.match(paragraphs[0], /David Chan/);
         assert.match(paragraphs[1], /Eric T. Wong/);
-        assert.match(paragraphs[2], traditional ? /理科與人文學科.*健康與福祉/ : /理科与人文学科.*健康与福祉/);
       }
       assert.ok(markup.includes(traditional ? "加州大學柏克萊分校哈斯商學院" : chinese ? "加州大学伯克利分校哈斯商学院" : "UC Berkeley Haas"));
       assert.ok(markup.includes("https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw"));
