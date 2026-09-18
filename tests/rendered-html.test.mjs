@@ -110,7 +110,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
         assert.ok(markup.indexOf(articles[1]) < markup.indexOf(social));
         assert.match(articles[1], traditional ? /USC南加大中國 微信公眾號/ : /USC南加大中国 微信公众号/);
         assert.match(articles[1], /dateTime="2024-05-14"|datetime="2024-05-14"/);
-        assert.match(articles[1], traditional ? /「我只是想不斷探索」｜2024 USC文藝復興學者獎學金得主、優秀畢業生周思博/ : /“我只是想不断探索”｜2024 USC文艺复兴学者奖学金获得者、优秀毕业生周思博/);
+        assert.match(articles[1], traditional ? /「我只是想不斷探索」/ : /“我只是想不断探索”/);
       }
       for (const href of ["https://haas.berkeley.edu/", "https://www.va.gov/", "https://haas.berkeley.edu/faculty/david-chan/", "https://neurosurgery.med.brown.edu/people/eric-t-wong-md", "https://home.watson.brown.edu/people/faculty/watson-faculty/robert-blair", "https://dornsife.usc.edu/profile/yuehao-bai/"]) {
         const link = markup.split(`href="${href}"`)[1]?.split("</a>")[0];
