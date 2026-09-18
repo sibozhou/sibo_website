@@ -69,6 +69,14 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       }
     } else {
       assert.match(markup, /Sibo Zhou/);
+      const intro = markup.match(/<section[^>]*aria-labelledby="intro-title"[^]*?<\/section>/)?.[0] ?? "";
+      const heading = intro.indexOf('class="hero-heading"');
+      const portrait = intro.indexOf('class="hero-art"');
+      const biography = intro.indexOf('class="hero-content"');
+      assert.ok(heading >= 0 && heading < portrait && portrait < biography, "Identity must precede the mobile portrait and biography");
+      assert.match(intro, /sibo-zhou-coast\.jpg/);
+      assert.match(intro, chinese ? traditional ? /健康經濟學、機器學習與統計學/ : /健康经济学、机器学习与统计学/ : /health economics, machine learning, and statistics/);
+      assert.doesNotMatch(intro, /natural-history|自然病程|on studies in/);
       assert.ok(markup.includes(traditional ? "加州大學柏克萊分校哈斯商學院" : chinese ? "加州大学伯克利分校哈斯商学院" : "UC Berkeley Haas"));
       assert.ok(markup.includes("https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw"));
       assert.match(markup, /Steven and Kathryn Sample Renaissance Scholar Prize/);
@@ -76,6 +84,8 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       const background = markup.match(/<section[^>]*aria-labelledby="background-title"[^]*?<\/section>/)?.[0] ?? "";
       assert.match(background, /href="https:\/\/haas.berkeley.edu\/"/);
       assert.match(background, /href="https:\/\/www.va.gov\/"/);
+      assert.match(background, chinese ? traditional ? /取得四個學士學位/ : /获得四个学士学位/ : /four bachelor’s degrees/);
+      assert.equal((background.match(/<p>/g) ?? []).length, 3, "Education, academic experience, and industry experience remain distinct paragraphs");
       for (const program of ["graduate-program/data-science-scm", "catoid=22&amp;poid=31855", "catoid=22&amp;poid=32704", "catoid=22&amp;poid=31917", "catoid=22&amp;poid=31701"]) {
         assert.ok(background.includes(program), `Missing program link: ${program}`);
       }
