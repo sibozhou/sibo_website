@@ -26,7 +26,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
         <p className="lead">{zh ? t("以经济学与数据，理解人的行为与健康。") : "Understanding people and health through economics and data."}</p>
         <div className="intro-copy">
           <p>{zh ? "我目前在" : "I am a Predoctoral Scholar at "}<a href="https://haas.berkeley.edu/">{zh ? t("加州大学伯克利分校哈斯商学院") : "UC Berkeley Haas"}</a>{zh ? t("担任研究专员，同时在") : " and a Research Statistician at the "}<a href="https://www.va.gov/">{zh ? t("美国退伍军人事务部（VA）") : "VA"}</a>{zh ? t("担任研究统计师，与 ") : ", working with "}<a href="https://haas.berkeley.edu/faculty/david-chan/">{zh ? "David Chan 教授" : "Prof. David Chan"}</a>{zh ? t("合作开展健康经济学研究。") : " on health economics research. "}{zh ? <>{t("此外，我与")}<a href="https://brown.edu/">{t("布朗大学")}</a>的 </> : "I also collaborate with "}<a href="https://neurosurgery.med.brown.edu/people/eric-t-wong-md">{zh ? "Eric T. Wong 教授" : "Prof. Eric T. Wong"}</a>{zh ? t("合作，开展神经肿瘤疾病研究。") : <> at <a href="https://brown.edu/">Brown University</a> on studies in neuro-oncology.</>}</p>
-          <p>{zh ? t("数学、经济学与人文学科的学习经历，使我关注如何将定量方法与对人类行为的理解相结合，探索健康与福祉相关的问题。") : "With a background in mathematics, economics, and the humanities, I am interested in combining quantitative methods with an understanding of human behavior to study health and well-being."}</p>
+          <p>{zh ? t("数理与人文学科的学习经历，使我关注如何将定量方法与对人类行为的理解相结合，探索健康与福祉相关的问题。") : "With a background in the sciences and the humanities, I am interested in combining quantitative methods with an understanding of human behavior to study health and well-being."}</p>
         </div>
         <div className="text-links">
           <a className="primary-link" href="research/">{zh ? "了解我的研究" : "Explore my research"}</a>
