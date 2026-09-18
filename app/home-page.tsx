@@ -51,7 +51,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
           {zh && (
             <article className="news-story">
               <p className="news-meta">{t("USC南加大中国 微信公众号 · ")}<time dateTime="2024-05-14">2024 年 5 月 14 日</time></p>
-              <h3><a href="https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw">{t("“我只是想不断探索”｜2024 USC文艺复兴学者奖学金获得者、优秀毕业生周思博")}</a></h3>
+              <h3><a href="https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw">{t("“我只是想不断探索”")}</a></h3>
             </article>
           )}
           <MediaSocialLinks language={language} />
