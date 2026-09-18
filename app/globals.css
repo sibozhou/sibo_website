@@ -166,6 +166,7 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .authors { margin-top: 16px; font-size: var(--type-small); line-height: 1.7; color: var(--muted); }
 .authors strong { font-weight: 600; color: var(--ink); }
 .paper-note { margin-top: 12px; font-size: var(--type-small); line-height: 1.7; color: var(--muted); }
+.site-shell a:not(.social-links a, .contact-link):is(:hover, :focus-visible) { color: var(--accent); text-decoration-line: underline; text-decoration-thickness: max(1px, .05em); text-decoration-color: currentColor; text-decoration-skip-ink: auto; }
 @media (min-width: 1500px) { .site-shell { margin-left: max(56px, calc((100vw - 1200px) / 2)); } }
 @media (max-width: 800px) {
   .site-shell { width: calc(100% - 64px); }
