@@ -57,6 +57,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.match(main, research ? /工作論文/ : /資料科學/);
     }
     if (research) {
+      assert.doesNotMatch(markup, /class="disclosure-toggle"/);
       assert.ok(markup.includes(chinese ? "研究 — 周思博" : "Research — Sibo Zhou"));
       assert.match(markup, /Education selectively improves TB and HIV knowledge/);
       assert.equal((markup.match(/class="paper"/g) ?? []).length, 4);
@@ -74,6 +75,19 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
         assert.match(markup, /Equal contribution/);
       }
     } else {
+      assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 3);
+      for (const id of ["background", "news", "contact"]) {
+        const section = markup.match(new RegExp(`<section[^>]*aria-labelledby="${id}-title"[^]*?<\\/section>`))?.[0] ?? "";
+        assert.match(section, /data-open="false"/);
+        const button = section.match(/<button\b[^>]*>/)?.[0] ?? "";
+        assert.match(button, /type="button"/);
+        assert.match(button, /aria-expanded="false"/);
+        assert.ok(button.includes(`aria-controls="${id}-content"`));
+        const panel = section.match(/<div class="disclosure-panel"[^>]*>/)?.[0] ?? "";
+        assert.ok(panel.includes(`id="${id}-content"`));
+        assert.match(panel, /inert=""/);
+        assert.match(panel, /aria-hidden="true"/);
+      }
       assert.match(markup, /Sibo Zhou/);
       const intro = markup.match(/<section[^>]*aria-labelledby="intro-title"[^]*?<\/section>/)?.[0] ?? "";
       const heading = intro.indexOf('class="hero-heading"');
