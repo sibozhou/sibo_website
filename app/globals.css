@@ -113,6 +113,27 @@ p, h1, h2, h3 { margin: 0; }
 .site-header::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--paper); box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax); pointer-events: none; }
 .wordmark { font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 27px; font-weight: 700; font-synthesis: none; letter-spacing: .04em; text-decoration: none; }
 .wordmark-english { font-family: var(--serif); font-weight: 400; letter-spacing: -1px; }
+/* Two soft edges travel left to right; each quarter of the loop lasts 4s. */
+@keyframes wordmark-color-sweep {
+  0%, 25% { background-position: 100% 0; }
+  50%, 75% { background-position: 50% 0; }
+  100% { background-position: 0% 0; }
+}
+@media screen and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .wordmark > span {
+      display: inline-block;
+      background-image: linear-gradient(to right, var(--ink) 27.777778%, var(--accent-surface) 36.111111%, var(--accent-surface) 63.888889%, var(--ink) 72.222222%);
+      background-size: 360% 100%;
+      background-position: 100% 0;
+      background-repeat: no-repeat;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: wordmark-color-sweep 16s ease-in-out infinite;
+    }
+  }
+}
 .site-nav { display: flex; gap: 30px; }
 .site-nav a { display: inline-flex; align-items: center; min-height: 44px; font-family: var(--sans); font-size: var(--type-small); font-weight: 500; text-decoration: none; color: var(--ink); }
 .site-nav a[aria-current="page"] { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 9px; }

@@ -264,6 +264,23 @@ test("downloadable CV is a PDF", async () => {
   assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
 });
 
+test("wordmark has four-second holds and left-to-right seasonal color sweeps", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /animation: wordmark-color-sweep 16s ease-in-out infinite/);
+  assert.match(css, /0%, 25% \{ background-position: 100% 0; \}/);
+  assert.match(css, /50%, 75% \{ background-position: 50% 0; \}/);
+  assert.match(css, /100% \{ background-position: 0% 0; \}/);
+  assert.match(css, /@media screen and \(prefers-reduced-motion: no-preference\) and \(forced-colors: none\)/);
+  const stops = css.match(/background-image: linear-gradient\(to right, var\(--ink\) ([\d.]+)%, var\(--accent-surface\) ([\d.]+)%, var\(--accent-surface\) ([\d.]+)%, var\(--ink\) ([\d.]+)%\)/);
+  assert.ok(stops);
+  // With a 360%-wide strip, these boundaries create three full-width
+  // solid regions and 30%-of-text-width transitions between them.
+  const boundaries = stops.slice(1).map((value) => Number(value) * 3.6);
+  [100, 130, 230, 260].forEach((expected, index) => {
+    assert.ok(Math.abs(boundaries[index] - expected) < 0.00001);
+  });
+});
+
 test("Chinese research preserves English paper titles and authors", async () => {
   const english = await readFile(new URL("research/index.html", output), "utf8");
   for (const route of ["zh/", "zh-hant/"]) {
