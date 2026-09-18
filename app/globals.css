@@ -160,7 +160,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 .editorial-section.home-disclosure { --disclosure-space: 52px; --disclosure-indent: 192px; --disclosure-bleed: clamp(32px, 4vw, 72px); display: block; padding: 0; }
 .home-disclosure[data-open="false"] { border-top: 0; }
 .disclosure-toggle { position: relative; isolation: isolate; display: flex; width: calc(100% + 2 * var(--disclosure-bleed)); margin-inline: calc(0px - var(--disclosure-bleed)); align-items: center; justify-content: space-between; gap: 24px; padding: var(--disclosure-space) calc(24px + var(--disclosure-bleed)) var(--disclosure-space) var(--disclosure-bleed); border: 0; border-radius: 0; background: var(--paper); color: var(--ink); text-align: left; cursor: pointer; transition: color 320ms ease; }
-.disclosure-toggle::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(to right, var(--accent-surface) 0%, color-mix(in srgb, var(--accent-surface) 72%, var(--paper)) 32%, color-mix(in srgb, var(--accent-surface) 28%, var(--paper)) 68%, var(--paper) 100%); opacity: 1; transition: opacity 320ms ease; }
+.disclosure-toggle::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(to right, var(--accent-surface) 0%, color-mix(in srgb, var(--accent-surface) 55%, var(--paper)) 28%, color-mix(in srgb, var(--accent-surface) 14%, var(--paper)) 60%, var(--paper) 90%, var(--paper) 100%); opacity: 1; transition: opacity 320ms ease; }
 .disclosure-toggle .section-label { padding: 0; color: inherit; }
 .disclosure-toggle:focus-visible { background: var(--paper); color: var(--accent); outline: 2px solid currentColor; outline-offset: -6px; }
 .disclosure-toggle:focus-visible::before, .home-disclosure[data-open="true"] .disclosure-toggle::before { opacity: 0; }
@@ -174,6 +174,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 .home-disclosure[data-open="true"] .disclosure-toggle { background: var(--paper); color: var(--accent); }
 .home-disclosure[data-open="true"] .disclosure-panel { grid-template-rows: 1fr; visibility: visible; opacity: 1; }
 .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; border-top: 1px solid var(--rule); padding: 24px 0 36px; color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
+#main-content:has(> .home-disclosure[aria-labelledby="contact-title"][data-open="false"]) + .site-footer { border-top: 0; }
 .language-options { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px 24px; margin-left: auto; }
 .language-switch { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; }
 .language-switch:lang(zh-Hans) { font-family: "Noto Sans SC", var(--sans); }
