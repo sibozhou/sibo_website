@@ -176,7 +176,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .hero-art { right: 0; width: min(54%, 680px); clip-path: none; }
   .hero-heading, .hero-content { max-width: 640px; }
   .intro-copy { max-width: none; }
-  .section-body, .news-story { max-width: 720px; }
+  .section-body, .news-story, .recognition-links { max-width: 688px; }
   .research-description { max-width: 680px; }
   .paper h3, .authors, .paper-note { max-width: 760px; }
 }
