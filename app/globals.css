@@ -100,6 +100,8 @@ p, h1, h2, h3 { margin: 0; }
 .skip-link { position: fixed; top: 12px; left: 12px; z-index: 10; padding: 8px 16px; background: var(--ink); color: var(--paper); transform: translateY(-160%); }
 .skip-link:focus { transform: translateY(0); color: var(--paper); }
 .site-shell { width: min(960px, calc(100% - 112px)); margin: 0 auto; }
+/* Extend the page edge to the photo's 96% mask stop without resizing its intro. */
+.site-header, .editorial-section, .site-footer { margin-right: calc(2.16% - 56px); }
 .site-header { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: var(--header-height); background: var(--paper); }
 .site-header::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--paper); box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax); pointer-events: none; }
 .wordmark { font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 27px; font-weight: 700; font-synthesis: none; letter-spacing: .04em; text-decoration: none; }
@@ -169,6 +171,7 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 @media (min-width: 1500px) { .site-shell { margin-left: max(56px, calc((100vw - 1200px) / 2)); } }
 @media (max-width: 800px) {
   .site-shell { width: calc(100% - 64px); }
+  .site-header, .editorial-section, .site-footer { margin-right: calc(2.32% - 32px); }
   .intro { padding: 72px 0 64px; }
   .hero-art { right: -32px; width: 58%; mask-image: linear-gradient(to right, transparent 15%, rgba(0, 0, 0, .04) 26%, rgba(0, 0, 0, .15) 40%, rgba(0, 0, 0, .36) 54%, rgba(0, 0, 0, .62) 65%, rgba(0, 0, 0, .84) 73%, rgba(0, 0, 0, .96) 77%, #000 80%, #000 96%, transparent), linear-gradient(to bottom, transparent, #000 14%, #000 76%, transparent); }
   .hero-content { max-width: 78%; }
@@ -177,6 +180,7 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 }
 @media (max-width: 540px) {
   .site-shell { width: calc(100% - 40px); }
+  .site-header, .editorial-section, .site-footer { margin-right: 0; }
   html { --header-height: 84px; }
   .wordmark { font-size: 24px; }
   .site-nav { gap: 20px; }
@@ -197,6 +201,7 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 @media print {
   html { background: white; }
+  .site-header, .editorial-section, .site-footer { margin-right: 0; }
   .site-header { position: static; background: transparent; }
   .site-header::before { display: none; }
   .site-shell { width: 100%; }
