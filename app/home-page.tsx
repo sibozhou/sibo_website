@@ -63,7 +63,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
             </li>
             <li>
               <a href="https://dornsife.usc.edu/dornsife-scholars-program/2024-dornsife-scholar-award-recipients/">USC Dornsife Scholar Prize</a>
-              <p>{zh ? t("南加州大学 Dornsife 文理学院 · 2024 年获奖者") : "USC Dornsife · 2024 recipients"}</p>
+              <p>{zh ? t("南加州大学 Dornsife 文理学院 · 2024 年") : "USC Dornsife · 2024"}</p>
             </li>
           </ul>
         </div>
