@@ -29,7 +29,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       const link = markup.match(new RegExp(`<a class="${className}[^\"]*"[^>]*href="([^\"]+)"[^>]*>([\\s\\S]*?)<\\/a>`));
       assert.ok(link, `Missing ${className}`);
       assert.equal(new URL(link[1], site + route).href, site + alternateRoute);
-      assert.ok(link[2].includes(chinese ? "Sibo Zhou" : "周思博"));
+      assert.equal(link[2].replace(/<[^>]*>/g, ""), chinese ? "Sibo" : "思博");
     }
     const switches = [...markup.matchAll(/<a class="language-switch"[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)];
     const alternatives = [
