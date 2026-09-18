@@ -155,6 +155,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 .contact-link + .contact-link { margin-top: 12px; }
 .news-meta, .contact-link { line-height: 1.2; text-box-trim: trim-start; text-box-edge: cap alphabetic; }
 .editorial-section.home-disclosure { --disclosure-space: 52px; --disclosure-indent: 192px; --disclosure-bleed: clamp(32px, 4vw, 72px); display: block; padding: 0; }
+.home-disclosure[data-open="false"] { border-top: 0; }
 .disclosure-toggle { display: flex; width: calc(100% + 2 * var(--disclosure-bleed)); margin-inline: calc(0px - var(--disclosure-bleed)); align-items: center; justify-content: space-between; gap: 24px; padding: var(--disclosure-space) calc(24px + var(--disclosure-bleed)) var(--disclosure-space) var(--disclosure-bleed); border: 0; border-radius: 0; background: var(--accent); color: var(--paper); text-align: left; cursor: pointer; transition: background-color 240ms ease, color 240ms ease; }
 .disclosure-toggle .section-label { padding: 0; color: inherit; }
 .disclosure-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: -6px; }
