@@ -67,7 +67,7 @@
   --ink: #242622;
   --muted: #64675f;
   --rule: #d8d9d1;
-  --accent: #355947;
+  --accent: #754c47;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   /* Shared type scale: editorial headings, readable copy, and supporting UI. */
@@ -125,7 +125,7 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .text-links a { display: inline-flex; min-height: 44px; align-items: center; gap: 10px; font-family: var(--sans); font-size: var(--type-small); font-weight: 500; }
 .file-label { display: inline-block; color: var(--muted); font-family: var(--sans); font-size: var(--type-small); font-weight: 400; letter-spacing: 0; text-decoration: none; }
 .editorial-section { display: grid; grid-template-columns: 152px minmax(0, 1fr); gap: 40px; padding: 48px 0; border-top: 1px solid var(--rule); scroll-margin-top: 32px; }
-.section-label { color: var(--ink); padding-top: 4px; }
+.section-label { color: var(--accent); padding-top: 4px; }
 .section-body { max-width: 620px; color: var(--ink); }
 html:lang(zh) .intro-copy, html:lang(zh) .section-body, html:lang(zh) .research-description { font-size: 17px; line-height: 1.75; }
 .news-story { max-width: 620px; }
