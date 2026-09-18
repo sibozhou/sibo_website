@@ -197,7 +197,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .intro { padding: 48px 0; }
   .home-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .85fr); gap: 32px; align-items: center; }
   .hero-heading { grid-column: 1; grid-row: 1; max-width: none; }
-  .hero-art { position: relative; grid-column: 2; grid-row: 1; inset: auto; width: 100%; height: 340px; margin: 0; clip-path: none; transform: none; mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent); }
+  .hero-art { position: relative; grid-column: 2; grid-row: 1; inset: auto; width: 100%; height: 340px; margin: 0; clip-path: none; transform: none; mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, .15) 6%, rgba(0, 0, 0, .5) 14%, rgba(0, 0, 0, .85) 22%, #000 30%); }
   .hero-photo { object-position: 50% 46%; opacity: .9; }
   .hero-content { grid-column: 1 / -1; grid-row: 2; width: 100%; max-width: 688px; }
   .home-intro .intro-copy { max-width: none; margin-top: 0; }
