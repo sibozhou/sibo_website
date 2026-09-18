@@ -82,7 +82,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       if (!chinese) {
         assert.deepEqual(paragraphs, [
           "I am a Predoctoral Scholar at UC Berkeley Haas and a Research Statistician at the VA, working with Prof. David Chan on health economics research.",
-          "I also collaborate with Prof. Eric T. Wong at Brown University on studies in neuro-oncology.",
+          "I also collaborate with Prof. Eric T. Wong at Brown on neuro-oncology studies.",
         ]);
       } else {
         assert.match(paragraphs[0], /David Chan/);
