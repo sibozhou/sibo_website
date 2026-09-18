@@ -177,10 +177,26 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
   });
 }
 
-test("favicon is the muted-oxblood circle", async () => {
+test("favicon is the coastal-sage circle", async () => {
   const icon = await readFile(new URL("favicon.svg", output), "utf8");
-  assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#754C47"/);
+  assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#9AAFA6"/);
   assert.doesNotMatch(icon, /<path/);
+});
+
+test("coastal-sage text pairings retain readable contrast", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const color = (name) => css.match(new RegExp(`--${name}: (#[a-f0-9]{6});`, "i"))?.[1];
+  const luminance = (hex) => {
+    assert.ok(hex, "Missing palette color");
+    const channels = hex.slice(1).match(/../g).map((value) => parseInt(value, 16) / 255)
+      .map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+    return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+  };
+  for (const [text, background] of [["ink", "accent-surface"], ["accent", "paper"]]) {
+    const values = [luminance(color(text)), luminance(color(background))].sort((a, b) => a - b);
+    assert.ok((values[1] + 0.05) / (values[0] + 0.05) >= 4.5, `${text} on ${background} has insufficient contrast`);
+  }
+  assert.match(css, /background: var\(--accent-surface\); color: var\(--ink\)/);
 });
 
 test("downloadable CV is a PDF", async () => {
