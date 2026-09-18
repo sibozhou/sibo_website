@@ -33,7 +33,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
         </div>
         <div className="text-links">
           <a className="primary-link" href="research/">{zh ? "了解我的研究" : "Explore my research"}</a>
-          <a href={assets + "Sibo_Zhou_CV.pdf"}>{zh ? t("个人简历（英文）") : "Curriculum vitae"} <span className="file-label">PDF</span></a>
+          <a className="cv-link" href={assets + "Sibo_Zhou_CV.pdf"}>{zh ? t("个人简历（英文）") : "Curriculum vitae"} <span className="file-label">PDF</span></a>
         </div>
         </div>
       </section>

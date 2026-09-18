@@ -76,6 +76,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       }
     } else {
       assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 3);
+      assert.doesNotMatch(markup, /disclosure-indicator/);
       for (const id of ["background", "news", "contact"]) {
         const section = markup.match(new RegExp(`<section[^>]*aria-labelledby="${id}-title"[^]*?<\\/section>`))?.[0] ?? "";
         assert.match(section, /data-open="false"/);

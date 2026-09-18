@@ -123,7 +123,9 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .intro-copy p + p, .section-body p + p { margin-top: 16px; }
 .text-links { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 32px; }
 .text-links a { display: inline-flex; min-height: 44px; align-items: center; gap: 10px; font-family: var(--sans); font-size: var(--type-small); font-weight: 500; }
-.file-label { display: inline-block; color: var(--muted); font-family: var(--sans); font-size: var(--type-small); font-weight: 400; letter-spacing: 0; text-decoration: none; }
+.text-links .cv-link { display: inline-block; padding: 10px 0; }
+.file-label { color: var(--muted); font-family: var(--sans); font-size: var(--type-small); font-weight: 400; letter-spacing: 0; }
+.cv-link:is(:hover, :focus-visible, :active) .file-label { color: var(--accent); }
 .editorial-section { display: grid; grid-template-columns: 152px minmax(0, 1fr); gap: 40px; padding: 48px 0; border-top: 1px solid var(--rule); scroll-margin-top: 32px; }
 .section-label { color: var(--accent); padding-top: 4px; }
 .section-body { max-width: 620px; color: var(--ink); }
@@ -158,16 +160,14 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 .home-disclosure[data-open="false"] { border-top: 0; }
 .disclosure-toggle { display: flex; width: calc(100% + 2 * var(--disclosure-bleed)); margin-inline: calc(0px - var(--disclosure-bleed)); align-items: center; justify-content: space-between; gap: 24px; padding: var(--disclosure-space) calc(24px + var(--disclosure-bleed)) var(--disclosure-space) var(--disclosure-bleed); border: 0; border-radius: 0; background: var(--accent); color: var(--paper); text-align: left; cursor: pointer; transition: background-color 240ms ease, color 240ms ease; }
 .disclosure-toggle .section-label { padding: 0; color: inherit; }
-.disclosure-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: -6px; }
-.disclosure-indicator { position: relative; flex: 0 0 12px; height: 12px; }
-.disclosure-indicator::before, .disclosure-indicator::after { content: ""; position: absolute; background: currentColor; }
-.disclosure-indicator::before { left: 0; top: 5.5px; width: 12px; height: 1px; }
-.disclosure-indicator::after { left: 5.5px; top: 0; width: 1px; height: 12px; transition: transform 240ms ease; }
+.disclosure-toggle:focus-visible { background: var(--paper); color: var(--accent); outline: 2px solid currentColor; outline-offset: -6px; }
+@media (hover: hover) {
+  .disclosure-toggle:hover { background: var(--paper); color: var(--accent); }
+}
 .disclosure-panel { display: grid; grid-template-rows: 0fr; visibility: hidden; opacity: 0; transition: grid-template-rows 320ms cubic-bezier(.22, 1, .36, 1), opacity 240ms ease, visibility 320ms; }
 .disclosure-clip { min-height: 0; overflow: hidden; }
 .disclosure-content { margin-left: var(--disclosure-indent); padding-bottom: calc(var(--disclosure-space) - 4px); }
 .home-disclosure[data-open="true"] .disclosure-toggle { background: var(--paper); color: var(--accent); }
-.home-disclosure[data-open="true"] .disclosure-indicator::after { transform: scaleY(0); }
 .home-disclosure[data-open="true"] .disclosure-panel { grid-template-rows: 1fr; visibility: visible; opacity: 1; }
 .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; border-top: 1px solid var(--rule); padding: 24px 0 36px; color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
 .language-options { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px 24px; margin-left: auto; }
@@ -254,7 +254,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .disclosure-toggle, .disclosure-indicator::after, .disclosure-panel { transition: none; }
+  .disclosure-toggle, .disclosure-panel { transition: none; }
 }
 @media print {
   html { background: white; }
@@ -268,6 +268,5 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .paper { break-inside: avoid; }
   .home-disclosure .disclosure-toggle { background: transparent; color: var(--accent); }
   .editorial-section.home-disclosure { --disclosure-bleed: 0px; }
-  .disclosure-indicator { display: none; }
   .home-disclosure .disclosure-panel { grid-template-rows: 1fr; visibility: visible; opacity: 1; }
 }
