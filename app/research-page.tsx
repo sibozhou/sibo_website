@@ -46,7 +46,7 @@ export function ResearchPage({ language = "en" }: { language?: Language }) {
           ))}
         </div>
       </section>
-      <section className="editorial-section papers-section" id="publications" aria-labelledby="publications-title">
+      <section className="editorial-section" id="publications" aria-labelledby="publications-title">
         <h2 className="section-label" id="publications-title">{zh ? t("已发表论文") : "Publications"}<span className="section-count">2026</span></h2>
         <div className="paper-list">
           <article className="paper">

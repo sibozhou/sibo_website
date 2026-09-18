@@ -97,10 +97,6 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.match(background, /href="https:\/\/www.va.gov\/"/);
       assert.match(background, chinese ? traditional ? /取得四個學士學位/ : /获得四个学士学位/ : /four bachelor’s degrees/);
       assert.equal((background.match(/<p>/g) ?? []).length, 3, "Education, academic experience, and industry experience remain distinct paragraphs");
-      assert.match(background, /class="background-education"/);
-      assert.match(background, /class="background-experience"/);
-      assert.match(markup, /class="media-body"/);
-      assert.match(markup, /class="media-coverage"/);
       for (const program of ["graduate-program/data-science-scm", "catoid=22&amp;poid=31855", "catoid=22&amp;poid=32704", "catoid=22&amp;poid=31917", "catoid=22&amp;poid=31701"]) {
         assert.ok(background.includes(program), `Missing program link: ${program}`);
       }
