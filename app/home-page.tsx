@@ -37,14 +37,14 @@ export function HomePage({ language = "en" }: { language?: Language }) {
         </div>
         </div>
       </section>
-      <HomeDisclosure id="background" label={zh ? t("教育与经历") : "Background"}>
+      <HomeDisclosure id="background" label={zh ? t("经历") : "Background"}>
         <div className="section-body">
           <p>{zh ? <>{t("我于 2026 年获得")}<a href="https://brown.edu/">{t("布朗大学")}</a><a href={programs.dataScience}>{t("数据科学硕士")}</a>{t("学位。此前，我在")}<a href="https://usc.edu/">{t("南加州大学")}</a>{t("获得四个学士学位，专业分别为")}<a href={programs.mathematics}>{t("应用数学")}</a>、<a href={programs.economics}>{t("经济学与数据科学")}</a>、<a href={programs.religion}>{t("宗教学")}</a>及<a href={programs.globalStudies}>全球研究</a>。</> : <>I received my <a href={programs.dataScience}>Sc.M. in Data Science</a> from <a href="https://brown.edu/">Brown University</a> in 2026. Previously, I earned four bachelor’s degrees at the <a href="https://usc.edu/">University of Southern California</a>, in <a href={programs.mathematics}>applied and computational mathematics</a>, <a href={programs.economics}>economics and data science</a>, <a href={programs.religion}>religious studies</a>, and <a href={programs.globalStudies}>global studies</a>.</>}</p>
           <p>{zh ? <>在加入<a href="https://haas.berkeley.edu/">{t("伯克利")}</a>{t("与")}<a href="https://www.va.gov/">VA</a>{t("之前，我曾担任研究助理，与")}<a href="https://brown.edu/">{t("布朗大学")}</a>的 </> : <>Before joining <a href="https://haas.berkeley.edu/">Haas</a> and the <a href="https://www.va.gov/">VA</a>, I worked with </>}<a href="https://home.watson.brown.edu/people/faculty/watson-faculty/robert-blair">{zh ? "Robert Blair 教授" : "Prof. Robert Blair"}</a>{zh ? <>及<a href="https://usc.edu/">{t("南加州大学")}</a>的 </> : <> at <a href="https://brown.edu/">Brown</a> and </>}<a href="https://dornsife.usc.edu/profile/yuehao-bai/">{zh ? "Yuehao Bai 教授" : "Prof. Yuehao Bai"}</a>{zh ? "合作。" : <> at <a href="https://usc.edu/">USC</a> as a Research Assistant.</>}</p>
           <p>{zh ? <>我也曾在 <a href="https://www.rocketmortgage.com/">Rocket Mortgage</a>{" "}{t("担任数据科学实习生，并在")}<a href="https://www.ey.com/zh_cn">安永（EY）</a>{t("担任精算咨询实习生。")}</> : <>My industry experience includes internships in data science at <a href="https://www.rocketmortgage.com/">Rocket Mortgage</a> and actuarial consulting at <a href="https://www.ey.com/zh_cn">EY</a>.</>}</p>
         </div>
       </HomeDisclosure>
-      <HomeDisclosure id="news" label={zh ? t("荣誉与报道") : "Recognition & media"}>
+      <HomeDisclosure id="news" label={zh ? t("相关报道") : "Recognition & media"}>
         <div>
           <article className="news-story">
           <p className="news-meta">{zh ? t("南加州大学") + " · " : "USC Dornsife · "}<time dateTime="2024-05-02">{zh ? "2024 年 5 月 2 日" : "May 2, 2024"}</time></p>

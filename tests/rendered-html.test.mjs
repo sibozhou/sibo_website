@@ -80,6 +80,8 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       for (const id of ["background", "news", "contact"]) {
         const section = markup.match(new RegExp(`<section[^>]*aria-labelledby="${id}-title"[^]*?<\\/section>`))?.[0] ?? "";
         assert.match(section, /data-open="false"/);
+        const labels = traditional ? ["經歷", "相關報導", "聯絡我"] : chinese ? ["经历", "相关报道", "联系我"] : ["Background", "Recognition &amp; media", "Get in touch"];
+        assert.ok(section.includes(`<span class="section-label">${labels[["background", "news", "contact"].indexOf(id)]}</span>`));
         const button = section.match(/<button\b[^>]*>/)?.[0] ?? "";
         assert.match(button, /type="button"/);
         assert.match(button, /aria-expanded="false"/);
@@ -177,13 +179,13 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
   });
 }
 
-test("favicon is the coastal-sage circle", async () => {
+test("favicon is the muted-oxblood circle", async () => {
   const icon = await readFile(new URL("favicon.svg", output), "utf8");
-  assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#9AAFA6"/);
+  assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#754C47"/);
   assert.doesNotMatch(icon, /<path/);
 });
 
-test("coastal-sage text pairings retain readable contrast", async () => {
+test("oxblood text pairings retain readable contrast", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const color = (name) => css.match(new RegExp(`--${name}: (#[a-f0-9]{6});`, "i"))?.[1];
   const luminance = (hex) => {
@@ -192,11 +194,11 @@ test("coastal-sage text pairings retain readable contrast", async () => {
       .map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
     return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
   };
-  for (const [text, background] of [["ink", "accent-surface"], ["accent", "paper"]]) {
+  for (const [text, background] of [["paper", "accent-surface"], ["accent", "paper"]]) {
     const values = [luminance(color(text)), luminance(color(background))].sort((a, b) => a - b);
     assert.ok((values[1] + 0.05) / (values[0] + 0.05) >= 4.5, `${text} on ${background} has insufficient contrast`);
   }
-  assert.match(css, /background: var\(--paper\); color: var\(--ink\)/);
+  assert.match(css, /background: var\(--paper\); color: var\(--paper\)/);
   assert.match(css, /\.disclosure-toggle::before \{[^}]*background: linear-gradient\(to right, var\(--accent-surface\)[^}]*var\(--paper\) 100%\)/);
   assert.match(css, /\.disclosure-toggle:hover::before \{ opacity: 0; \}/);
   assert.match(css, /\.disclosure-toggle, \.disclosure-toggle::before, \.disclosure-panel \{ transition: none; \}/);
