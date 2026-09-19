@@ -212,6 +212,11 @@ test("tablet introduction uses a compact portrait and measured reading width", a
   assert.match(tablet, /min-width: 541px\) and \(max-width: 700px/);
 });
 
+test("portrait iPad fade adjustment changes only the mask", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /@media screen and \(min-width: 760px\) and \(max-width: 900px\) and \(orientation: portrait\) and \(hover: none\) and \(pointer: coarse\) \{\s*\.hero-art \{ mask-size: calc\(100% \+ 20px\) auto; mask-position: -20px bottom; \}\s*\}/);
+});
+
 test("favicon is the same ink as the main text", async () => {
   const icon = await readFile(new URL("favicon.svg", output), "utf8");
   assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#242622"/);

@@ -444,6 +444,10 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .contact-link { min-height: 44px; padding: 12px 0; }
   .contact-link + .contact-link { margin-top: 0; }
 }
+/* Small fade-only adjustment for the portrait iPad-sized touch layout. */
+@media screen and (min-width: 760px) and (max-width: 900px) and (orientation: portrait) and (hover: none) and (pointer: coarse) {
+  .hero-art { mask-size: calc(100% + 20px) auto; mask-position: -20px bottom; }
+}
 @media screen and (min-width: 541px) and (max-width: 700px) {
   .home-intro { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 24px 20px; }
   .home-intro h1 { font-size: 40px; }
