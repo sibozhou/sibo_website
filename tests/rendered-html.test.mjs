@@ -197,7 +197,7 @@ test("name and contact arrows share a small top-aligned treatment", async () => 
   assert.match(css, /a\.wordmark:is\(:hover, :focus-visible\) \{ text-decoration-line: none/);
   assert.match(css, /a\.wordmark:is\(:hover, :focus-visible\) \.link-label \{ text-decoration-line: underline/);
   assert.match(css, /\.site-shell \.site-header a\.wordmark:is\(:hover, :focus-visible\) \{ text-decoration-line: none/);
-  assert.match(css, /\.wordmark \{ column-gap: 0; \}/);
+  assert.doesNotMatch(css, /\.wordmark \{ column-gap: 0; \}/);
   assert.match(css, /\.wordmark:not\(\.wordmark-english\) \.link-label \{ letter-spacing: 0; \}/);
 });
 
@@ -216,6 +216,14 @@ test("favicon is the same ink as the main text", async () => {
   const icon = await readFile(new URL("favicon.svg", output), "utf8");
   assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#242622"/);
   assert.doesNotMatch(icon, /<path/);
+});
+
+test("animated footer fills the screen and section text keeps desktop layout on tablets", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.site-shell \{[^}]*min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column/);
+  assert.match(css, /\.site-footer \{[^}]*flex-grow: 1;[^}]*align-content: flex-start/);
+  assert.match(css, /\.disclosure-toggle \.section-label \{ display: block; width: fit-content/);
+  assert.match(css, /\.site-shell \{ width: 100%; min-height: 0; display: block/);
 });
 
 test("neutral palette and static accessible fallbacks replace seasonal colors", async () => {
@@ -238,9 +246,11 @@ test("downloadable CV is a PDF", async () => {
   assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
 });
 
-test("one diagonal ink wave covers slimmer bars and footer, not the header", async () => {
+test("one diagonal ink wave covers the header, bars, and footer", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
+  assert.match(css, /\.site-header::before,\s*:root\[data-color-wave="ready"\] \.site-footer::before/);
+  assert.match(css, /span:not\(\.link-arrow\)::after/);
   assert.match(css, /--wave-paint: repeating-linear-gradient\(105deg in oklab/);
   assert.match(css, /--inverse-paint: repeating-linear-gradient\(105deg/);
   assert.match(css, /\.disclosure-toggle \.section-label, \.site-footer p, \.language-switch/);
@@ -278,6 +288,8 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     });
     const bar = make(0,600,700), footer = make(20,900,1000), label = make(20,640), footerLabel = make(20,930);
     const photo = make(width / 2,200,500);
+    const header = make(20,0,72), headerLabel = make(20,25,45);
+    header.style.owner = header; headerLabel.style.owner = headerLabel;
     photo.rect.width = width / 2;
     const midpoint = width === 390 ? NaN : width === 834 ? .14 : .3084760577;
     bar.label = label; footer.label = footerLabel;
@@ -290,8 +302,8 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
       exports, require: () => ({ useEffect: fn => { cleanup = fn(); } }),
       CSS: { registerProperty() {}, supports: () => true },
       document: { documentElement: root,
-        querySelector: selector => selector === ".site-footer" ? footer : selector === ".hero-art" ? photo : bar,
-        querySelectorAll: selector => selector === ".disclosure-toggle, .site-footer" ? [bar,footer] : selector === ".disclosure-panel" ? [] : [label,footerLabel],
+        querySelector: selector => selector === ".site-footer" ? footer : selector === ".hero-art" ? photo : selector === ".site-header" ? header : null,
+        querySelectorAll: selector => selector === ".disclosure-toggle, .site-footer" ? [bar,footer] : selector.startsWith(".site-header") ? [headerLabel] : [label,footerLabel],
       },
       window: { innerWidth: width, addEventListener: (_,fn) => { resize = fn; }, removeEventListener() {} },
       ResizeObserver: class { constructor(fn) { observedResize = fn; } observe(el) { observed.push(el); } disconnect() {} },
@@ -299,6 +311,9 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     });
     exports.SiteColorWave({ pageKey: "en/home" });
     assert.equal(root.dataset.colorWave, "ready");
+    assert.equal(header.values["--wave-origin"], "0px");
+    assert.equal(parseFloat(headerLabel.values["--wave-origin"]), 20 * horizontal + 25 * vertical);
+    assert.equal(parseFloat(headerLabel.values["--wave-underline-origin"]), 20 * horizontal + 50 * vertical);
     assert.equal(parseFloat(bar.values["--wave-origin"]), 0);
     assert.equal(parseFloat(label.values["--wave-origin"]), 20 * horizontal + 40 * vertical);
     assert.equal(parseFloat(footer.values["--wave-origin"]), 99 * vertical);
@@ -314,7 +329,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
       assert.ok(Math.abs(center + 63.75 * unit * width / 100) < 1e-10, "Mobile without a side fade retains a finite opening phase");
     }
     const origins = elements.map(el => el.values["--wave-origin"]);
-    assert.deepEqual(observed, elements, "Do not observe expanding content on every transition frame");
+    assert.deepEqual(observed, [...elements,header,headerLabel], "Do not observe expanding content on every transition frame");
     for (const shift of [20,80,100,400,-400,-100,-80,-20,900,-900]) {
       footer.rect.top += shift; footer.rect.bottom += shift;
       footerLabel.rect.top += shift; footerLabel.rect.bottom += shift;

@@ -11,6 +11,8 @@ export function SiteColorWave({ pageKey }: { pageKey: string }) {
     const surfaces = document.querySelectorAll<HTMLElement>(".disclosure-toggle, .site-footer");
     const labels = document.querySelectorAll<HTMLElement>(".disclosure-toggle .section-label, .site-footer p, .language-switch");
     const photo = document.querySelector<HTMLElement>(".hero-art");
+    const header = document.querySelector<HTMLElement>(".site-header");
+    const headerLabels = document.querySelectorAll<HTMLElement>(".site-header .link-label, .site-header .link-arrow, .site-nav a > span");
     // Normal to a 75-degree boundary in the first quadrant (CSS 105deg).
     const horizontal = Math.cos(15 * Math.PI / 180);
     const vertical = Math.sin(15 * Math.PI / 180);
@@ -33,6 +35,16 @@ export function SiteColorWave({ pageKey }: { pageKey: string }) {
         paintedHeight += rect.height;
       });
       root.style.setProperty("--wave-width", `${root.clientWidth}px`);
+      // The sticky header shares the clock, but not the expanding content's geometry.
+      if (header) {
+        const top = header.getBoundingClientRect().top;
+        header.style.setProperty("--wave-origin", "0px");
+        headerLabels.forEach((label) => {
+          const rect = label.getBoundingClientRect();
+          label.style.setProperty("--wave-origin", `${rect.left * horizontal + (rect.top - top) * vertical}px`);
+          label.style.setProperty("--wave-underline-origin", `${rect.left * horizontal + (rect.bottom - top + 5) * vertical}px`);
+        });
+      }
       // Join the photo's midpoint to the rising half of the opening wave.
       // Ignore intervening prose on stacked layouts; it has no painted surface.
       if (previousWidth !== root.clientWidth) {
@@ -58,6 +70,8 @@ export function SiteColorWave({ pageKey }: { pageKey: string }) {
     const observer = new ResizeObserver(align);
     surfaces.forEach((surface) => observer.observe(surface));
     labels.forEach((label) => observer.observe(label));
+    if (header) observer.observe(header);
+    headerLabels.forEach((label) => observer.observe(label));
     window.addEventListener("resize", align);
     align();
     root.dataset.colorWave = "ready";
