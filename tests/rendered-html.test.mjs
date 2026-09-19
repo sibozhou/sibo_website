@@ -231,10 +231,17 @@ test("portrait iPad fade adjustment changes only the mask", async () => {
   assert.match(css, /@media screen and \(min-width: 760px\) and \(max-width: 900px\) and \(orientation: portrait\) and \(hover: none\) and \(pointer: coarse\) \{\s*\.hero-art \{ mask-size: calc\(100% \+ 20px\) 100%; mask-position: -20px bottom; \}\s*\}/);
 });
 
-test("favicon is the same ink as the main text", async () => {
+test("square favicon fades from ink to paper along the wave's 75-degree boundary", async () => {
   const icon = await readFile(new URL("favicon.svg", output), "utf8");
-  assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#242622"/);
-  assert.doesNotMatch(icon, /<path/);
+  assert.match(icon, /<rect width="32" height="32" fill="url\(#ink-fade\)"/);
+  assert.match(icon, /<stop offset="0" stop-color="#242622"/);
+  assert.match(icon, /<stop offset="1" stop-color="#f7f6f2"/);
+  const gradient = icon.match(/<linearGradient id="ink-fade" gradientUnits="userSpaceOnUse" x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)" y2="([\d.]+)"/);
+  assert.ok(gradient);
+  const [, x1, y1, x2, y2] = gradient.map(Number);
+  assert.ok(x2 > x1 && y2 > y1, "Ink starts upper-left; paper ends lower-right");
+  assert.ok(Math.abs(Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI - 15) < .01);
+  assert.doesNotMatch(icon, /<path|<circle|\brx=/);
 });
 
 test("animated footer fills the screen and section text keeps desktop layout on tablets", async () => {

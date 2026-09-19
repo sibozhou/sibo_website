@@ -1,3 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <circle cx="16" cy="16" r="14" fill="#242622" />
+  <defs>
+    <!-- The gradient runs 15 degrees downward; its fade boundary is 75 degrees. -->
+    <linearGradient id="ink-fade" gradientUnits="userSpaceOnUse" x1="2.477" y1="12.377" x2="29.523" y2="19.623">
+      <stop offset="0" stop-color="#242622" />
+      <stop offset="1" stop-color="#f7f6f2" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" fill="url(#ink-fade)" />
 </svg>
