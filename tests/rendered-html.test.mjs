@@ -31,8 +31,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     assert.ok(markup.includes(`property="og:title" content="${title}"`));
     const arrowLinks = [...markup.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>[^]*?<\/a>/g)]
       .filter(([link]) => /[↗↓→]/.test(link));
-    assert.match(arrowLinks[0][0], /class="wordmark/);
-    assert.deepEqual(arrowLinks.slice(1).map(([, href]) => href), research ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
+    assert.deepEqual(arrowLinks.map(([, href]) => href), research ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
     for (const [link] of arrowLinks) {
       assert.match(link, /<span class="link-label"/);
       assert.match(link, /<span class="link-arrow" aria-hidden="true">↗<\/span>/);
@@ -45,7 +44,9 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       const link = markup.match(new RegExp(`<a class="${className}[^\"]*"[^>]*href="([^\"]+)"[^>]*>([\\s\\S]*?)<\\/a>`));
       assert.ok(link, `Missing ${className}`);
       assert.equal(new URL(link[1], site + route).href, site + alternateRoute);
-      assert.equal(link[2].replace(/<[^>]*>/g, ""), chinese ? "Sibo↗" : "思博↗");
+      assert.equal(link[2].replace(/<[^>]*>/g, ""), chinese ? "SiboEN" : "思博中");
+      assert.ok(link[2].includes(`<span class="wordmark-language" lang="${chinese ? "en" : "zh-Hans"}" aria-hidden="true">${chinese ? "EN" : "中"}</span>`));
+      assert.doesNotMatch(link[2], /link-arrow|↗/);
     }
     const switches = [...markup.matchAll(/<a class="language-switch"[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)];
     const alternatives = [
@@ -67,7 +68,16 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.match(main, research ? /工作論文/ : /資料科學/);
     }
     if (research) {
-      assert.doesNotMatch(markup, /class="disclosure-toggle"/);
+      assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 2);
+      assert.doesNotMatch(markup, /class="section-count"/);
+      for (const id of ["working-papers", "publications"]) {
+        const section = markup.match(new RegExp(`<section[^>]*id="${id}"[^]*?<\\/section>`))?.[0] ?? "";
+        assert.match(section, /class="editorial-section home-disclosure"/);
+        assert.match(section, /data-open="false"/);
+        assert.match(section, /aria-expanded="false"/);
+        assert.ok(section.includes(`aria-controls="${id}-content"`));
+        assert.match(section, /class="disclosure-panel"[^>]*inert=""[^>]*aria-hidden="true"/);
+      }
       assert.ok(markup.includes(chinese ? "研究 — 周思博" : "Research — Sibo Zhou"));
       assert.match(markup, /Education selectively improves TB and HIV knowledge/);
       assert.equal((markup.match(/class="paper"/g) ?? []).length, 4);
@@ -189,11 +199,13 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
   });
 }
 
-test("name and contact arrows share a small top-aligned treatment", async () => {
+test("wordmark language labels retain the small top-aligned treatment and footer fonts", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /--type-arrow: 12px/);
   assert.match(css, /\.wordmark, \.contact-link \{[^}]*align-items: flex-start; column-gap: 6px/);
-  assert.match(css, /\.wordmark \.link-label, \.contact-link \.link-label, \.wordmark \.link-arrow, \.contact-link \.link-arrow \{[^}]*text-box-trim: trim-both; text-box-edge: cap alphabetic/);
+  assert.match(css, /\.wordmark \.link-label, \.contact-link \.link-label, \.wordmark-language, \.contact-link \.link-arrow \{[^}]*text-box-trim: trim-both; text-box-edge: cap alphabetic/);
+  assert.match(css, /\.wordmark-language \{[^}]*font-family: var\(--sans\); font-size: var\(--type-arrow\); font-weight: 400; letter-spacing: 0/);
+  assert.match(css, /\.language-switch:lang\(zh-Hans\), \.wordmark-language:lang\(zh-Hans\) \{ font-family: "Noto Sans SC", var\(--sans\)/);
   assert.match(css, /a\.wordmark:is\(:hover, :focus-visible\) \{ text-decoration-line: none/);
   assert.match(css, /a\.wordmark:is\(:hover, :focus-visible\) \.link-label \{ text-decoration-line: underline/);
   assert.match(css, /\.site-shell \.site-header a\.wordmark:is\(:hover, :focus-visible\) \{ text-decoration-line: none/);
@@ -357,6 +369,54 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     cleanup();
     assert.equal(root.dataset.colorWave, undefined);
   }
+});
+
+test("shared research disclosures toggle counts and open from section shortcuts", async () => {
+  const source = await readFile(new URL("../app/home-disclosure.tsx", import.meta.url), "utf8");
+  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
+  const exports = {};
+  let state, click, cleanup;
+  const effects = [];
+  const link = {
+    addEventListener: (type, fn) => { assert.equal(type, "click"); click = fn; },
+    removeEventListener: (type, fn) => { assert.equal(type, "click"); assert.equal(fn, click); click = undefined; },
+  };
+  runInNewContext(compiled, {
+    exports,
+    require: name => name === "react" ? {
+      useState: initial => { state ??= initial; return [state, value => { state = value; }]; },
+      useEffect: fn => effects.push(fn),
+    } : { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) },
+    document: { querySelectorAll: selector => { assert.equal(selector, 'a[href="#working-papers"]'); return [link]; } },
+  });
+  const render = () => exports.HomeDisclosure({ id: "working-papers", label: "工作论文", count: "01—03", children: "Papers" });
+  const check = open => {
+    const section = render();
+    assert.equal(section.props["data-open"], open);
+    const [heading, panel] = section.props.children;
+    const button = heading.props.children;
+    assert.equal(button.props["aria-expanded"], open);
+    assert.equal(panel.props.inert, !open);
+    assert.equal(panel.props["aria-hidden"], !open);
+    const count = button.props.children.props.children[1];
+    assert.equal(count && count.props.children, open ? "01—03" : false);
+    return button.props.onClick;
+  };
+  check(false)();
+  check(true)();
+  check(false);
+  cleanup = effects[0]();
+  click();
+  check(true)();
+  check(false);
+  click(); // A repeated click on the same hash must reopen a manually closed bar.
+  check(true);
+  cleanup();
+  state = undefined; // A fresh mount starts collapsed, without persisted state.
+  check(false);
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.ok(css.includes('#main-content:has(> .home-disclosure:last-of-type[data-open="false"]) + .site-footer { border-top: 0; }'));
+  assert.match(css, /\.disclosure-toggle \.section-count \{ display: inline-block; margin-top: 0; margin-inline-start: 12px/);
 });
 
 test("wave lifecycle has no reload, navigation, or iteration handler", async () => {

@@ -1,5 +1,6 @@
 import { SiteFrame } from "./site-frame";
 import { chineseText, type Language } from "./languages";
+import { HomeDisclosure } from "./home-disclosure";
 
 const papers = [
   {
@@ -33,8 +34,7 @@ export function ResearchPage({ language = "en" }: { language?: Language }) {
           <a href="#publications">{zh ? t("已发表论文") : "Publications"}</a>
         </div>
       </section>
-      <section className="editorial-section papers-section" id="working-papers" aria-labelledby="working-title">
-        <h2 className="section-label" id="working-title">{zh ? t("工作论文") : "Working papers"}<span className="section-count">01—03</span></h2>
+      <HomeDisclosure id="working-papers" label={zh ? t("工作论文") : "Working papers"} count="01—03">
         <div className="paper-list">
           {papers.map((paper, index) => (
             <article className="paper" key={paper.title}>
@@ -45,9 +45,8 @@ export function ResearchPage({ language = "en" }: { language?: Language }) {
             </article>
           ))}
         </div>
-      </section>
-      <section className="editorial-section" id="publications" aria-labelledby="publications-title">
-        <h2 className="section-label" id="publications-title">{zh ? t("已发表论文") : "Publications"}<span className="section-count">2026</span></h2>
+      </HomeDisclosure>
+      <HomeDisclosure id="publications" label={zh ? t("已发表论文") : "Publications"} count="2026">
         <div className="paper-list">
           <article className="paper">
             <span className="paper-number" aria-hidden="true">01</span>
@@ -60,7 +59,7 @@ export function ResearchPage({ language = "en" }: { language?: Language }) {
             </div>
           </article>
         </div>
-      </section>
+      </HomeDisclosure>
     </SiteFrame>
   );
 }
