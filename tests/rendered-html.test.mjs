@@ -246,11 +246,15 @@ test("downloadable CV is a PDF", async () => {
   assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
 });
 
-test("one diagonal ink wave covers the header, bars, and footer", async () => {
+test("one diagonal ink wave covers bars and footer while the header stays static", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
-  assert.match(css, /\.site-header::before,\s*:root\[data-color-wave="ready"\] \.site-footer::before/);
-  assert.match(css, /span:not\(\.link-arrow\)::after/);
+  assert.doesNotMatch(css, /:root\[data-color-wave="ready"\] \.site-header/);
+  assert.match(css, /:is\(#main-content, \.site-footer\) \{ animation: site-color-wave/);
+  const inverse = css.match(/--inverse-paint: repeating-linear-gradient\([^]*?\);/)?.[0] ?? "";
+  assert.doesNotMatch(inverse, /var\(--(?:paper|ink)\) 0/);
+  assert.ok(inverse.includes("- 53.2 * var(--wave-unit)"));
+  assert.ok(inverse.includes("- 47.2 * var(--wave-unit)"));
   assert.match(css, /--wave-paint: repeating-linear-gradient\(105deg in oklab/);
   assert.match(css, /--inverse-paint: repeating-linear-gradient\(105deg/);
   assert.match(css, /\.disclosure-toggle \.section-label, \.site-footer p, \.language-switch/);
@@ -311,9 +315,8 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     });
     exports.SiteColorWave({ pageKey: "en/home" });
     assert.equal(root.dataset.colorWave, "ready");
-    assert.equal(header.values["--wave-origin"], "0px");
-    assert.equal(parseFloat(headerLabel.values["--wave-origin"]), 20 * horizontal + 25 * vertical);
-    assert.equal(parseFloat(headerLabel.values["--wave-underline-origin"]), 20 * horizontal + 50 * vertical);
+    assert.deepEqual(header.values, {});
+    assert.deepEqual(headerLabel.values, {});
     assert.equal(parseFloat(bar.values["--wave-origin"]), 0);
     assert.equal(parseFloat(label.values["--wave-origin"]), 20 * horizontal + 40 * vertical);
     assert.equal(parseFloat(footer.values["--wave-origin"]), 99 * vertical);
@@ -329,7 +332,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
       assert.ok(Math.abs(center + 63.75 * unit * width / 100) < 1e-10, "Mobile without a side fade retains a finite opening phase");
     }
     const origins = elements.map(el => el.values["--wave-origin"]);
-    assert.deepEqual(observed, [...elements,header,headerLabel], "Do not observe expanding content on every transition frame");
+    assert.deepEqual(observed, elements, "Do not observe the static header or expanding content");
     for (const shift of [20,80,100,400,-400,-100,-80,-20,900,-900]) {
       footer.rect.top += shift; footer.rect.bottom += shift;
       footerLabel.rect.top += shift; footerLabel.rect.bottom += shift;
@@ -345,9 +348,17 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     root.clientWidth += 200;
     resize();
     assert.equal(root.values["--wave-width"], `${width + 200}px`);
+    assert.equal(root.values["--wave-delay"], delay, "A width change must not recalculate the running animation's starting phase");
     cleanup();
     assert.equal(root.dataset.colorWave, undefined);
   }
+});
+
+test("wave lifecycle has no reload, navigation, or iteration handler", async () => {
+  const wave = await readFile(new URL("../app/site-color-wave.tsx", import.meta.url), "utf8");
+  const disclosure = await readFile(new URL("../app/home-disclosure.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(wave + disclosure, /location\.|reload\(|router\.refresh|animationiteration|animationend|setInterval/);
+  assert.match(disclosure, /type="button"/);
 });
 
 test("Chinese research preserves English paper titles and authors", async () => {
