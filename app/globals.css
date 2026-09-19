@@ -73,6 +73,7 @@
   --bar-strength: 1;
   --wave-unit: 1vw;
   --wave-duration: 92s;
+  --wave-entry-shift: .03;
   --wave-delay: -4.787549407s;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -418,7 +419,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 }
 /* Tablet widths, plus larger touch-first tablets in landscape. */
 @media screen and (min-width: 541px) and (max-width: 1099px), screen and (min-width: 1100px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
-  html { --wave-unit: .9vw; --wave-duration: 86s; --wave-delay: -4.296487169s; }
+  html { --wave-unit: .9vw; --wave-duration: 86s; --wave-delay: -4.296487169s; --wave-entry-shift: 0; }
   html { --header-height: 72px; --type-title: clamp(48px, 5.5vw, 64px); }
   .site-shell { width: calc(100% - clamp(64px, 8vw, 96px)); }
   .site-header, .editorial-section, .site-footer { margin-right: 0; }
@@ -447,7 +448,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .home-intro .lead { font-size: 19px; }
 }
 @media (max-width: 540px) {
-  html { --wave-unit: .75vw; --wave-duration: 77s; --wave-delay: -3.562281723s; }
+  html { --wave-unit: .75vw; --wave-duration: 77s; --wave-delay: -3.562281723s; --wave-entry-shift: 0; }
   .site-shell { width: calc(100% - 40px); }
   .site-header, .editorial-section, .site-footer { margin-right: 0; }
   html { --header-height: 64px; }
@@ -455,8 +456,8 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .site-nav { gap: 20px; }
   .intro { padding: 48px 0; }
   .home-intro { padding-top: 32px; padding-left: 0; }
-  .hero-art { --photo-fade-midpoint: none; position: relative; top: auto; bottom: auto; left: -20px; width: calc(100% + 40px); height: 280px; clip-path: none; margin-top: 24px; transform: none; mask-image: url("./masks/photo-mobile.png"); mask-size: 100% 100%; mask-repeat: no-repeat; }
-  .hero-photo { object-position: 50% 46%; opacity: .9; }
+  .hero-art { --photo-fade-midpoint: none; position: relative; top: auto; bottom: auto; left: -20px; width: calc(100% + 40px); height: 360px; clip-path: none; margin-top: 24px; transform: none; mask-image: url("./masks/photo-mobile.png"); mask-size: 100% 100%; mask-repeat: no-repeat; }
+  .hero-photo { object-position: 50% 48%; opacity: .9; }
   .hero-heading, .hero-content { max-width: none; }
   .home-intro .intro-copy { margin-top: 24px; }
   .eyebrow { margin-bottom: 20px; }

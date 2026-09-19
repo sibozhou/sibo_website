@@ -49,6 +49,8 @@ export function SiteColorWave({ pageKey }: { pageKey: string }) {
             center = anchor + 51 * unit;
           }
         }
+        // A small desktop-only leftward offset; responsive layouts keep their phase.
+        center -= parseFloat(style.getPropertyValue("--wave-entry-shift")) * root.clientWidth * horizontal;
         // One repeating period: 51 units black, 51 white, and two equal fades.
         const phase = ((center + 76.5 * unit) / (204 * unit)) % 1;
         root.style.setProperty("--wave-delay", `${-duration * phase}s`);

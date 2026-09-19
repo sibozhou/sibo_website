@@ -311,7 +311,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
       },
       window: { innerWidth: width, addEventListener: (_,fn) => { resize = fn; }, removeEventListener() {} },
       ResizeObserver: class { constructor(fn) { observedResize = fn; } observe(el) { observed.push(el); } disconnect() {} },
-      getComputedStyle: () => ({ getPropertyValue: name => name === "--wave-unit" ? unit + "vw" : name === "--photo-fade-midpoint" ? String(midpoint) : duration + "s" }),
+      getComputedStyle: () => ({ getPropertyValue: name => name === "--wave-unit" ? unit + "vw" : name === "--wave-entry-shift" ? (width === 1440 ? ".03" : "0") : name === "--photo-fade-midpoint" ? String(midpoint) : duration + "s" }),
     });
     exports.SiteColorWave({ pageKey: "en/home" });
     assert.equal(root.dataset.colorWave, "ready");
@@ -326,7 +326,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     const center = -76.5 * unit * width / 100 - parseFloat(delay) / duration * distance;
     const photoBoundary = (photo.rect.left + midpoint * photo.rect.width) * horizontal;
     if (Number.isFinite(midpoint)) {
-      const delta = center - 51 * unit * width / 100 - photoBoundary;
+      const delta = center - 51 * unit * width / 100 - photoBoundary + (width === 1440 ? .03 * width * horizontal : 0);
       assert.ok(Math.abs(delta / distance - Math.round(delta / distance)) < 1e-10, "Opening wave midpoint must continue the photo fade modulo its repeat");
     } else {
       assert.ok(Math.abs(center + 63.75 * unit * width / 100) < 1e-10, "Mobile without a side fade retains a finite opening phase");
