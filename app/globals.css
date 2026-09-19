@@ -69,7 +69,7 @@
   --rule: #d8d9d1;
   --accent: #754c47;
   --accent-surface: #754c47;
-  --bar-label: var(--ink);
+  --bar-label: #5a3b37;
   --bar-strength: .32;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -122,19 +122,59 @@ p, h1, h2, h3 { margin: 0; }
   initial-value: 0px;
 }
 @keyframes site-color-wave {
-  from { --wave-x: -36vw; }
-  to { --wave-x: 136vw; }
+  from { --wave-x: -45vw; }
+  /* 72 seconds of travel, then one fully clear second before repeating. */
+  98.6301369863%, 100% { --wave-x: 145vw; }
 }
 @media screen and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
-  :root[data-color-wave="ready"] { animation: site-color-wave 64s linear infinite; }
+  :root[data-color-wave="ready"] { animation: site-color-wave 73s linear infinite; }
   :root[data-color-wave="ready"] .disclosure-toggle::before {
     background: var(--accent-surface);
-    mask-image: linear-gradient(to right, transparent calc(var(--wave-x) - 36vw), rgb(0 0 0 / .14) calc(var(--wave-x) - 24vw), rgb(0 0 0 / .55) calc(var(--wave-x) - 12vw), rgb(0 0 0 / .9) calc(var(--wave-x) - 6vw), #000 var(--wave-x), rgb(0 0 0 / .9) calc(var(--wave-x) + 6vw), rgb(0 0 0 / .55) calc(var(--wave-x) + 12vw), rgb(0 0 0 / .14) calc(var(--wave-x) + 24vw), transparent calc(var(--wave-x) + 36vw));
+    /* A 30vw solid center, with a gently eased 30vw fade on either side. */
+    mask-image: linear-gradient(to right,
+      transparent calc(var(--wave-x) - 45vw),
+      rgb(0 0 0 / 0.04) calc(var(--wave-x) - 41.25vw),
+      rgb(0 0 0 / 0.16) calc(var(--wave-x) - 37.5vw),
+      rgb(0 0 0 / 0.32) calc(var(--wave-x) - 33.75vw),
+      rgb(0 0 0 / 0.5) calc(var(--wave-x) - 30vw),
+      rgb(0 0 0 / 0.68) calc(var(--wave-x) - 26.25vw),
+      rgb(0 0 0 / 0.84) calc(var(--wave-x) - 22.5vw),
+      rgb(0 0 0 / 0.96) calc(var(--wave-x) - 18.75vw),
+      #000 calc(var(--wave-x) - 15vw),
+      #000 calc(var(--wave-x) + 15vw),
+      rgb(0 0 0 / 0.96) calc(var(--wave-x) + 18.75vw),
+      rgb(0 0 0 / 0.84) calc(var(--wave-x) + 22.5vw),
+      rgb(0 0 0 / 0.68) calc(var(--wave-x) + 26.25vw),
+      rgb(0 0 0 / 0.5) calc(var(--wave-x) + 30vw),
+      rgb(0 0 0 / 0.32) calc(var(--wave-x) + 33.75vw),
+      rgb(0 0 0 / 0.16) calc(var(--wave-x) + 37.5vw),
+      rgb(0 0 0 / 0.04) calc(var(--wave-x) + 41.25vw),
+      transparent calc(var(--wave-x) + 45vw)
+    );
   }
   @supports (background-clip: text) or (-webkit-background-clip: text) {
     :root[data-color-wave="ready"] .header-color {
       display: inline-block;
-      background-image: linear-gradient(to right, var(--ink) calc(var(--wave-x) - var(--wave-origin) - 36vw), color-mix(in srgb, var(--accent-surface) 14%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 24vw), color-mix(in srgb, var(--accent-surface) 55%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 12vw), color-mix(in srgb, var(--accent-surface) 90%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 6vw), var(--accent-surface) calc(var(--wave-x) - var(--wave-origin)), color-mix(in srgb, var(--accent-surface) 90%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 6vw), color-mix(in srgb, var(--accent-surface) 55%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 12vw), color-mix(in srgb, var(--accent-surface) 14%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 24vw), var(--ink) calc(var(--wave-x) - var(--wave-origin) + 36vw));
+      background-image: linear-gradient(to right,
+        var(--ink) calc(var(--wave-x) - var(--wave-origin) - 45vw),
+        color-mix(in srgb, var(--accent-surface) 4%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 41.25vw),
+        color-mix(in srgb, var(--accent-surface) 16%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 37.5vw),
+        color-mix(in srgb, var(--accent-surface) 32%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 33.75vw),
+        color-mix(in srgb, var(--accent-surface) 50%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 30vw),
+        color-mix(in srgb, var(--accent-surface) 68%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 26.25vw),
+        color-mix(in srgb, var(--accent-surface) 84%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 22.5vw),
+        color-mix(in srgb, var(--accent-surface) 96%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 18.75vw),
+        var(--accent-surface) calc(var(--wave-x) - var(--wave-origin) - 15vw),
+        var(--accent-surface) calc(var(--wave-x) - var(--wave-origin) + 15vw),
+        color-mix(in srgb, var(--accent-surface) 96%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 18.75vw),
+        color-mix(in srgb, var(--accent-surface) 84%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 22.5vw),
+        color-mix(in srgb, var(--accent-surface) 68%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 26.25vw),
+        color-mix(in srgb, var(--accent-surface) 50%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 30vw),
+        color-mix(in srgb, var(--accent-surface) 32%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 33.75vw),
+        color-mix(in srgb, var(--accent-surface) 16%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 37.5vw),
+        color-mix(in srgb, var(--accent-surface) 4%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 41.25vw),
+        var(--ink) calc(var(--wave-x) - var(--wave-origin) + 45vw)
+      );
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;

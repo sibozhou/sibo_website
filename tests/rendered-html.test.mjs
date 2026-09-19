@@ -201,6 +201,15 @@ test("oxblood text pairings retain readable contrast", async () => {
     const values = [luminance(color(text)), luminance(color(background))].sort((a, b) => a - b);
     assert.ok((values[1] + 0.05) / (values[0] + 0.05) >= 4.5, `${text} on ${background} has insufficient contrast`);
   }
+  const rgb = (name) => color(name).slice(1).match(/../g).map((value) => parseInt(value, 16));
+  const strength = Number(css.match(/--bar-strength: ([\d.]+);/)?.[1]);
+  for (const opacity of [0, strength]) {
+    const background = "#" + rgb("paper").map((channel, index) =>
+      Math.round(channel * (1 - opacity) + rgb("accent-surface")[index] * opacity).toString(16).padStart(2, "0")
+    ).join("");
+    assert.ok((luminance(background) + 0.05) / (luminance(color("bar-label")) + 0.05) >= 4.5,
+      "Winter section labels must remain readable with and without the color wave");
+  }
   assert.match(css, /background: var\(--paper\); color: var\(--bar-label\)/);
   assert.match(css, /\.disclosure-toggle::before \{[^}]*background: linear-gradient\(to right, var\(--accent-surface\)[^}]*var\(--paper\) 100%\)/);
   assert.match(css, /\.disclosure-toggle:hover::before \{ opacity: 0; \}/);
@@ -268,16 +277,19 @@ test("downloadable CV is a PDF", async () => {
 test("bars and header share one slow viewport-aligned wave with fixed section labels", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
-  assert.match(css, /animation: site-color-wave 64s linear infinite/);
-  assert.match(css, /from \{ --wave-x: -36vw; \}/);
-  assert.match(css, /to \{ --wave-x: 136vw; \}/);
+  assert.match(css, /animation: site-color-wave 73s linear infinite/);
+  assert.match(css, /from \{ --wave-x: -45vw; \}/);
+  const pause = css.match(/([\d.]+)%, 100% \{ --wave-x: 145vw; \}/);
+  assert.ok(pause);
+  assert.ok(Math.abs(73 * (1 - Number(pause[1]) / 100) - 1) < 0.000001);
   assert.match(css, /@media screen and \(prefers-reduced-motion: no-preference\) and \(forced-colors: none\)/);
   assert.match(css, /\.disclosure-toggle \.section-label \{ padding: 0; color: var\(--bar-label\); \}/);
   assert.match(css, /--bar-label: var\(--ink\)/);
   assert.doesNotMatch(css, /wordmark-color-sweep/);
   // The header subtracts each label's actual viewport position; the
   // edge-to-edge bars start at zero and therefore need no offset.
-  for (const edge of ["- 36vw", "- 24vw", "- 12vw", "- 6vw", "+ 6vw", "+ 12vw", "+ 24vw", "+ 36vw"]) {
+  assert.ok(css.includes("#000 calc(var(--wave-x) - 15vw),\n      #000 calc(var(--wave-x) + 15vw)"));
+  for (const edge of ["- 45vw","- 41.25vw","- 37.5vw","- 33.75vw","- 30vw","- 26.25vw","- 22.5vw","- 18.75vw","- 15vw","+ 15vw","+ 18.75vw","+ 22.5vw","+ 26.25vw","+ 30vw","+ 33.75vw","+ 37.5vw","+ 41.25vw","+ 45vw"]) {
     assert.ok(css.includes(`calc(var(--wave-x) ${edge})`));
     assert.ok(css.includes(`calc(var(--wave-x) - var(--wave-origin) ${edge})`));
   }
