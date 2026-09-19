@@ -277,22 +277,26 @@ test("downloadable CV is a PDF", async () => {
 test("bars and header share one slow viewport-aligned wave with fixed section labels", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
-  assert.match(css, /animation: site-color-wave 73s linear infinite/);
-  assert.match(css, /from \{ --wave-x: -45vw; \}/);
-  const pause = css.match(/([\d.]+)%, 100% \{ --wave-x: 145vw; \}/);
+  assert.match(css, /animation: site-color-wave 109s linear -23.142857143s infinite/);
+  assert.match(css, /from \{ --wave-x: -90vw; \}/);
+  const pause = css.match(/([\d.]+)%, 100% \{ --wave-x: 190vw; \}/);
   assert.ok(pause);
-  assert.ok(Math.abs(73 * (1 - Number(pause[1]) / 100) - 1) < 0.000001);
+  assert.ok(Math.abs(109 * (1 - Number(pause[1]) / 100) - 1) < 0.000001);
   assert.match(css, /@media screen and \(prefers-reduced-motion: no-preference\) and \(forced-colors: none\)/);
   assert.match(css, /\.disclosure-toggle \.section-label \{ padding: 0; color: var\(--bar-label\); \}/);
   assert.match(css, /--bar-label: var\(--ink\)/);
   assert.doesNotMatch(css, /wordmark-color-sweep/);
   // The header subtracts each label's actual viewport position; the
   // edge-to-edge bars start at zero and therefore need no offset.
-  assert.ok(css.includes("#000 calc(var(--wave-x) - 15vw),\n      #000 calc(var(--wave-x) + 15vw)"));
-  for (const edge of ["- 45vw","- 41.25vw","- 37.5vw","- 33.75vw","- 30vw","- 26.25vw","- 22.5vw","- 18.75vw","- 15vw","+ 15vw","+ 18.75vw","+ 22.5vw","+ 26.25vw","+ 30vw","+ 33.75vw","+ 37.5vw","+ 41.25vw","+ 45vw"]) {
-    assert.ok(css.includes(`calc(var(--wave-x) ${edge})`));
-    assert.ok(css.includes(`calc(var(--wave-x) - var(--wave-origin) ${edge})`));
-  }
+  assert.ok(css.includes("var(--accent-surface) calc(var(--wave-x) - var(--wave-origin, 0px) - 30vw),\n      var(--accent-surface) calc(var(--wave-x) - var(--wave-origin, 0px) + 30vw)"));
+  assert.equal((css.match(/--wave-paint: linear-gradient/g) ?? []).length, 1);
+  assert.match(css, /background: var\(--wave-paint\)/);
+  assert.match(css, /background-image: var\(--wave-paint\)/);
+  const curve = css.match(/--wave-paint: linear-gradient\([^]*?\n    \);/)?.[0] ?? "";
+  assert.equal((curve.match(/calc\(var\(--wave-x\)/g) ?? []).length, 130);
+  // The negative delay starts at -30vw, with the fade visible immediately.
+  const initialCenter = -90 + 280 * 23.142857143 / 108;
+  assert.ok(Math.abs(initialCenter + 30) < 0.000001);
   const alignment = await readFile(new URL("../app/site-color-wave.tsx", import.meta.url), "utf8");
   assert.match(alignment, /label\.getBoundingClientRect\(\)\.left/);
   assert.match(alignment, /new ResizeObserver\(align\)/);
