@@ -214,7 +214,7 @@ test("tablet introduction uses a compact portrait and measured reading width", a
 
 test("portrait iPad fade adjustment changes only the mask", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(css, /@media screen and \(min-width: 760px\) and \(max-width: 900px\) and \(orientation: portrait\) and \(hover: none\) and \(pointer: coarse\) \{\s*\.hero-art \{ mask-size: calc\(100% \+ 20px\) auto; mask-position: -20px bottom; \}\s*\}/);
+  assert.match(css, /@media screen and \(min-width: 760px\) and \(max-width: 900px\) and \(orientation: portrait\) and \(hover: none\) and \(pointer: coarse\) \{\s*\.hero-art \{ mask-size: calc\(100% \+ 20px\) 100%; mask-position: -20px bottom; \}\s*\}/);
 });
 
 test("favicon is the same ink as the main text", async () => {
@@ -402,11 +402,18 @@ test("photo masks follow the bar diagonal with dithered, feathered left edges", 
     } else {
       for (const y of [0,500,height-1]) assert.equal(alpha(0,y),0);
       assert.equal(alpha(width-1,height-1),255);
-      const boundary=name==="desktop"?.4368:.30;
+      const boundary=name==="desktop"?.4368:.28;
       assert.equal(alpha(Math.ceil(width*boundary),height-1),255);
       const midpoint=name==="desktop"?.3084760577:.14;
       assert.ok(css.includes(`--photo-fade-midpoint: ${String(midpoint).slice(1)}`));
       assert.ok(Math.abs(alpha(Math.round((width-1)*midpoint),height-1)-127.5)<=3, "Opening wave anchor must match the actual photo mask midpoint");
+      if (name === "tablet") {
+        for (const x of [50,150,250,350,450]) {
+          for (const y of [0,500,2000,height-1]) {
+            assert.ok(Math.abs(alpha(x,y)-alpha(x,height-1))<=4, "Tablet fade must be vertical, with only sub-percent dithering between rows");
+          }
+        }
+      } else {
       // A 75-degree boundary has normal (cos15, sin15), starting at bottom-left.
       assert.ok(Math.abs(alpha(350,height-101)-alpha(323,height-1)) <= 4);
       for (const y of [height-1000,height-600,height-200,height-1]) {
@@ -414,6 +421,7 @@ test("photo masks follow the bar diagonal with dithered, feathered left edges", 
         assert.ok(Math.abs(alpha(x,y)-alpha(250,height-1)) <= 4, "Fade must continue through the full visible height");
       }
       assert.ok(alpha(220,height-1) > alpha(220,height-500));
+      }
       assert.ok(new Set(Array.from({length:100},(_,y)=>alpha(400,height-1-y))).size>1);
     }
   }

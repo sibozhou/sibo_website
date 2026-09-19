@@ -47,11 +47,18 @@ for (const [name, vertical, points] of [
   // 75-degree fade boundary even when the photo's aspect ratio changes.
   // The gradient runs perpendicular to that boundary, 15 degrees downward.
   const width = 1536, height = vertical ? 1024 : 4096;
-  const slope = Math.tan(15 * Math.PI / 180);
+  const slope = name === "tablet" ? 0 : Math.tan(15 * Math.PI / 180);
   // Bring the desktop fade inward while preserving its bottom-left anchor.
   const fadeScale = name === "desktop" ? .78 : 1;
-  const alphas = Array.from({ length: vertical ? height : width + 1 }, (_, i) =>
-    curve(points, 100 * i / (((vertical ? height : width) - 1) * fadeScale)));
+  const alphas = Array.from({ length: vertical ? height : width + 1 }, (_, i) => {
+    if (name === "tablet") {
+      // One continuous curve, with zero first/second derivatives at both ends.
+      // Keep the existing 14% midpoint and remove the diagonal from tablets only.
+      const t = Math.min(1, i / ((width - 1) * .28));
+      return t ** 3 * (t * (6 * t - 15) + 10);
+    }
+    return curve(points, 100 * i / (((vertical ? height : width) - 1) * fadeScale));
+  });
   // Grayscale + alpha PNG, with spatially distributed sub-percent alpha noise.
   const pixels = Buffer.alloc(height * (width * 2 + 1));
   for (let y = 0; y < height; y++) {
