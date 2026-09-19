@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "../globals.css";
 import { languageAlternates } from "../site-metadata";
-import { SeasonalTheme } from "../seasonal-theme";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sibozhou.com/"),
@@ -34,7 +33,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head><SeasonalTheme /></head>
       <body>{children}</body>
     </html>
   );

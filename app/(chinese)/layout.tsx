@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "../globals.css";
 import { languageAlternates } from "../site-metadata";
-import { SeasonalTheme } from "../seasonal-theme";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sibozhou.com/"),
@@ -24,5 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function ChineseLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="zh-Hans" suppressHydrationWarning><head><SeasonalTheme /></head><body>{children}</body></html>;
+  return <html lang="zh-Hans" suppressHydrationWarning><body>{children}</body></html>;
 }

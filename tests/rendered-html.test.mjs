@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
+import { inflateSync } from "node:zlib";
+import ts from "typescript";
 
 const output = new URL("../dist/client/", import.meta.url);
 const site = process.env.PAGES_SITE_URL ?? "https://sibozhou.com/";
@@ -10,12 +12,12 @@ const basePath = new URL(site).pathname;
 for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-hant/research/"]) {
   test(`static ${route || "home"} page and every local link resolve on GitHub Pages`, async () => {
     const html = await readFile(new URL(route + "index.html", output), "utf8");
-    assert.match(html, /<head>[^]*?<script id="seasonal-theme">[^]*?<\/script>[^]*?<\/head>/);
+    assert.doesNotMatch(html, /id="seasonal-theme"/);
     const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
     assert.equal((markup.match(/<h1\b/g) ?? []).length, 1);
     assert.match(markup, /aria-current="page"/);
     assert.match(markup, /id="main-content"/);
-    assert.equal((markup.match(/class="header-color"/g) ?? []).length, 3);
+    assert.doesNotMatch(markup, /class="header-color"/);
     const favicon = markup.match(/<link\b(?=[^>]*rel="icon")[^>]*>/)?.[0] ?? "";
     assert.match(favicon, /type="image\/svg\+xml"/);
     assert.equal(new URL(favicon.match(/href="([^"]+)"/)?.[1] ?? "", site + route).href, "https://sibozhou.com/favicon.svg");
@@ -182,91 +184,23 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
   });
 }
 
-test("favicon is the muted-oxblood circle", async () => {
+test("favicon is the same ink as the main text", async () => {
   const icon = await readFile(new URL("favicon.svg", output), "utf8");
-  assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#754C47"/);
+  assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#242622"/);
   assert.doesNotMatch(icon, /<path/);
 });
 
-test("oxblood text pairings retain readable contrast", async () => {
+test("neutral palette and static accessible fallbacks replace seasonal colors", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  const color = (name) => css.match(new RegExp(`--${name}: (#[a-f0-9]{6});`, "i"))?.[1];
-  const luminance = (hex) => {
-    assert.ok(hex, "Missing palette color");
-    const channels = hex.slice(1).match(/../g).map((value) => parseInt(value, 16) / 255)
-      .map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
-    return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
-  };
-  for (const [text, background] of [["paper", "accent-surface"], ["accent", "paper"]]) {
-    const values = [luminance(color(text)), luminance(color(background))].sort((a, b) => a - b);
-    assert.ok((values[1] + 0.05) / (values[0] + 0.05) >= 4.5, `${text} on ${background} has insufficient contrast`);
-  }
-  const rgb = (name) => color(name).slice(1).match(/../g).map((value) => parseInt(value, 16));
-  const strength = Number(css.match(/--bar-strength: ([\d.]+);/)?.[1]);
-  for (const opacity of [0, strength]) {
-    const background = "#" + rgb("paper").map((channel, index) =>
-      Math.round(channel * (1 - opacity) + rgb("accent-surface")[index] * opacity).toString(16).padStart(2, "0")
-    ).join("");
-    assert.ok((luminance(background) + 0.05) / (luminance(color("bar-label")) + 0.05) >= 4.5,
-      "Winter section labels must remain readable with and without the color wave");
-  }
-  assert.match(css, /background: var\(--paper\); color: var\(--bar-label\)/);
-  assert.match(css, /\.disclosure-toggle::before \{[^}]*background: linear-gradient\(to right, var\(--accent-surface\)[^}]*var\(--paper\) 100%\)/);
+  assert.match(css, /--ink: #242622/);
+  assert.match(css, /--accent: var\(--ink\)/);
+  assert.match(css, /--accent-surface: var\(--ink\)/);
+  assert.doesNotMatch(css, /data-season|#754c47|#9aafa6|header-color/);
+  assert.match(css, /prefers-reduced-motion: no-preference/);
+  assert.match(css, /forced-colors: none/);
+  assert.match(css, /\.disclosure-toggle::before \{[^}]*background: var\(--paper\)/);
   assert.match(css, /\.disclosure-toggle:hover::before \{ opacity: 0; \}/);
   assert.match(css, /\.disclosure-toggle, \.disclosure-toggle::before, \.disclosure-panel \{ transition: none; \}/);
-});
-
-test("seasonal palette follows all months, midnight boundaries, and resumed pages", async () => {
-  const html = await readFile(new URL("index.html", output), "utf8");
-  const script = html.match(/<script id="seasonal-theme">([^]*?)<\/script>/)?.[1];
-  assert.ok(script);
-  const icon = await readFile(new URL("favicon-summer.svg", output), "utf8");
-  assert.match(icon, /fill="#9AAFA6"/);
-  let now = new Date(2026, 0, 15, 12);
-  let scheduled;
-  let delay;
-  let metadataChanged;
-  const events = {};
-  const root = { dataset: {} };
-  const favicon = { href: "https://sibozhou.com/favicon.svg" };
-  runInNewContext(script, {
-    Date: class extends Date { constructor(...args) { super(...(args.length ? args : [now.getTime()])); } },
-    URL,
-    document: {
-      documentElement: root, head: {}, hidden: false,
-      querySelectorAll: () => [favicon],
-      addEventListener: (name, callback) => { events[name] = callback; },
-    },
-    window: { addEventListener: (name, callback) => { events[name] = callback; } },
-    MutationObserver: class { constructor(callback) { metadataChanged = callback; } observe() {} },
-    setTimeout: (callback, ms) => { scheduled = callback; delay = ms; return 1; },
-    clearTimeout: () => {},
-  });
-  const check = (summer) => {
-    assert.equal(root.dataset.season, summer ? "summer" : "winter");
-    assert.equal(favicon.href, "https://sibozhou.com/" + (summer ? "favicon-summer.svg" : "favicon.svg"));
-    assert.ok(delay > 0 && delay <= 25 * 60 * 60 * 1000);
-  };
-  for (let month = 0; month < 12; month++) {
-    now = new Date(2026, month, 15, 12);
-    events.pageshow();
-    check(month >= 3 && month <= 8);
-  }
-  for (const month of [2, 8]) {
-    now = new Date(2026, month + 1, 1, 0, 0, -1);
-    events.visibilitychange();
-    assert.equal(delay, 1000);
-    check(month === 8);
-    now = new Date(2026, month + 1, 1);
-    scheduled();
-    check(month === 2);
-  }
-  now = new Date(2027, 5, 1);
-  events.visibilitychange();
-  check(true);
-  favicon.href = "https://sibozhou.com/favicon.svg";
-  metadataChanged();
-  check(true);
 });
 
 test("downloadable CV is a PDF", async () => {
@@ -274,34 +208,70 @@ test("downloadable CV is a PDF", async () => {
   assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
 });
 
-test("bars and header share one slow viewport-aligned wave with fixed section labels", async () => {
+test("one diagonal ink wave covers slimmer bars and footer, not the header", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
-  assert.match(css, /animation: site-color-wave 95s linear -4.787549407s infinite/);
-  assert.match(css, /from \{ --wave-x: -76.5vw; \}/);
-  assert.match(css, /to \{ --wave-x: 176.5vw; \}/);
-  const keyframes = css.match(/@keyframes site-color-wave \{([^]*?)\n\}/)?.[1] ?? "";
-  assert.doesNotMatch(keyframes, /%/);
-  assert.match(css, /@media screen and \(prefers-reduced-motion: no-preference\) and \(forced-colors: none\)/);
-  assert.match(css, /\.disclosure-toggle \.section-label \{ padding: 0; color: var\(--bar-label\); \}/);
-  assert.match(css, /--bar-label: var\(--ink\)/);
-  assert.doesNotMatch(css, /wordmark-color-sweep/);
-  // The header subtracts each label's actual viewport position; the
-  // edge-to-edge bars start at zero and therefore need no offset.
-  assert.ok(css.includes("var(--accent-surface) calc(var(--wave-x) - var(--wave-origin, 0px) - 25.5vw),\n      var(--accent-surface) calc(var(--wave-x) - var(--wave-origin, 0px) + 25.5vw)"));
+  assert.match(css, /--wave-paint: linear-gradient\(135deg in oklab/);
+  assert.match(css, /--inverse-paint: linear-gradient\(135deg/);
+  assert.match(css, /\.disclosure-toggle \.section-label, \.site-footer p, \.language-switch/);
+  assert.match(css, /--wave-travel/);
+  assert.match(css, /data-open="true"[^]*?-webkit-text-fill-color: var\(--ink\)/);
+  assert.match(css, /:focus-visible \.section-label/);
+  assert.match(css, /:hover \.section-label/);
+  assert.match(css, /--disclosure-space: 44px/);
+  assert.match(css, /--disclosure-space: 38px/);
+  assert.match(css, /--disclosure-space: 30px/);
+  const profiles = [...css.matchAll(/--wave-unit: ([\d.]+)vw;\s*--wave-duration: ([\d.]+)s;/g)];
+  assert.deepEqual(profiles.map(([, unit, duration]) => [+unit, +duration]), [[1,95],[.9,89],[.75,80]]);
   assert.equal((css.match(/--wave-paint: linear-gradient/g) ?? []).length, 1);
-  assert.match(css, /background: var\(--wave-paint\)/);
-  assert.match(css, /background-image: var\(--wave-paint\)/);
   const curve = css.match(/--wave-paint: linear-gradient\([^]*?\n    \);/)?.[0] ?? "";
   assert.equal((curve.match(/calc\(var\(--wave-x\)/g) ?? []).length, 130);
-  // One-quarter of the 51vw leading fade has entered at the left edge.
-  const initialCenter = -76.5 + 253 * 4.787549407 / 95;
-  assert.ok(Math.abs((initialCenter + 76.5) / 51 - 0.25) < 0.000001);
-  assert.match(css, /\.header-color::after \{[^}]*background-image: var\(--wave-paint\)/);
-  assert.match(css, /\.site-header a:is\(\[aria-current="page"\], :hover, :focus-visible\) \{\s*text-decoration: none;/);
-  const alignment = await readFile(new URL("../app/site-color-wave.tsx", import.meta.url), "utf8");
-  assert.match(alignment, /label\.getBoundingClientRect\(\)\.left/);
-  assert.match(alignment, /new ResizeObserver\(align\)/);
+});
+
+test("diagonal coordinates remain joined after expansion and responsive resizing", async () => {
+  const source = await readFile(new URL("../app/site-color-wave.tsx", import.meta.url), "utf8");
+  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
+  for (const [width, unit, duration] of [[1440,1,95],[834,.9,89],[390,.75,80]]) {
+    let resize, cleanup;
+    const make = (left, top, bottom = top + 30) => ({
+      rect: { left, top, bottom }, values: {},
+      getBoundingClientRect() { return this.rect; },
+      style: { setProperty(name, value) { this.owner.values[name] = value; } },
+    });
+    const bar = make(0,600,700), footer = make(20,900,1000), label = make(20,640), footerLabel = make(20,930);
+    const elements = [bar,footer,label,footerLabel];
+    elements.forEach(el => { el.style.owner = el; });
+    const root = { clientWidth: width, dataset: {}, values: {} };
+    root.style = { setProperty: (k,v) => { root.values[k] = v; }, removeProperty: k => { delete root.values[k]; } };
+    const exports = {};
+    runInNewContext(compiled, {
+      exports, require: () => ({ useEffect: fn => { cleanup = fn(); } }),
+      CSS: { registerProperty() {}, supports: () => true },
+      document: { documentElement: root,
+        querySelector: selector => selector === ".site-footer" ? footer : bar,
+        querySelectorAll: selector => selector === ".disclosure-toggle, .site-footer" ? [bar,footer] : selector === ".disclosure-panel" ? [] : [label,footerLabel],
+      },
+      window: { innerWidth: width, addEventListener: (_,fn) => { resize = fn; }, removeEventListener() {} },
+      ResizeObserver: class { observe() {} disconnect() {} },
+      getComputedStyle: () => ({ getPropertyValue: name => name === "--wave-unit" ? unit + "vw" : duration + "s" }),
+    });
+    exports.SiteColorWave({ pageKey: "en/home" });
+    assert.equal(root.dataset.colorWave, "ready");
+    assert.equal(parseFloat(bar.values["--wave-origin"]), 0);
+    assert.equal(parseFloat(label.values["--wave-origin"]), 60 / Math.SQRT2);
+    assert.equal(parseFloat(footer.values["--wave-origin"]), 299 / Math.SQRT2);
+    const travel = (width + 400) / Math.SQRT2;
+    assert.equal(parseFloat(root.values["--wave-travel"]), travel);
+    const delay = root.values["--wave-delay"];
+    const distance = travel + 153 * unit * width / 100;
+    assert.ok(Math.abs(-parseFloat(delay) / duration * distance / (51 * unit * width / 100) - .25) < 1e-10);
+    footer.rect.top += 200; footer.rect.bottom += 200; footerLabel.rect.top += 200;
+    resize();
+    assert.equal(parseFloat(footer.values["--wave-origin"]), 499 / Math.SQRT2);
+    assert.equal(root.values["--wave-delay"], delay, "Expansion must not reset the animation phase");
+    cleanup();
+    assert.equal(root.dataset.colorWave, undefined);
+  }
 });
 
 test("Chinese research preserves English paper titles and authors", async () => {
@@ -314,24 +284,32 @@ test("Chinese research preserves English paper titles and authors", async () => 
   }
 });
 
-test("photo fades are finely sampled without changing their responsive boundaries", async () => {
+test("photo masks use spatial dithering with preserved clear and opaque boundaries", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  const masks = [...css.matchAll(/\.hero-art \{[^}]*mask-image: linear-gradient\(to (right|bottom),\n([^]*?)\); \}/g)];
-  assert.equal(masks.length, 3);
-  for (const [index, [, direction, stops]] of masks.entries()) {
-    const points = [...stops.matchAll(/rgb\(0 0 0 \/ ([\d.]+)\) ([\d.]+)%/g)]
-      .map(([, alpha, position]) => [Number(position), Number(alpha)]);
-    assert.ok(points.length >= 50);
-    assert.deepEqual(points[0], [0, 0]);
-    assert.ok(points.every(([, alpha]) => alpha >= 0 && alpha <= 1));
-    assert.ok(points.every(([position], i) => !i || position > points[i - 1][0]));
-    if (direction === "right") {
-      assert.deepEqual(points.at(-1), [index === 0 ? 56 : 30, 1]);
-      assert.ok(points.every(([, alpha], i) => !i || alpha >= points[i - 1][1]));
+  for (const name of ["desktop","tablet","mobile"]) {
+    assert.ok(css.includes('mask-image: url("./masks/photo-' + name + '.png")'));
+    const png = await readFile(new URL("../app/masks/photo-" + name + ".png", import.meta.url));
+    assert.equal(png.subarray(1,4).toString(), "PNG");
+    const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
+    assert.deepEqual([width,height,png[24],png[25]], [1536,1024,8,4]);
+    const parts = [];
+    for (let offset=8; offset<png.length;) {
+      const length=png.readUInt32BE(offset);
+      if (png.toString("ascii",offset+4,offset+8)==="IDAT") parts.push(png.subarray(offset+8,offset+8+length));
+      offset+=length+12;
+    }
+    const raw=inflateSync(Buffer.concat(parts));
+    const alpha=(x,y)=>raw[y*(width*2+1)+2+x*2];
+    if(name==="mobile") {
+      assert.equal(alpha(500,0),0); assert.equal(alpha(500,height-1),0);
+      assert.equal(alpha(500,Math.round(height*.5)),255);
+      assert.ok(new Set(Array.from({length:100},(_,x)=>alpha(x,50))).size>1);
     } else {
-      assert.ok(points.some(([position, alpha]) => position === 12 && alpha === 1));
-      assert.ok(points.some(([position, alpha]) => position === 75 && alpha === 1));
-      assert.deepEqual(points.at(-1), [100, 0]);
+      assert.equal(alpha(0,500),0);
+      assert.equal(alpha(width-1,500),255);
+      const boundary=name==="desktop"?.56:.30;
+      assert.equal(alpha(Math.ceil(width*boundary),500),255);
+      assert.ok(new Set(Array.from({length:100},(_,y)=>alpha(200,y))).size>1);
     }
   }
 });
