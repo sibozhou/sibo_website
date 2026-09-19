@@ -260,7 +260,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     const bar = make(0,600,700), footer = make(20,900,1000), label = make(20,640), footerLabel = make(20,930);
     const photo = make(width / 2,200,500);
     photo.rect.width = width / 2;
-    const midpoint = width === 390 ? NaN : width === 834 ? .14 : .3954821253;
+    const midpoint = width === 390 ? NaN : width === 834 ? .14 : .3361598065;
     bar.label = label; footer.label = footerLabel;
     const elements = [bar,footer,label,footerLabel];
     elements.forEach(el => { el.style.owner = el; });
@@ -352,8 +352,11 @@ test("photo masks follow the bar diagonal with dithered, feathered left edges", 
     } else {
       for (const y of [0,500,height-1]) assert.equal(alpha(0,y),0);
       assert.equal(alpha(width-1,height-1),255);
-      const boundary=name==="desktop"?.56:.30;
+      const boundary=name==="desktop"?.476:.30;
       assert.equal(alpha(Math.ceil(width*boundary),height-1),255);
+      const midpoint=name==="desktop"?.3361598065:.14;
+      assert.ok(css.includes(`--photo-fade-midpoint: ${String(midpoint).slice(1)}`));
+      assert.ok(Math.abs(alpha(Math.round((width-1)*midpoint),height-1)-127.5)<=3, "Opening wave anchor must match the actual photo mask midpoint");
       // A 75-degree boundary has normal (cos15, sin15), starting at bottom-left.
       assert.ok(Math.abs(alpha(350,height-101)-alpha(323,height-1)) <= 4);
       for (const y of [height-1000,height-600,height-200,height-1]) {

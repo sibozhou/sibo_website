@@ -48,8 +48,10 @@ for (const [name, vertical, points] of [
   // The gradient runs perpendicular to that boundary, 15 degrees downward.
   const width = 1536, height = vertical ? 1024 : 4096;
   const slope = Math.tan(15 * Math.PI / 180);
+  // Bring the desktop fade inward while preserving its bottom-left anchor.
+  const fadeScale = name === "desktop" ? .85 : 1;
   const alphas = Array.from({ length: vertical ? height : width + 1 }, (_, i) =>
-    curve(points, 100 * i / ((vertical ? height : width) - 1)));
+    curve(points, 100 * i / (((vertical ? height : width) - 1) * fadeScale)));
   // Grayscale + alpha PNG, with spatially distributed sub-percent alpha noise.
   const pixels = Buffer.alloc(height * (width * 2 + 1));
   for (let y = 0; y < height; y++) {
@@ -69,6 +71,7 @@ for (const [name, vertical, points] of [
   header.writeUInt32BE(height, 4);
   header[8] = 8;
   header[9] = 4;
+  if (process.argv[2] && process.argv[2] !== name) continue;
   writeFileSync(new URL(`photo-${name}.png`, directory), Buffer.concat([
     Buffer.from([137,80,78,71,13,10,26,10]), chunk("IHDR", header),
     chunk("IDAT", deflateSync(pixels, { level: 9 })), chunk("IEND", Buffer.alloc(0)),
