@@ -242,17 +242,20 @@ test("one diagonal ink wave covers slimmer bars and footer, not the header", asy
   assert.equal((curve.match(/calc\(var\(--wave-x\)/g) ?? []).length, 130);
 });
 
-test("diagonal coordinates remain joined after expansion and responsive resizing", async () => {
+test("wave position stays stable during repeated toggles, scrolling, and mobile resize events", async () => {
   const source = await readFile(new URL("../app/site-color-wave.tsx", import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
   for (const [width, unit, duration] of [[1440,1,95],[834,.9,89],[390,.75,80]]) {
-    let resize, cleanup;
+    let resize, cleanup, observedResize;
+    const observed = [];
     const make = (left, top, bottom = top + 30) => ({
       rect: { left, top, bottom }, values: {},
-      getBoundingClientRect() { return this.rect; },
+      getBoundingClientRect() { return { ...this.rect, height: this.rect.bottom - this.rect.top }; },
+      contains(label) { return this.label === label; },
       style: { setProperty(name, value) { this.owner.values[name] = value; } },
     });
     const bar = make(0,600,700), footer = make(20,900,1000), label = make(20,640), footerLabel = make(20,930);
+    bar.label = label; footer.label = footerLabel;
     const elements = [bar,footer,label,footerLabel];
     elements.forEach(el => { el.style.owner = el; });
     const root = { clientWidth: width, dataset: {}, values: {} };
@@ -266,23 +269,36 @@ test("diagonal coordinates remain joined after expansion and responsive resizing
         querySelectorAll: selector => selector === ".disclosure-toggle, .site-footer" ? [bar,footer] : selector === ".disclosure-panel" ? [] : [label,footerLabel],
       },
       window: { innerWidth: width, addEventListener: (_,fn) => { resize = fn; }, removeEventListener() {} },
-      ResizeObserver: class { observe() {} disconnect() {} },
+      ResizeObserver: class { constructor(fn) { observedResize = fn; } observe(el) { observed.push(el); } disconnect() {} },
       getComputedStyle: () => ({ getPropertyValue: name => name === "--wave-unit" ? unit + "vw" : duration + "s" }),
     });
     exports.SiteColorWave({ pageKey: "en/home" });
     assert.equal(root.dataset.colorWave, "ready");
     assert.equal(parseFloat(bar.values["--wave-origin"]), 0);
     assert.equal(parseFloat(label.values["--wave-origin"]), 60 / Math.SQRT2);
-    assert.equal(parseFloat(footer.values["--wave-origin"]), 299 / Math.SQRT2);
-    const travel = (width + 400) / Math.SQRT2;
+    assert.equal(parseFloat(footer.values["--wave-origin"]), 99 / Math.SQRT2);
+    const travel = (width + 200) / Math.SQRT2;
     assert.equal(parseFloat(root.values["--wave-travel"]), travel);
     const delay = root.values["--wave-delay"];
     const distance = travel + 153 * unit * width / 100;
     assert.ok(Math.abs(-parseFloat(delay) / duration * distance / (51 * unit * width / 100) - .25) < 1e-10);
-    footer.rect.top += 200; footer.rect.bottom += 200; footerLabel.rect.top += 200;
+    const origins = elements.map(el => el.values["--wave-origin"]);
+    assert.deepEqual(observed, elements, "Do not observe expanding content on every transition frame");
+    for (const shift of [20,80,100,400,-400,-100,-80,-20,900,-900]) {
+      footer.rect.top += shift; footer.rect.bottom += shift;
+      footerLabel.rect.top += shift; footerLabel.rect.bottom += shift;
+      observedResize();
+      resize(); // Mobile browser chrome also emits height-only resize events.
+      assert.equal(parseFloat(root.values["--wave-travel"]), travel, "Toggling must not change the wave endpoint");
+      assert.deepEqual(elements.map(el => el.values["--wave-origin"]), origins);
+      assert.equal(root.values["--wave-delay"], delay, "Toggling must not reset the animation phase");
+    }
+    for (const el of elements) { el.rect.top -= 300; el.rect.bottom -= 300; }
     resize();
-    assert.equal(parseFloat(footer.values["--wave-origin"]), 499 / Math.SQRT2);
-    assert.equal(root.values["--wave-delay"], delay, "Expansion must not reset the animation phase");
+    assert.deepEqual(elements.map(el => el.values["--wave-origin"]), origins, "Scrolling must not shift wave coordinates");
+    root.clientWidth += 200;
+    resize();
+    assert.equal(parseFloat(root.values["--wave-travel"]), (width + 400) / Math.SQRT2);
     cleanup();
     assert.equal(root.dataset.colorWave, undefined);
   }
