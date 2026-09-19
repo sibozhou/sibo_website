@@ -49,7 +49,7 @@ for (const [name, vertical, points] of [
   const width = 1536, height = vertical ? 1024 : 4096;
   const slope = Math.tan(15 * Math.PI / 180);
   // Bring the desktop fade inward while preserving its bottom-left anchor.
-  const fadeScale = name === "desktop" ? .85 : 1;
+  const fadeScale = name === "desktop" ? .78 : 1;
   const alphas = Array.from({ length: vertical ? height : width + 1 }, (_, i) =>
     curve(points, 100 * i / (((vertical ? height : width) - 1) * fadeScale)));
   // Grayscale + alpha PNG, with spatially distributed sub-percent alpha noise.

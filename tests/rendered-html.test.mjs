@@ -196,6 +196,20 @@ test("name and contact arrows share a small top-aligned treatment", async () => 
   assert.match(css, /\.wordmark \.link-label, \.contact-link \.link-label, \.wordmark \.link-arrow, \.contact-link \.link-arrow \{[^}]*text-box-trim: trim-both; text-box-edge: cap alphabetic/);
   assert.match(css, /a\.wordmark:is\(:hover, :focus-visible\) \{ text-decoration-line: none/);
   assert.match(css, /a\.wordmark:is\(:hover, :focus-visible\) \.link-label \{ text-decoration-line: underline/);
+  assert.match(css, /\.site-shell \.site-header a\.wordmark:is\(:hover, :focus-visible\) \{ text-decoration-line: none/);
+  assert.match(css, /\.wordmark \{ column-gap: 0; \}/);
+  assert.match(css, /\.wordmark:not\(\.wordmark-english\) \.link-label \{ letter-spacing: 0; \}/);
+});
+
+test("tablet introduction uses a compact portrait and measured reading width", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const tablet = css.slice(css.indexOf("/* Tablet widths"), css.indexOf("@media (max-width: 540px)"));
+  assert.match(tablet, /\.intro \{ padding: 32px 0 40px/);
+  assert.match(tablet, /grid-row: 1 \/ 3; inset: 0 [^;]+ -40px 0; width: auto; height: auto/);
+  assert.match(tablet, /\.hero-content \{ grid-column: 1; grid-row: 2/);
+  assert.match(tablet, /\.home-intro \.intro-copy \{ max-width: 64ch/);
+  assert.match(tablet, /\.lead \{ font-size: 20px; max-width: 32ch/);
+  assert.match(tablet, /min-width: 541px\) and \(max-width: 700px/);
 });
 
 test("favicon is the same ink as the main text", async () => {
@@ -227,10 +241,11 @@ test("downloadable CV is a PDF", async () => {
 test("one diagonal ink wave covers slimmer bars and footer, not the header", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
-  assert.match(css, /--wave-paint: linear-gradient\(105deg in oklab/);
-  assert.match(css, /--inverse-paint: linear-gradient\(105deg/);
+  assert.match(css, /--wave-paint: repeating-linear-gradient\(105deg in oklab/);
+  assert.match(css, /--inverse-paint: repeating-linear-gradient\(105deg/);
   assert.match(css, /\.disclosure-toggle \.section-label, \.site-footer p, \.language-switch/);
-  assert.match(css, /--wave-travel/);
+  assert.doesNotMatch(css, /--wave-travel/);
+  assert.ok(css.includes("to { --wave-x: calc(127.5 * var(--wave-unit)); }"));
   assert.match(css, /data-open="true"[^]*?-webkit-text-fill-color: var\(--ink\)/);
   assert.match(css, /:focus-visible \.section-label/);
   assert.match(css, /:hover \.section-label/);
@@ -239,9 +254,13 @@ test("one diagonal ink wave covers slimmer bars and footer, not the header", asy
   assert.match(css, /--disclosure-space: 30px/);
   const profiles = [...css.matchAll(/--wave-unit: ([\d.]+)vw;\s*--wave-duration: ([\d.]+)s;/g)];
   assert.deepEqual(profiles.map(([, unit, duration]) => [+unit, +duration]), [[1,92],[.9,86],[.75,77]]);
-  assert.equal((css.match(/--wave-paint: linear-gradient/g) ?? []).length, 1);
-  const curve = css.match(/--wave-paint: linear-gradient\([^]*?\n    \);/)?.[0] ?? "";
-  assert.equal((curve.match(/calc\(var\(--wave-x\)/g) ?? []).length, 130);
+  assert.equal((css.match(/--wave-paint: repeating-linear-gradient/g) ?? []).length, 1);
+  const curve = css.match(/--wave-paint: repeating-linear-gradient\([^]*?\n    \);/)?.[0] ?? "";
+  assert.equal((curve.match(/calc\(var\(--wave-x\)/g) ?? []).length, 131);
+  // Equal 51-unit plateaus and mirrored 51-unit fades. The loop moves exactly
+  // one 204-unit repeat, so its final frame and first frame are identical.
+  assert.equal(127.5 - 76.5, 25.5 - (-25.5));
+  assert.equal(127.5 - (-76.5), 4 * 51);
 });
 
 test("wave position stays stable during repeated toggles, scrolling, and mobile resize events", async () => {
@@ -260,7 +279,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     const bar = make(0,600,700), footer = make(20,900,1000), label = make(20,640), footerLabel = make(20,930);
     const photo = make(width / 2,200,500);
     photo.rect.width = width / 2;
-    const midpoint = width === 390 ? NaN : width === 834 ? .14 : .3361598065;
+    const midpoint = width === 390 ? NaN : width === 834 ? .14 : .3084760577;
     bar.label = label; footer.label = footerLabel;
     const elements = [bar,footer,label,footerLabel];
     elements.forEach(el => { el.style.owner = el; });
@@ -283,14 +302,14 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     assert.equal(parseFloat(bar.values["--wave-origin"]), 0);
     assert.equal(parseFloat(label.values["--wave-origin"]), 20 * horizontal + 40 * vertical);
     assert.equal(parseFloat(footer.values["--wave-origin"]), 99 * vertical);
-    const travel = width * horizontal + 200 * vertical;
-    assert.equal(parseFloat(root.values["--wave-travel"]), travel);
+    assert.equal(root.values["--wave-travel"], undefined);
     const delay = root.values["--wave-delay"];
-    const distance = travel + 153 * unit * width / 100;
+    const distance = 204 * unit * width / 100;
     const center = -76.5 * unit * width / 100 - parseFloat(delay) / duration * distance;
     const photoBoundary = (photo.rect.left + midpoint * photo.rect.width) * horizontal;
     if (Number.isFinite(midpoint)) {
-      assert.ok(Math.abs(center - 51 * unit * width / 100 - photoBoundary) < 1e-10, "Opening wave midpoint must continue the photo fade");
+      const delta = center - 51 * unit * width / 100 - photoBoundary;
+      assert.ok(Math.abs(delta / distance - Math.round(delta / distance)) < 1e-10, "Opening wave midpoint must continue the photo fade modulo its repeat");
     } else {
       assert.ok(Math.abs(center + 63.75 * unit * width / 100) < 1e-10, "Mobile without a side fade retains a finite opening phase");
     }
@@ -301,7 +320,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
       footerLabel.rect.top += shift; footerLabel.rect.bottom += shift;
       observedResize();
       resize(); // Mobile browser chrome also emits height-only resize events.
-      assert.equal(parseFloat(root.values["--wave-travel"]), travel, "Toggling must not change the wave endpoint");
+      assert.equal(root.values["--wave-travel"], undefined, "Toggling must not introduce a layout-dependent endpoint");
       assert.deepEqual(elements.map(el => el.values["--wave-origin"]), origins);
       assert.equal(root.values["--wave-delay"], delay, "Toggling must not reset the animation phase");
     }
@@ -310,7 +329,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     assert.deepEqual(elements.map(el => el.values["--wave-origin"]), origins, "Scrolling must not shift wave coordinates");
     root.clientWidth += 200;
     resize();
-    assert.equal(parseFloat(root.values["--wave-travel"]), (width + 200) * horizontal + 200 * vertical);
+    assert.equal(root.values["--wave-width"], `${width + 200}px`);
     cleanup();
     assert.equal(root.dataset.colorWave, undefined);
   }
@@ -352,9 +371,9 @@ test("photo masks follow the bar diagonal with dithered, feathered left edges", 
     } else {
       for (const y of [0,500,height-1]) assert.equal(alpha(0,y),0);
       assert.equal(alpha(width-1,height-1),255);
-      const boundary=name==="desktop"?.476:.30;
+      const boundary=name==="desktop"?.4368:.30;
       assert.equal(alpha(Math.ceil(width*boundary),height-1),255);
-      const midpoint=name==="desktop"?.3361598065:.14;
+      const midpoint=name==="desktop"?.3084760577:.14;
       assert.ok(css.includes(`--photo-fade-midpoint: ${String(midpoint).slice(1)}`));
       assert.ok(Math.abs(alpha(Math.round((width-1)*midpoint),height-1)-127.5)<=3, "Opening wave anchor must match the actual photo mask midpoint");
       // A 75-degree boundary has normal (cos15, sin15), starting at bottom-left.

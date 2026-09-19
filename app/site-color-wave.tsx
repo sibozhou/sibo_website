@@ -32,8 +32,6 @@ export function SiteColorWave({ pageKey }: { pageKey: string }) {
         });
         paintedHeight += rect.height;
       });
-      const travel = root.clientWidth * horizontal + paintedHeight * vertical;
-      root.style.setProperty("--wave-travel", `${travel}px`);
       root.style.setProperty("--wave-width", `${root.clientWidth}px`);
       // Join the photo's midpoint to the rising half of the opening wave.
       // Ignore intervening prose on stacked layouts; it has no painted surface.
@@ -51,7 +49,8 @@ export function SiteColorWave({ pageKey }: { pageKey: string }) {
             center = anchor + 51 * unit;
           }
         }
-        const phase = Math.max(0, Math.min(1, (center + 76.5 * unit) / (travel + 153 * unit)));
+        // One repeating period: 51 units black, 51 white, and two equal fades.
+        const phase = ((center + 76.5 * unit) / (204 * unit)) % 1;
         root.style.setProperty("--wave-delay", `${-duration * phase}s`);
         previousWidth = root.clientWidth;
       }
@@ -66,7 +65,6 @@ export function SiteColorWave({ pageKey }: { pageKey: string }) {
       observer.disconnect();
       window.removeEventListener("resize", align);
       delete root.dataset.colorWave;
-      root.style.removeProperty("--wave-travel");
       root.style.removeProperty("--wave-delay");
       root.style.removeProperty("--wave-width");
     };
