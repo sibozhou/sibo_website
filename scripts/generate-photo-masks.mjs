@@ -44,21 +44,22 @@ for (const [name, vertical, points] of [
   ["mobile", true, [[0,0],[12,1],[75,1],[100,0]]],
 ]) {
   // Diagonal assets scale uniformly by their width in CSS, preserving a true
-  // 45-degree direction even when the photo's responsive aspect ratio changes.
+  // 75-degree fade boundary even when the photo's aspect ratio changes.
+  // The gradient runs perpendicular to that boundary, 15 degrees downward.
   const width = 1536, height = vertical ? 1024 : 4096;
-  const alphas = Array.from({ length: vertical ? height : width + height - 1 }, (_, i) =>
+  const slope = Math.tan(15 * Math.PI / 180);
+  const alphas = Array.from({ length: vertical ? height : width + 1 }, (_, i) =>
     curve(points, 100 * i / ((vertical ? height : width) - 1)));
-  const leftFeather = Array.from({ length: width }, (_, x) => {
-    const t = Math.min(1, x / ((width - 1) * .12));
-    return t ** 3 * (t * (6 * t - 15) + 10);
-  });
   // Grayscale + alpha PNG, with spatially distributed sub-percent alpha noise.
   const pixels = Buffer.alloc(height * (width * 2 + 1));
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      // The principal fade follows x+y (CSS 135deg), beginning at the upper-left.
-      // A narrow left-edge feather prevents a visible rectangular seam below it.
-      const alpha = vertical ? alphas[y] : alphas[x + y] * leftFeather[x];
+      // Bottom-left anchoring carries the fade through the entire visible height.
+      // Uniform CSS scaling and bottom alignment keep the upper-left faded.
+      const position = Math.max(0, x - (height - 1 - y) * slope);
+      const lower = Math.floor(position);
+      const diagonal = vertical ? 0 : alphas[lower] + (alphas[lower + 1] - alphas[lower]) * (position - lower);
+      const alpha = vertical ? alphas[y] : diagonal;
       const noise = alpha > 0 && alpha < 1 ? (random() - random()) * 2 : 0;
       pixels[y * (width * 2 + 1) + 1 + x * 2 + 1] = Math.max(0, Math.min(255, Math.round(alpha * 255 + noise)));
     }

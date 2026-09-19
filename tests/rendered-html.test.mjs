@@ -194,6 +194,8 @@ test("name and contact arrows share a small top-aligned treatment", async () => 
   assert.match(css, /--type-arrow: 12px/);
   assert.match(css, /\.wordmark, \.contact-link \{[^}]*align-items: flex-start; column-gap: 6px/);
   assert.match(css, /\.wordmark \.link-label, \.contact-link \.link-label, \.wordmark \.link-arrow, \.contact-link \.link-arrow \{[^}]*text-box-trim: trim-both; text-box-edge: cap alphabetic/);
+  assert.match(css, /a\.wordmark:is\(:hover, :focus-visible\) \{ text-decoration-line: none/);
+  assert.match(css, /a\.wordmark:is\(:hover, :focus-visible\) \.link-label \{ text-decoration-line: underline/);
 });
 
 test("favicon is the same ink as the main text", async () => {
@@ -225,8 +227,8 @@ test("downloadable CV is a PDF", async () => {
 test("one diagonal ink wave covers slimmer bars and footer, not the header", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
-  assert.match(css, /--wave-paint: linear-gradient\(135deg in oklab/);
-  assert.match(css, /--inverse-paint: linear-gradient\(135deg/);
+  assert.match(css, /--wave-paint: linear-gradient\(105deg in oklab/);
+  assert.match(css, /--inverse-paint: linear-gradient\(105deg/);
   assert.match(css, /\.disclosure-toggle \.section-label, \.site-footer p, \.language-switch/);
   assert.match(css, /--wave-travel/);
   assert.match(css, /data-open="true"[^]*?-webkit-text-fill-color: var\(--ink\)/);
@@ -236,7 +238,7 @@ test("one diagonal ink wave covers slimmer bars and footer, not the header", asy
   assert.match(css, /--disclosure-space: 38px/);
   assert.match(css, /--disclosure-space: 30px/);
   const profiles = [...css.matchAll(/--wave-unit: ([\d.]+)vw;\s*--wave-duration: ([\d.]+)s;/g)];
-  assert.deepEqual(profiles.map(([, unit, duration]) => [+unit, +duration]), [[1,95],[.9,89],[.75,80]]);
+  assert.deepEqual(profiles.map(([, unit, duration]) => [+unit, +duration]), [[1,92],[.9,86],[.75,77]]);
   assert.equal((css.match(/--wave-paint: linear-gradient/g) ?? []).length, 1);
   const curve = css.match(/--wave-paint: linear-gradient\([^]*?\n    \);/)?.[0] ?? "";
   assert.equal((curve.match(/calc\(var\(--wave-x\)/g) ?? []).length, 130);
@@ -245,7 +247,8 @@ test("one diagonal ink wave covers slimmer bars and footer, not the header", asy
 test("wave position stays stable during repeated toggles, scrolling, and mobile resize events", async () => {
   const source = await readFile(new URL("../app/site-color-wave.tsx", import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
-  for (const [width, unit, duration] of [[1440,1,95],[834,.9,89],[390,.75,80]]) {
+  const horizontal = Math.cos(15 * Math.PI / 180), vertical = Math.sin(15 * Math.PI / 180);
+  for (const [width, unit, duration] of [[1440,1,92],[834,.9,86],[390,.75,77]]) {
     let resize, cleanup, observedResize;
     const observed = [];
     const make = (left, top, bottom = top + 30) => ({
@@ -255,6 +258,9 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
       style: { setProperty(name, value) { this.owner.values[name] = value; } },
     });
     const bar = make(0,600,700), footer = make(20,900,1000), label = make(20,640), footerLabel = make(20,930);
+    const photo = make(width / 2,200,500);
+    photo.rect.width = width / 2;
+    const midpoint = width === 390 ? NaN : width === 834 ? .14 : .3954821253;
     bar.label = label; footer.label = footerLabel;
     const elements = [bar,footer,label,footerLabel];
     elements.forEach(el => { el.style.owner = el; });
@@ -265,23 +271,29 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
       exports, require: () => ({ useEffect: fn => { cleanup = fn(); } }),
       CSS: { registerProperty() {}, supports: () => true },
       document: { documentElement: root,
-        querySelector: selector => selector === ".site-footer" ? footer : bar,
+        querySelector: selector => selector === ".site-footer" ? footer : selector === ".hero-art" ? photo : bar,
         querySelectorAll: selector => selector === ".disclosure-toggle, .site-footer" ? [bar,footer] : selector === ".disclosure-panel" ? [] : [label,footerLabel],
       },
       window: { innerWidth: width, addEventListener: (_,fn) => { resize = fn; }, removeEventListener() {} },
       ResizeObserver: class { constructor(fn) { observedResize = fn; } observe(el) { observed.push(el); } disconnect() {} },
-      getComputedStyle: () => ({ getPropertyValue: name => name === "--wave-unit" ? unit + "vw" : duration + "s" }),
+      getComputedStyle: () => ({ getPropertyValue: name => name === "--wave-unit" ? unit + "vw" : name === "--photo-fade-midpoint" ? String(midpoint) : duration + "s" }),
     });
     exports.SiteColorWave({ pageKey: "en/home" });
     assert.equal(root.dataset.colorWave, "ready");
     assert.equal(parseFloat(bar.values["--wave-origin"]), 0);
-    assert.equal(parseFloat(label.values["--wave-origin"]), 60 / Math.SQRT2);
-    assert.equal(parseFloat(footer.values["--wave-origin"]), 99 / Math.SQRT2);
-    const travel = (width + 200) / Math.SQRT2;
+    assert.equal(parseFloat(label.values["--wave-origin"]), 20 * horizontal + 40 * vertical);
+    assert.equal(parseFloat(footer.values["--wave-origin"]), 99 * vertical);
+    const travel = width * horizontal + 200 * vertical;
     assert.equal(parseFloat(root.values["--wave-travel"]), travel);
     const delay = root.values["--wave-delay"];
     const distance = travel + 153 * unit * width / 100;
-    assert.ok(Math.abs(-parseFloat(delay) / duration * distance / (51 * unit * width / 100) - .25) < 1e-10);
+    const center = -76.5 * unit * width / 100 - parseFloat(delay) / duration * distance;
+    const photoBoundary = (photo.rect.left + midpoint * photo.rect.width) * horizontal;
+    if (Number.isFinite(midpoint)) {
+      assert.ok(Math.abs(center - 51 * unit * width / 100 - photoBoundary) < 1e-10, "Opening wave midpoint must continue the photo fade");
+    } else {
+      assert.ok(Math.abs(center + 63.75 * unit * width / 100) < 1e-10, "Mobile without a side fade retains a finite opening phase");
+    }
     const origins = elements.map(el => el.values["--wave-origin"]);
     assert.deepEqual(observed, elements, "Do not observe expanding content on every transition frame");
     for (const shift of [20,80,100,400,-400,-100,-80,-20,900,-900]) {
@@ -298,7 +310,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     assert.deepEqual(elements.map(el => el.values["--wave-origin"]), origins, "Scrolling must not shift wave coordinates");
     root.clientWidth += 200;
     resize();
-    assert.equal(parseFloat(root.values["--wave-travel"]), (width + 400) / Math.SQRT2);
+    assert.equal(parseFloat(root.values["--wave-travel"]), (width + 200) * horizontal + 200 * vertical);
     cleanup();
     assert.equal(root.dataset.colorWave, undefined);
   }
@@ -333,18 +345,28 @@ test("photo masks follow the bar diagonal with dithered, feathered left edges", 
     if(name==="mobile") {
       assert.equal(alpha(500,0),0); assert.equal(alpha(500,height-1),0);
       assert.equal(alpha(500,Math.round(height*.5)),255);
+      for (const x of [0, width-1]) {
+        for (const y of [.2,.5,.7]) assert.equal(alpha(x,Math.round(height*y)),255, "Mobile side edges must remain opaque");
+      }
       assert.ok(new Set(Array.from({length:100},(_,x)=>alpha(x,50))).size>1);
     } else {
       for (const y of [0,500,height-1]) assert.equal(alpha(0,y),0);
-      assert.equal(alpha(width-1,500),255);
+      assert.equal(alpha(width-1,height-1),255);
       const boundary=name==="desktop"?.56:.30;
-      assert.equal(alpha(Math.ceil(width*boundary),500),255);
-      // Equal x+y positions have equal opacity, within the dither amplitude.
-      assert.ok(Math.abs(alpha(220,100)-alpha(270,50)) <= 4);
-      assert.ok(alpha(220,200) > alpha(220,50));
-      assert.ok(new Set(Array.from({length:100},(_,y)=>alpha(200,y))).size>1);
+      assert.equal(alpha(Math.ceil(width*boundary),height-1),255);
+      // A 75-degree boundary has normal (cos15, sin15), starting at bottom-left.
+      assert.ok(Math.abs(alpha(350,height-101)-alpha(323,height-1)) <= 4);
+      for (const y of [height-1000,height-600,height-200,height-1]) {
+        const x = Math.round(250 + (height-1-y) * Math.tan(15*Math.PI/180));
+        assert.ok(Math.abs(alpha(x,y)-alpha(250,height-1)) <= 4, "Fade must continue through the full visible height");
+      }
+      assert.ok(alpha(220,height-1) > alpha(220,height-500));
+      assert.ok(new Set(Array.from({length:100},(_,y)=>alpha(400,height-1-y))).size>1);
     }
   }
-  assert.match(css, /mask-size: 100% auto; mask-position: left top/);
-  assert.match(css, /mask-size: 100% auto, 100% 100%; mask-composite: intersect/);
+  assert.match(css, /mask-size: 100% auto; mask-position: left bottom/);
+  const mobile = css.slice(css.indexOf("@media (max-width: 540px)"));
+  assert.match(mobile, /left: -20px; width: calc\(100% \+ 40px\)/);
+  assert.match(mobile, /mask-image: url\("\.\/masks\/photo-mobile.png"\); mask-size: 100% 100%/);
+  assert.doesNotMatch(mobile, /photo-desktop.png|mask-composite/);
 });

@@ -72,7 +72,7 @@
   --bar-label: var(--ink);
   --bar-strength: 1;
   --wave-unit: 1vw;
-  --wave-duration: 95s;
+  --wave-duration: 92s;
   --wave-delay: -4.787549407s;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -134,7 +134,7 @@ p, h1, h2, h3 { margin: 0; }
   :root[data-color-wave="ready"] .site-footer::before {
     /* One shared curve: a desktop 51vw center plus two 51vw fades, scaled on smaller screens.
        Each fade uses 64 intervals instead of coarse, rounded color stops. */
-    --wave-paint: linear-gradient(135deg in oklab,
+    --wave-paint: linear-gradient(105deg in oklab,
       var(--wave-base) calc(var(--wave-x) - var(--wave-origin, 0px) - 76.5 * var(--wave-unit)),
       color-mix(in oklab, var(--accent-surface) 0.003726%, var(--wave-base)) calc(var(--wave-x) - var(--wave-origin, 0px) - 75.703125 * var(--wave-unit)),
       color-mix(in oklab, var(--accent-surface) 0.029105%, var(--wave-base)) calc(var(--wave-x) - var(--wave-origin, 0px) - 74.90625 * var(--wave-unit)),
@@ -275,7 +275,7 @@ p, h1, h2, h3 { margin: 0; }
   @supports (background-clip: text) or (-webkit-background-clip: text) {
     :root[data-color-wave="ready"] :is(.disclosure-toggle .section-label, .site-footer p, .language-switch) {
       /* Inverse text switches at a contrast threshold, avoiding gray-on-gray. */
-      --inverse-paint: linear-gradient(135deg,
+      --inverse-paint: linear-gradient(105deg,
         var(--ink) calc(var(--wave-x) - var(--wave-origin) - 50.2 * var(--wave-unit)),
         var(--paper) 0 calc(var(--wave-x) - var(--wave-origin) + 50.2 * var(--wave-unit)),
         var(--ink) 0);
@@ -312,7 +312,7 @@ p, h1, h2, h3 { margin: 0; }
 .site-nav a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 9px; }
 .intro { padding: 96px 0 80px 192px; }
 .home-intro { position: relative; isolation: isolate; }
-.hero-art { position: absolute; top: 0; bottom: 0; right: -56px; width: 54%; pointer-events: none; clip-path: inset(0 4% 0 0); transform: translateY(-20px); mask-image: url("./masks/photo-desktop.png"); mask-size: 100% auto; mask-position: left top; mask-repeat: no-repeat; }
+.hero-art { --photo-fade-midpoint: .3954821253; position: absolute; top: 0; bottom: 0; right: -56px; width: 54%; pointer-events: none; clip-path: inset(0 4% 0 0); transform: translateY(-20px); mask-image: url("./masks/photo-desktop.png"); mask-size: 100% auto; mask-position: left bottom; mask-repeat: no-repeat; }
 .hero-photo { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 52% 48%; filter: saturate(.9) contrast(.98); opacity: .86; }
 .hero-heading, .hero-content { position: relative; z-index: 1; max-width: 560px; }
 .eyebrow, .section-label { font-family: var(--sans); font-size: var(--type-small); font-weight: 500; line-height: 1.6; letter-spacing: 0; }
@@ -412,14 +412,14 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 }
 /* Tablet widths, plus larger touch-first tablets in landscape. */
 @media screen and (min-width: 541px) and (max-width: 1099px), screen and (min-width: 1100px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
-  html { --wave-unit: .9vw; --wave-duration: 89s; --wave-delay: -4.296487169s; }
+  html { --wave-unit: .9vw; --wave-duration: 86s; --wave-delay: -4.296487169s; }
   html { --header-height: 72px; --type-title: clamp(48px, 5.5vw, 64px); }
   .site-shell { width: calc(100% - clamp(64px, 8vw, 96px)); }
   .site-header, .editorial-section, .site-footer { margin-right: 0; }
   .intro { padding: 48px 0; }
   .home-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .85fr); gap: 32px; align-items: center; }
   .hero-heading { grid-column: 1; grid-row: 1; max-width: none; }
-  .hero-art { position: relative; grid-column: 2; grid-row: 1; inset: auto; right: calc(0px - clamp(32px, 4vw, 48px)); width: 100%; height: 340px; margin: 0; clip-path: none; transform: none; mask-image: url("./masks/photo-tablet.png"); mask-size: 100% auto; mask-repeat: no-repeat; }
+  .hero-art { --photo-fade-midpoint: .14; position: relative; grid-column: 2; grid-row: 1; inset: auto; right: calc(0px - clamp(32px, 4vw, 48px)); width: 100%; height: 340px; margin: 0; clip-path: none; transform: none; mask-image: url("./masks/photo-tablet.png"); mask-size: 100% auto; mask-repeat: no-repeat; }
   .hero-photo { object-position: 50% 46%; opacity: .9; }
   .hero-content { grid-column: 1 / -1; grid-row: 2; width: 100%; max-width: 688px; }
   .home-intro .intro-copy { max-width: none; margin-top: 0; }
@@ -439,7 +439,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .hero-art { height: 320px; }
 }
 @media (max-width: 540px) {
-  html { --wave-unit: .75vw; --wave-duration: 80s; --wave-delay: -3.562281723s; }
+  html { --wave-unit: .75vw; --wave-duration: 77s; --wave-delay: -3.562281723s; }
   .site-shell { width: calc(100% - 40px); }
   .site-header, .editorial-section, .site-footer { margin-right: 0; }
   html { --header-height: 64px; }
@@ -447,7 +447,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .site-nav { gap: 20px; }
   .intro { padding: 48px 0; }
   .home-intro { padding-top: 32px; padding-left: 0; }
-  .hero-art { position: relative; top: auto; bottom: auto; left: -20px; width: calc(100% + 40px); height: 280px; clip-path: none; margin-top: 24px; transform: none; mask-image: url("./masks/photo-desktop.png"), url("./masks/photo-mobile.png"); mask-size: 100% auto, 100% 100%; mask-composite: intersect; mask-repeat: no-repeat; }
+  .hero-art { --photo-fade-midpoint: none; position: relative; top: auto; bottom: auto; left: -20px; width: calc(100% + 40px); height: 280px; clip-path: none; margin-top: 24px; transform: none; mask-image: url("./masks/photo-mobile.png"); mask-size: 100% 100%; mask-repeat: no-repeat; }
   .hero-photo { object-position: 50% 46%; opacity: .9; }
   .hero-heading, .hero-content { max-width: none; }
   .home-intro .intro-copy { margin-top: 24px; }
@@ -479,3 +479,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .editorial-section.home-disclosure { --disclosure-bleed: 0px; }
   .home-disclosure .disclosure-panel { grid-template-rows: 1fr; visibility: visible; opacity: 1; }
 }
+
+/* Underline only the name, never its language-switch arrow. */
+.site-shell a.wordmark:is(:hover, :focus-visible) { text-decoration-line: none; }
+.site-shell a.wordmark:is(:hover, :focus-visible) .link-label { text-decoration-line: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
