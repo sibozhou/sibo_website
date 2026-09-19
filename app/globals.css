@@ -69,7 +69,8 @@
   --rule: #d8d9d1;
   --accent: #754c47;
   --accent-surface: #754c47;
-  --bar-label: var(--paper);
+  --bar-label: var(--ink);
+  --bar-strength: .32;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   /* Shared type scale: editorial headings, readable copy, and supporting UI. */
@@ -84,6 +85,7 @@
   --accent: #526b61;
   --accent-surface: #9aafa6;
   --bar-label: var(--ink);
+  --bar-strength: 1;
 }
 * { box-sizing: border-box; }
 html[lang="zh-Hans"] {
@@ -113,24 +115,29 @@ p, h1, h2, h3 { margin: 0; }
 .site-header::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--paper); box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax); pointer-events: none; }
 .wordmark { font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 27px; font-weight: 700; font-synthesis: none; letter-spacing: .04em; text-decoration: none; }
 .wordmark-english { font-family: var(--serif); font-weight: 400; letter-spacing: -1px; }
-/* Two soft edges travel left to right; each quarter of the loop lasts 4s. */
-@keyframes wordmark-color-sweep {
-  0%, 25% { background-position: 100% 0; }
-  50%, 75% { background-position: 50% 0; }
-  100% { background-position: 0% 0; }
+/* One viewport-wide clock keeps the header and every bar vertically aligned. */
+@property --wave-x {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+@keyframes site-color-wave {
+  from { --wave-x: -36vw; }
+  to { --wave-x: 136vw; }
 }
 @media screen and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  :root[data-color-wave="ready"] { animation: site-color-wave 64s linear infinite; }
+  :root[data-color-wave="ready"] .disclosure-toggle::before {
+    background: var(--accent-surface);
+    mask-image: linear-gradient(to right, transparent calc(var(--wave-x) - 36vw), rgb(0 0 0 / .14) calc(var(--wave-x) - 24vw), rgb(0 0 0 / .55) calc(var(--wave-x) - 12vw), rgb(0 0 0 / .9) calc(var(--wave-x) - 6vw), #000 var(--wave-x), rgb(0 0 0 / .9) calc(var(--wave-x) + 6vw), rgb(0 0 0 / .55) calc(var(--wave-x) + 12vw), rgb(0 0 0 / .14) calc(var(--wave-x) + 24vw), transparent calc(var(--wave-x) + 36vw));
+  }
   @supports (background-clip: text) or (-webkit-background-clip: text) {
-    .wordmark > span {
+    :root[data-color-wave="ready"] .header-color {
       display: inline-block;
-      background-image: linear-gradient(to right, var(--ink) 27.777778%, var(--accent-surface) 36.111111%, var(--accent-surface) 63.888889%, var(--ink) 72.222222%);
-      background-size: 360% 100%;
-      background-position: 100% 0;
-      background-repeat: no-repeat;
+      background-image: linear-gradient(to right, var(--ink) calc(var(--wave-x) - var(--wave-origin) - 36vw), color-mix(in srgb, var(--accent-surface) 14%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 24vw), color-mix(in srgb, var(--accent-surface) 55%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 12vw), color-mix(in srgb, var(--accent-surface) 90%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) - 6vw), var(--accent-surface) calc(var(--wave-x) - var(--wave-origin)), color-mix(in srgb, var(--accent-surface) 90%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 6vw), color-mix(in srgb, var(--accent-surface) 55%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 12vw), color-mix(in srgb, var(--accent-surface) 14%, var(--ink)) calc(var(--wave-x) - var(--wave-origin) + 24vw), var(--ink) calc(var(--wave-x) - var(--wave-origin) + 36vw));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      animation: wordmark-color-sweep 16s ease-in-out infinite;
     }
   }
 }
@@ -187,8 +194,8 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 .editorial-section.home-disclosure { --disclosure-space: 52px; --disclosure-indent: 192px; --disclosure-bleed: clamp(32px, 4vw, 72px); display: block; padding: 0; }
 .home-disclosure[data-open="false"] { border-top: 0; }
 .disclosure-toggle { position: relative; isolation: isolate; display: flex; width: calc(100% + 2 * var(--disclosure-bleed)); margin-inline: calc(0px - var(--disclosure-bleed)); align-items: center; justify-content: space-between; gap: 24px; padding: var(--disclosure-space) calc(24px + var(--disclosure-bleed)) var(--disclosure-space) var(--disclosure-bleed); border: 0; border-radius: 0; background: var(--paper); color: var(--bar-label); text-align: left; cursor: pointer; transition: color 320ms ease; }
-.disclosure-toggle::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(to right, var(--accent-surface) 0%, color-mix(in srgb, var(--accent-surface) 90%, var(--paper)) max(200px, 18%), color-mix(in srgb, var(--accent-surface) 55%, var(--paper)) max(240px, 40%), color-mix(in srgb, var(--accent-surface) 14%, var(--paper)) 70%, var(--paper) 90%, var(--paper) 100%); opacity: 1; transition: opacity 320ms ease; }
-.disclosure-toggle .section-label { padding: 0; color: inherit; }
+.disclosure-toggle::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(to right, var(--accent-surface) 0%, color-mix(in srgb, var(--accent-surface) 90%, var(--paper)) max(200px, 18%), color-mix(in srgb, var(--accent-surface) 55%, var(--paper)) max(240px, 40%), color-mix(in srgb, var(--accent-surface) 14%, var(--paper)) 70%, var(--paper) 90%, var(--paper) 100%); opacity: var(--bar-strength); transition: opacity 320ms ease; }
+.disclosure-toggle .section-label { padding: 0; color: var(--bar-label); }
 .disclosure-toggle:focus-visible { background: var(--paper); color: var(--accent); outline: 2px solid currentColor; outline-offset: -6px; }
 .disclosure-toggle:focus-visible::before, .home-disclosure[data-open="true"] .disclosure-toggle::before { opacity: 0; }
 @media (hover: hover) {

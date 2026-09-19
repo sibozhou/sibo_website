@@ -15,6 +15,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     assert.equal((markup.match(/<h1\b/g) ?? []).length, 1);
     assert.match(markup, /aria-current="page"/);
     assert.match(markup, /id="main-content"/);
+    assert.equal((markup.match(/class="header-color"/g) ?? []).length, 3);
     const favicon = markup.match(/<link\b(?=[^>]*rel="icon")[^>]*>/)?.[0] ?? "";
     assert.match(favicon, /type="image\/svg\+xml"/);
     assert.equal(new URL(favicon.match(/href="([^"]+)"/)?.[1] ?? "", site + route).href, "https://sibozhou.com/favicon.svg");
@@ -264,21 +265,25 @@ test("downloadable CV is a PDF", async () => {
   assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
 });
 
-test("wordmark has four-second holds and left-to-right seasonal color sweeps", async () => {
+test("bars and header share one slow viewport-aligned wave with fixed section labels", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(css, /animation: wordmark-color-sweep 16s ease-in-out infinite/);
-  assert.match(css, /0%, 25% \{ background-position: 100% 0; \}/);
-  assert.match(css, /50%, 75% \{ background-position: 50% 0; \}/);
-  assert.match(css, /100% \{ background-position: 0% 0; \}/);
+  assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
+  assert.match(css, /animation: site-color-wave 64s linear infinite/);
+  assert.match(css, /from \{ --wave-x: -36vw; \}/);
+  assert.match(css, /to \{ --wave-x: 136vw; \}/);
   assert.match(css, /@media screen and \(prefers-reduced-motion: no-preference\) and \(forced-colors: none\)/);
-  const stops = css.match(/background-image: linear-gradient\(to right, var\(--ink\) ([\d.]+)%, var\(--accent-surface\) ([\d.]+)%, var\(--accent-surface\) ([\d.]+)%, var\(--ink\) ([\d.]+)%\)/);
-  assert.ok(stops);
-  // With a 360%-wide strip, these boundaries create three full-width
-  // solid regions and 30%-of-text-width transitions between them.
-  const boundaries = stops.slice(1).map((value) => Number(value) * 3.6);
-  [100, 130, 230, 260].forEach((expected, index) => {
-    assert.ok(Math.abs(boundaries[index] - expected) < 0.00001);
-  });
+  assert.match(css, /\.disclosure-toggle \.section-label \{ padding: 0; color: var\(--bar-label\); \}/);
+  assert.match(css, /--bar-label: var\(--ink\)/);
+  assert.doesNotMatch(css, /wordmark-color-sweep/);
+  // The header subtracts each label's actual viewport position; the
+  // edge-to-edge bars start at zero and therefore need no offset.
+  for (const edge of ["- 36vw", "- 24vw", "- 12vw", "- 6vw", "+ 6vw", "+ 12vw", "+ 24vw", "+ 36vw"]) {
+    assert.ok(css.includes(`calc(var(--wave-x) ${edge})`));
+    assert.ok(css.includes(`calc(var(--wave-x) - var(--wave-origin) ${edge})`));
+  }
+  const alignment = await readFile(new URL("../app/site-color-wave.tsx", import.meta.url), "utf8");
+  assert.match(alignment, /label\.getBoundingClientRect\(\)\.left/);
+  assert.match(alignment, /new ResizeObserver\(align\)/);
 });
 
 test("Chinese research preserves English paper titles and authors", async () => {
