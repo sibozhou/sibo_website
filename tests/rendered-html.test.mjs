@@ -31,7 +31,12 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     assert.ok(markup.includes(`property="og:title" content="${title}"`));
     const arrowLinks = [...markup.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>[^]*?<\/a>/g)]
       .filter(([link]) => /[↗↓→]/.test(link));
-    assert.deepEqual(arrowLinks.map(([, href]) => href), research ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
+    assert.match(arrowLinks[0][0], /class="wordmark/);
+    assert.deepEqual(arrowLinks.slice(1).map(([, href]) => href), research ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
+    for (const [link] of arrowLinks) {
+      assert.match(link, /<span class="link-label"/);
+      assert.match(link, /<span class="link-arrow" aria-hidden="true">↗<\/span>/);
+    }
     const languageTag = traditional ? "zh-Hant" : chinese ? "zh-Hans" : "en";
     assert.ok(markup.includes(`<html lang="${languageTag}"`));
     const suffix = research ? "research/" : "";
@@ -40,7 +45,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       const link = markup.match(new RegExp(`<a class="${className}[^\"]*"[^>]*href="([^\"]+)"[^>]*>([\\s\\S]*?)<\\/a>`));
       assert.ok(link, `Missing ${className}`);
       assert.equal(new URL(link[1], site + route).href, site + alternateRoute);
-      assert.equal(link[2].replace(/<[^>]*>/g, ""), chinese ? "Sibo" : "思博");
+      assert.equal(link[2].replace(/<[^>]*>/g, ""), chinese ? "Sibo↗" : "思博↗");
     }
     const switches = [...markup.matchAll(/<a class="language-switch"[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/g)];
     const alternatives = [
@@ -184,6 +189,13 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
   });
 }
 
+test("name and contact arrows share a small top-aligned treatment", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /--type-arrow: 12px/);
+  assert.match(css, /\.wordmark, \.contact-link \{[^}]*align-items: flex-start; column-gap: 6px/);
+  assert.match(css, /\.wordmark \.link-label, \.contact-link \.link-label, \.wordmark \.link-arrow, \.contact-link \.link-arrow \{[^}]*text-box-trim: trim-both; text-box-edge: cap alphabetic/);
+});
+
 test("favicon is the same ink as the main text", async () => {
   const icon = await readFile(new URL("favicon.svg", output), "utf8");
   assert.match(icon, /<circle cx="16" cy="16" r="14" fill="#242622"/);
@@ -196,7 +208,9 @@ test("neutral palette and static accessible fallbacks replace seasonal colors", 
   assert.match(css, /--accent: var\(--ink\)/);
   assert.match(css, /--accent-surface: var\(--ink\)/);
   assert.doesNotMatch(css, /data-season|#754c47|#9aafa6|header-color/);
-  assert.match(css, /prefers-reduced-motion: no-preference/);
+  assert.doesNotMatch(css, /prefers-reduced-motion: no-preference/);
+  assert.match(css, /@media screen and \(forced-colors: none\) \{[^]*?animation: site-color-wave/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*html \{ scroll-behavior: auto; \}/);
   assert.match(css, /forced-colors: none/);
   assert.match(css, /\.disclosure-toggle::before \{[^}]*background: var\(--paper\)/);
   assert.match(css, /\.disclosure-toggle:hover::before \{ opacity: 0; \}/);
@@ -284,14 +298,14 @@ test("Chinese research preserves English paper titles and authors", async () => 
   }
 });
 
-test("photo masks use spatial dithering with preserved clear and opaque boundaries", async () => {
+test("photo masks follow the bar diagonal with dithered, feathered left edges", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   for (const name of ["desktop","tablet","mobile"]) {
-    assert.ok(css.includes('mask-image: url("./masks/photo-' + name + '.png")'));
+    assert.ok(css.includes('url("./masks/photo-' + name + '.png")'));
     const png = await readFile(new URL("../app/masks/photo-" + name + ".png", import.meta.url));
     assert.equal(png.subarray(1,4).toString(), "PNG");
     const width = png.readUInt32BE(16), height = png.readUInt32BE(20);
-    assert.deepEqual([width,height,png[24],png[25]], [1536,1024,8,4]);
+    assert.deepEqual([width,height,png[24],png[25]], [1536,name === "mobile" ? 1024 : 4096,8,4]);
     const parts = [];
     for (let offset=8; offset<png.length;) {
       const length=png.readUInt32BE(offset);
@@ -305,11 +319,16 @@ test("photo masks use spatial dithering with preserved clear and opaque boundari
       assert.equal(alpha(500,Math.round(height*.5)),255);
       assert.ok(new Set(Array.from({length:100},(_,x)=>alpha(x,50))).size>1);
     } else {
-      assert.equal(alpha(0,500),0);
+      for (const y of [0,500,height-1]) assert.equal(alpha(0,y),0);
       assert.equal(alpha(width-1,500),255);
       const boundary=name==="desktop"?.56:.30;
       assert.equal(alpha(Math.ceil(width*boundary),500),255);
+      // Equal x+y positions have equal opacity, within the dither amplitude.
+      assert.ok(Math.abs(alpha(220,100)-alpha(270,50)) <= 4);
+      assert.ok(alpha(220,200) > alpha(220,50));
       assert.ok(new Set(Array.from({length:100},(_,y)=>alpha(200,y))).size>1);
     }
   }
+  assert.match(css, /mask-size: 100% auto; mask-position: left top/);
+  assert.match(css, /mask-size: 100% auto, 100% 100%; mask-composite: intersect/);
 });

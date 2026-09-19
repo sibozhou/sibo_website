@@ -43,14 +43,22 @@ for (const [name, vertical, points] of [
   ["tablet", false, [[0,0],[6,.15],[14,.5],[22,.85],[30,1]]],
   ["mobile", true, [[0,0],[12,1],[75,1],[100,0]]],
 ]) {
-  const width = 1536, height = 1024;
-  const alphas = Array.from({ length: vertical ? height : width }, (_, i) =>
+  // Diagonal assets scale uniformly by their width in CSS, preserving a true
+  // 45-degree direction even when the photo's responsive aspect ratio changes.
+  const width = 1536, height = vertical ? 1024 : 4096;
+  const alphas = Array.from({ length: vertical ? height : width + height - 1 }, (_, i) =>
     curve(points, 100 * i / ((vertical ? height : width) - 1)));
+  const leftFeather = Array.from({ length: width }, (_, x) => {
+    const t = Math.min(1, x / ((width - 1) * .12));
+    return t ** 3 * (t * (6 * t - 15) + 10);
+  });
   // Grayscale + alpha PNG, with spatially distributed sub-percent alpha noise.
   const pixels = Buffer.alloc(height * (width * 2 + 1));
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const alpha = alphas[vertical ? y : x];
+      // The principal fade follows x+y (CSS 135deg), beginning at the upper-left.
+      // A narrow left-edge feather prevents a visible rectangular seam below it.
+      const alpha = vertical ? alphas[y] : alphas[x + y] * leftFeather[x];
       const noise = alpha > 0 && alpha < 1 ? (random() - random()) * 2 : 0;
       pixels[y * (width * 2 + 1) + 1 + x * 2 + 1] = Math.max(0, Math.min(255, Math.round(alpha * 255 + noise)));
     }

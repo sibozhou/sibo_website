@@ -71,8 +71,8 @@ export function HomePage({ language = "en" }: { language?: Language }) {
       </HomeDisclosure>
       <HomeDisclosure id="contact" label={zh ? t("联系我") : "Get in touch"}>
         <div className="section-body">
-          <a className="contact-link" href="mailto:sibozhou@berkeley.edu">sibozhou@berkeley.edu <span className="link-arrow" aria-hidden="true">↗</span></a>
-          <a className="contact-link" href="https://www.linkedin.com/in/sibo-zhou88">linkedin.com/in/sibo-zhou88 <span className="link-arrow" aria-hidden="true">↗</span></a>
+          <a className="contact-link" href="mailto:sibozhou@berkeley.edu"><span className="link-label">sibozhou@berkeley.edu</span><span className="link-arrow" aria-hidden="true">↗</span></a>
+          <a className="contact-link" href="https://www.linkedin.com/in/sibo-zhou88"><span className="link-label">linkedin.com/in/sibo-zhou88</span><span className="link-arrow" aria-hidden="true">↗</span></a>
         </div>
       </HomeDisclosure>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
