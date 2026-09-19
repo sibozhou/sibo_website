@@ -277,26 +277,28 @@ test("downloadable CV is a PDF", async () => {
 test("bars and header share one slow viewport-aligned wave with fixed section labels", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
-  assert.match(css, /animation: site-color-wave 109s linear -23.142857143s infinite/);
-  assert.match(css, /from \{ --wave-x: -90vw; \}/);
-  const pause = css.match(/([\d.]+)%, 100% \{ --wave-x: 190vw; \}/);
-  assert.ok(pause);
-  assert.ok(Math.abs(109 * (1 - Number(pause[1]) / 100) - 1) < 0.000001);
+  assert.match(css, /animation: site-color-wave 95s linear -4.787549407s infinite/);
+  assert.match(css, /from \{ --wave-x: -76.5vw; \}/);
+  assert.match(css, /to \{ --wave-x: 176.5vw; \}/);
+  const keyframes = css.match(/@keyframes site-color-wave \{([^]*?)\n\}/)?.[1] ?? "";
+  assert.doesNotMatch(keyframes, /%/);
   assert.match(css, /@media screen and \(prefers-reduced-motion: no-preference\) and \(forced-colors: none\)/);
   assert.match(css, /\.disclosure-toggle \.section-label \{ padding: 0; color: var\(--bar-label\); \}/);
   assert.match(css, /--bar-label: var\(--ink\)/);
   assert.doesNotMatch(css, /wordmark-color-sweep/);
   // The header subtracts each label's actual viewport position; the
   // edge-to-edge bars start at zero and therefore need no offset.
-  assert.ok(css.includes("var(--accent-surface) calc(var(--wave-x) - var(--wave-origin, 0px) - 30vw),\n      var(--accent-surface) calc(var(--wave-x) - var(--wave-origin, 0px) + 30vw)"));
+  assert.ok(css.includes("var(--accent-surface) calc(var(--wave-x) - var(--wave-origin, 0px) - 25.5vw),\n      var(--accent-surface) calc(var(--wave-x) - var(--wave-origin, 0px) + 25.5vw)"));
   assert.equal((css.match(/--wave-paint: linear-gradient/g) ?? []).length, 1);
   assert.match(css, /background: var\(--wave-paint\)/);
   assert.match(css, /background-image: var\(--wave-paint\)/);
   const curve = css.match(/--wave-paint: linear-gradient\([^]*?\n    \);/)?.[0] ?? "";
   assert.equal((curve.match(/calc\(var\(--wave-x\)/g) ?? []).length, 130);
-  // The negative delay starts at -30vw, with the fade visible immediately.
-  const initialCenter = -90 + 280 * 23.142857143 / 108;
-  assert.ok(Math.abs(initialCenter + 30) < 0.000001);
+  // One-quarter of the 51vw leading fade has entered at the left edge.
+  const initialCenter = -76.5 + 253 * 4.787549407 / 95;
+  assert.ok(Math.abs((initialCenter + 76.5) / 51 - 0.25) < 0.000001);
+  assert.match(css, /\.header-color::after \{[^}]*background-image: var\(--wave-paint\)/);
+  assert.match(css, /\.site-header a:is\(\[aria-current="page"\], :hover, :focus-visible\) \{\s*text-decoration: none;/);
   const alignment = await readFile(new URL("../app/site-color-wave.tsx", import.meta.url), "utf8");
   assert.match(alignment, /label\.getBoundingClientRect\(\)\.left/);
   assert.match(alignment, /new ResizeObserver\(align\)/);
@@ -308,6 +310,28 @@ test("Chinese research preserves English paper titles and authors", async () => 
     const chinese = await readFile(new URL(route + "research/index.html", output), "utf8");
     for (const pattern of [/<h3\b[^>]*>[\s\S]*?<\/h3>/g, /<p class="authors"[^>]*>[\s\S]*?<\/p>/g]) {
       assert.deepEqual(chinese.match(pattern), english.match(pattern));
+    }
+  }
+});
+
+test("photo fades are finely sampled without changing their responsive boundaries", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const masks = [...css.matchAll(/\.hero-art \{[^}]*mask-image: linear-gradient\(to (right|bottom),\n([^]*?)\); \}/g)];
+  assert.equal(masks.length, 3);
+  for (const [index, [, direction, stops]] of masks.entries()) {
+    const points = [...stops.matchAll(/rgb\(0 0 0 \/ ([\d.]+)\) ([\d.]+)%/g)]
+      .map(([, alpha, position]) => [Number(position), Number(alpha)]);
+    assert.ok(points.length >= 50);
+    assert.deepEqual(points[0], [0, 0]);
+    assert.ok(points.every(([, alpha]) => alpha >= 0 && alpha <= 1));
+    assert.ok(points.every(([position], i) => !i || position > points[i - 1][0]));
+    if (direction === "right") {
+      assert.deepEqual(points.at(-1), [index === 0 ? 56 : 30, 1]);
+      assert.ok(points.every(([, alpha], i) => !i || alpha >= points[i - 1][1]));
+    } else {
+      assert.ok(points.some(([position, alpha]) => position === 12 && alpha === 1));
+      assert.ok(points.some(([position, alpha]) => position === 75 && alpha === 1));
+      assert.deepEqual(points.at(-1), [100, 0]);
     }
   }
 });
