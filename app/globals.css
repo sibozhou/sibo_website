@@ -390,7 +390,6 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 .language-switch:lang(zh-Hant) { font-family: "Noto Sans TC", var(--sans); }
 .research-intro { padding-bottom: 64px; }
 .research-description { max-width: 580px; margin-top: 24px; color: var(--ink); font-size: var(--type-body); line-height: 1.7; }
-.section-jumps { margin-top: 24px; }
 .section-count { display: block; margin-top: 12px; font-size: var(--type-small); font-weight: 400; color: var(--muted); }
 .disclosure-toggle .section-count { display: inline-block; margin-top: 0; margin-inline-start: 12px; }
 .paper { position: relative; padding: 0 0 32px 36px; margin-bottom: 32px; border-bottom: 1px solid var(--rule); }
@@ -487,7 +486,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .site-header { position: static; background: transparent; }
   .site-header::before { display: none; }
   .site-shell { width: 100%; min-height: 0; display: block; }
-  .site-nav, .skip-link, .section-jumps { display: none; }
+  .site-nav, .skip-link { display: none; }
   .intro { padding: 32px 0; }
   .hero-art { display: none; }
   .paper { break-inside: avoid; }

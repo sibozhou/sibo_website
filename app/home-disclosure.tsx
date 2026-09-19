@@ -1,16 +1,9 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 export function HomeDisclosure({ id, label, count, children }: { id: string; label: string; count?: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const links = document.querySelectorAll<HTMLAnchorElement>(`a[href="#${id}"]`);
-    const expand = () => setOpen(true);
-    links.forEach((link) => link.addEventListener("click", expand));
-    return () => links.forEach((link) => link.removeEventListener("click", expand));
-  }, [id]);
 
   return (
     <section className="editorial-section home-disclosure" id={id} aria-labelledby={`${id}-title`} data-open={open}>

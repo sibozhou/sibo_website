@@ -68,6 +68,8 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.match(main, research ? /工作論文/ : /資料科學/);
     }
     if (research) {
+      assert.doesNotMatch(markup, /section-jumps|href="#working-papers"|href="#publications"/);
+      assert.match(markup, /class="research-description"/);
       assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 2);
       assert.doesNotMatch(markup, /class="section-count"/);
       for (const id of ["working-papers", "publications"]) {
@@ -371,23 +373,16 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
   }
 });
 
-test("shared research disclosures toggle counts and open from section shortcuts", async () => {
+test("shared research disclosures toggle counts and reset on a fresh mount", async () => {
   const source = await readFile(new URL("../app/home-disclosure.tsx", import.meta.url), "utf8");
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   const exports = {};
-  let state, click, cleanup;
-  const effects = [];
-  const link = {
-    addEventListener: (type, fn) => { assert.equal(type, "click"); click = fn; },
-    removeEventListener: (type, fn) => { assert.equal(type, "click"); assert.equal(fn, click); click = undefined; },
-  };
+  let state;
   runInNewContext(compiled, {
     exports,
     require: name => name === "react" ? {
       useState: initial => { state ??= initial; return [state, value => { state = value; }]; },
-      useEffect: fn => effects.push(fn),
     } : { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) },
-    document: { querySelectorAll: selector => { assert.equal(selector, 'a[href="#working-papers"]'); return [link]; } },
   });
   const render = () => exports.HomeDisclosure({ id: "working-papers", label: "工作论文", count: "01—03", children: "Papers" });
   const check = open => {
@@ -404,14 +399,8 @@ test("shared research disclosures toggle counts and open from section shortcuts"
   };
   check(false)();
   check(true)();
-  check(false);
-  cleanup = effects[0]();
-  click();
-  check(true)();
-  check(false);
-  click(); // A repeated click on the same hash must reopen a manually closed bar.
+  check(false)();
   check(true);
-  cleanup();
   state = undefined; // A fresh mount starts collapsed, without persisted state.
   check(false);
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
