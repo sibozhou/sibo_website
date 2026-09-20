@@ -126,7 +126,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.equal(paragraphs.length, 2);
       if (!chinese) {
         assert.deepEqual(paragraphs, [
-          "I am a Predoctoral Scholar at UC Berkeley Haas, working with Prof. David Chan on health economics research.",
+          "I am a Predoctoral Scholar and Junior Specialist at UC Berkeley Haas, working with Prof. David Chan on health economics research.",
           "I also collaborate with Prof. Eric T. Wong at Brown on neuro-oncology studies.",
         ]);
       } else {

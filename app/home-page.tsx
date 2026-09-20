@@ -28,7 +28,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
         </div>
         <div className="hero-content">
         <div className="intro-copy">
-          <p>{zh ? "我目前在" : "I am a Predoctoral Scholar at "}<a href="https://haas.berkeley.edu/">{zh ? t("加州大学伯克利分校哈斯商学院") : "UC Berkeley Haas"}</a>{zh ? t("担任研究专员，与 ") : ", working with "}<a href="https://haas.berkeley.edu/faculty/david-chan/">{zh ? "David Chan 教授" : "Prof. David Chan"}</a>{zh ? t("合作开展健康经济学研究。") : " on health economics research."}</p>
+          <p>{zh ? "我目前在" : "I am a Predoctoral Scholar and Junior Specialist at "}<a href="https://haas.berkeley.edu/">{zh ? t("加州大学伯克利分校哈斯商学院") : "UC Berkeley Haas"}</a>{zh ? t("担任研究专员，与 ") : ", working with "}<a href="https://haas.berkeley.edu/faculty/david-chan/">{zh ? "David Chan 教授" : "Prof. David Chan"}</a>{zh ? t("合作开展健康经济学研究。") : " on health economics research."}</p>
           <p>{zh ? <>{t("此外，我与")}<a href="https://brown.edu/">{t("布朗大学")}</a>的 </> : "I also collaborate with "}<a href="https://neurosurgery.med.brown.edu/people/eric-t-wong-md">{zh ? "Eric T. Wong 教授" : "Prof. Eric T. Wong"}</a>{zh ? t("合作，开展神经肿瘤学研究。") : <> at <a href="https://brown.edu/">Brown</a> on neuro-oncology studies.</>}</p>
         </div>
         <div className="text-links">
