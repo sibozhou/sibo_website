@@ -126,7 +126,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.equal(paragraphs.length, 2);
       if (!chinese) {
         assert.deepEqual(paragraphs, [
-          "I am a Predoctoral Scholar at UC Berkeley Haas and a Research Statistician at the VA, working with Prof. David Chan on health economics research.",
+          "I am a Predoctoral Scholar at UC Berkeley Haas, working with Prof. David Chan on health economics research.",
           "I also collaborate with Prof. Eric T. Wong at Brown on neuro-oncology studies.",
         ]);
       } else {
@@ -139,7 +139,8 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       assert.match(markup, /USC Dornsife Scholar Prize/);
       const background = markup.match(/<section[^>]*aria-labelledby="background-title"[^]*?<\/section>/)?.[0] ?? "";
       assert.match(background, /href="https:\/\/haas.berkeley.edu\/"/);
-      assert.match(background, /href="https:\/\/www.va.gov\/"/);
+      assert.doesNotMatch(html, /Research Statistician|research statistician|研究统计师|研究統計師|退伍|www\.va\.gov/);
+      if (!chinese) assert.match(background, /Before joining <a href="https:\/\/haas.berkeley.edu\/">Haas<\/a>, I worked with/);
       assert.match(background, chinese ? traditional ? /取得四個學士學位/ : /获得四个学士学位/ : /four bachelor’s degrees/);
       assert.equal((background.match(/<p>/g) ?? []).length, 3, "Education, academic experience, and industry experience remain distinct paragraphs");
       for (const program of ["graduate-program/data-science-scm", "catoid=22&amp;poid=31855", "catoid=22&amp;poid=32704", "catoid=22&amp;poid=31917", "catoid=22&amp;poid=31701"]) {
@@ -178,7 +179,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
         assert.match(articles[1], /dateTime="2024-05-14"|datetime="2024-05-14"/);
         assert.match(articles[1], traditional ? /「我只是想不斷探索」/ : /“我只是想不断探索”/);
       }
-      for (const href of ["https://haas.berkeley.edu/", "https://www.va.gov/", "https://haas.berkeley.edu/faculty/david-chan/", "https://neurosurgery.med.brown.edu/people/eric-t-wong-md", "https://home.watson.brown.edu/people/faculty/watson-faculty/robert-blair", "https://dornsife.usc.edu/profile/yuehao-bai/"]) {
+      for (const href of ["https://haas.berkeley.edu/", "https://haas.berkeley.edu/faculty/david-chan/", "https://neurosurgery.med.brown.edu/people/eric-t-wong-md", "https://home.watson.brown.edu/people/faculty/watson-faculty/robert-blair", "https://dornsife.usc.edu/profile/yuehao-bai/"]) {
         const link = markup.split(`href="${href}"`)[1]?.split("</a>")[0];
         assert.ok(link, `Missing biography link: ${href}`);
         assert.doesNotMatch(link, /link-arrow|↗/);

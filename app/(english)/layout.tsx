@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   icons: { icon: { url: "/favicon.svg", type: "image/svg+xml" } },
   alternates: languageAlternates("home", "en"),
   description:
-    "Sibo Zhou is a predoctoral scholar and research statistician with interests in health economics, machine learning, and statistics.",
+    "Sibo Zhou is a predoctoral scholar with interests in health economics, machine learning, and statistics.",
   authors: [{ name: "Sibo Zhou" }],
   creator: "Sibo Zhou",
   openGraph: {
