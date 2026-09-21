@@ -130,6 +130,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
           "I also collaborate with Prof. Eric T. Wong at Brown on neuro-oncology studies.",
         ]);
       } else {
+        assert.doesNotMatch(paragraphs[0], /目前/);
         assert.match(paragraphs[0], /David Chan/);
         assert.match(paragraphs[1], /Eric T. Wong/);
       }
