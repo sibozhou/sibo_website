@@ -327,8 +327,6 @@ p, h1, h2, h3 { margin: 0; }
 .eyebrow { color: var(--ink); margin-bottom: 24px; }
 h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; letter-spacing: -.03em; font-weight: 400; }
 .calligraphy-name { display: inline-flex; height: 1.2em; gap: .16em; align-items: center; vertical-align: top; }
-.calligraphy-link { display: inline-flex; color: var(--ink); text-decoration: none; transition: color 220ms ease; }
-.calligraphy-link:is(:hover, :focus-visible, :active, :visited) { color: var(--muted); text-decoration: none; }
 .calligraphy-name > span { display: block; width: 1em; height: 1em; background: currentColor; mask-repeat: no-repeat; mask-position: center; mask-mode: alpha; }
 /* Balance the visible ink, preserving the tall Zhou and broader Si proportions. */
 .calligraphy-name > .calligraphy-zhou { width: .87em; height: 1.2em; margin-right: .03em; mask-image: url("./calligraphy/zhou-v2.png"); mask-size: 1.075em auto; mask-position: -.117em -.025em; transform: translateY(-.01em); }

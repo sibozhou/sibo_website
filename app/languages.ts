@@ -10,7 +10,6 @@ export const languages = [
 // Unchanged proper names and dates stay in the shared page templates.
 const traditional = {
   "以经济学与数据，理解人的行为与健康。": "以經濟學與資料，理解人的行為與健康。",
-  "查看书法典藏来源": "查看書法典藏來源",
   "加州大学伯克利分校哈斯商学院": "加州大學柏克萊分校哈斯商學院",
   "担任研究专员，与 ": "擔任研究專員，與 ",
   "合作开展健康经济学研究。": "合作進行健康經濟學研究。",
