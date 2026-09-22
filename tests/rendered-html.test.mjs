@@ -112,6 +112,11 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
     } else if (notes) {
       assert.match(markup, /id="notes-title"/);
       assert.match(markup, /class="notes-description"/);
+      if (chinese) {
+        assert.match(markup, /id="notes-title"[^]*?class="calligraphy-notes"/);
+      } else {
+        assert.doesNotMatch(markup, /calligraphy-notes|calligraphy-sui|calligraphy-ji/);
+      }
       assert.match(markup, traditional ? /一些正在想、正在學的事。/ : chinese ? /一些正在想、正在学的事。/ : /A loose collection of things I’m thinking about or learning/);
       assert.doesNotMatch(markup, /偶然留意到|simply want to remember/);
       assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 0);

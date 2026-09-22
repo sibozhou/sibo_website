@@ -4,6 +4,8 @@ The current masks (`zhou-v2.png`, `si-v2.png`, `bo-v2.png`) were extracted from 
 
 The research-title masks (`yan-v1.png`, `jiu-v1.png`) were extracted from the user-supplied `Yan.png` and `Jiu.png`. The built-in editor isolated the original strokes; because its returned files contained a rendered transparency grid rather than an alpha channel, a deterministic luminance threshold converted only that grid to transparency. CSS again supplies the visible ink color.
 
+The Notes-title masks (`sui-v1.png`, `ji-v1.png`) were extracted from the user-supplied crops of 隨 and 記 with the built-in image-editing tool. `sui-v1.png` uses the user's final, more clearly defined 隨 crop. Both returned PNGs contain real alpha transparency. CSS uses the alpha channels as masks, applies the site's ink color, and compensates for the substantially different clear margins in the two source crops.
+
 ## Edit prompts
 
 ### Zhou
@@ -25,3 +27,11 @@ Use case: background-extraction. Asset type: Chinese research-page title mask. E
 ### Jiu
 
 Use case: background-extraction. Asset type: Chinese research-page title mask. Edit target: the supplied historical calligraphy image Jiu.png. Extract ONLY the original light ink strokes of the character 究 from the opaque gray background onto a genuinely transparent PNG. Preserve the exact existing calligraphy: every stroke position, contour, proportion, irregular edge, interior opening, and worn texture. Do not redraw, reinterpret, typeset, modernize, repair, add, or remove any stroke. Remove the gray background and all surrounding texture completely. Recolor the surviving strokes uniformly charcoal #242622 while retaining antialiased transparent edges. Center the isolated original character with a small clear margin. No background, shadow, outline, border, watermark, or other text.
+
+### Sui
+
+Use case: background-extraction. Asset type: final replacement Chinese Notes-page title mask. Extract ONLY the exact existing dark ink strokes of 隨 from the newest user-supplied crop onto a genuinely transparent PNG. Remove the mottled pale paper, colored noise, grain, stains, texture, border, and every background pixel. Preserve the original calligraphy exactly: all stroke positions, contours, proportions, irregular and bristled edges, ink variation, and interior openings. Do not redraw, repair, reinterpret, typeset, modernize, smooth, add, or remove strokes. Recolor the surviving strokes uniformly charcoal #242622 while retaining natural antialiased transparent edges. Center the unchanged character with a small transparent margin. Output exactly one character: 隨. No background, shadow, outline, border, watermark, checkerboard, or other text.
+
+### Ji
+
+Use case: background-extraction. Asset type: Chinese Notes-page title mask. Select the user-supplied tan-paper source showing 記, with the abbreviated 言 radical on the left and 己 component on the right. Extract ONLY its exact existing dark ink strokes onto a genuinely transparent PNG. Remove the paper, texture, stains, cropped neighboring mark, border, and every background pixel. Preserve the original calligraphy exactly; do not redraw, repair, reinterpret, typeset, modernize, add, or remove strokes. Recolor the surviving strokes uniformly charcoal #242622 while retaining antialiased transparent edges. Center the unchanged character with a small transparent margin. Output exactly one character: 記. No background, shadow, outline, border, watermark, or other text.

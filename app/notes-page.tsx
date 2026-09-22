@@ -12,7 +12,7 @@ export function NotesPage({ language = "en" }: { language?: Language }) {
   return (
     <SiteFrame page="notes" language={language}>
       <section className="intro notes-intro" aria-labelledby="notes-title">
-        <h1 id="notes-title">{title}</h1>
+        <h1 id="notes-title">{language === "en" ? title : <><span className="sr-only">{title}</span><span className="calligraphy-notes" aria-hidden="true"><span className="calligraphy-sui" /><span className="calligraphy-ji" /></span></>}</h1>
         <p className="notes-description">{description}</p>
       </section>
     </SiteFrame>
