@@ -328,10 +328,10 @@ p, h1, h2, h3 { margin: 0; }
 h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; letter-spacing: -.03em; font-weight: 400; }
 .calligraphy-name { display: inline-flex; height: 1.2em; gap: .16em; align-items: center; vertical-align: top; }
 .calligraphy-name > span { display: block; width: 1em; height: 1em; background: var(--ink); mask-repeat: no-repeat; mask-position: center; mask-mode: alpha; }
-/* Compensate for each original image's transparent margins without altering its strokes. */
-.calligraphy-zhou { mask-image: url("./calligraphy/zhou.avif"); mask-size: 115%; }
-.calligraphy-si { mask-image: url("./calligraphy/si.webp"); mask-size: 142%; }
-.calligraphy-name > .calligraphy-bo { width: 1.08em; height: 1.08em; mask-image: url("./calligraphy/bo.webp"); mask-size: 146%; }
+/* Balance the visible ink, preserving the tall Zhou and broader Si proportions. */
+.calligraphy-name > .calligraphy-zhou { width: .8em; height: 1.1em; mask-image: url("./calligraphy/zhou-v2.png"); mask-size: .992em auto; mask-position: -.108em -.022em; }
+.calligraphy-name > .calligraphy-si { width: 1.08em; height: 1.1em; mask-image: url("./calligraphy/si-v2.png"); mask-size: 1.339em auto; mask-position: -.173em -.076em; }
+.calligraphy-name > .calligraphy-bo { width: .96em; height: 1.1em; mask-image: url("./calligraphy/bo-v2.png"); mask-size: .95em auto; mask-position: .016em -.045em; }
 .lead { margin-top: 24px; font-size: var(--type-lead); line-height: 1.5; letter-spacing: -.015em; }
 .intro-copy { max-width: 620px; margin-top: 32px; color: var(--ink); }
 .intro-copy p + p, .section-body p + p { margin-top: 16px; }
