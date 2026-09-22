@@ -70,6 +70,11 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     if (research) {
       assert.doesNotMatch(markup, /section-jumps|href="#working-papers"|href="#publications"/);
       assert.match(markup, /class="research-description"/);
+      if (chinese) {
+        assert.match(markup, /id="research-title"[^]*?class="calligraphy-research"/);
+      } else {
+        assert.doesNotMatch(markup, /calligraphy-research|calligraphy-yan|calligraphy-jiu/);
+      }
       assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 2);
       assert.doesNotMatch(markup, /class="section-count"/);
       for (const id of ["working-papers", "publications"]) {

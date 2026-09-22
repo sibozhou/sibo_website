@@ -332,6 +332,10 @@ h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; 
 .calligraphy-name > .calligraphy-zhou { width: .87em; height: 1.2em; margin-right: .03em; mask-image: url("./calligraphy/zhou-v2.png"); mask-size: 1.075em auto; mask-position: -.117em -.025em; transform: translateY(-.01em); }
 .calligraphy-name > .calligraphy-si { width: 1.08em; height: 1.1em; mask-image: url("./calligraphy/si-v2.png"); mask-size: 1.312em auto; mask-position: -.159em -.064em; }
 .calligraphy-name > .calligraphy-bo { width: 1.04em; height: 1.2em; mask-image: url("./calligraphy/bo-v2.png"); mask-size: 1.032em auto; mask-position: .017em -.049em; transform: translateY(-.036em); }
+.calligraphy-research { display: inline-flex; height: 1.2em; gap: .12em; align-items: center; vertical-align: top; }
+.calligraphy-research > span { display: block; height: 1.05em; background: currentColor; mask-repeat: no-repeat; mask-mode: alpha; }
+.calligraphy-research > .calligraphy-yan { width: 1.2em; mask-image: url("./calligraphy/yan-v1.png"); mask-size: auto 1.08em; mask-position: -.034em -.005em; }
+.calligraphy-research > .calligraphy-jiu { width: .96em; mask-image: url("./calligraphy/jiu-v1.png"); mask-size: 1.105em auto; mask-position: -.081em -.034em; }
 .lead { margin-top: 24px; font-size: var(--type-lead); line-height: 1.5; letter-spacing: -.015em; }
 .intro-copy { max-width: 620px; margin-top: 32px; color: var(--ink); }
 .intro-copy p + p, .section-body p + p { margin-top: 16px; }

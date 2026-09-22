@@ -1,6 +1,8 @@
-# Chinese name calligraphy
+# Chinese calligraphy assets
 
 The current masks (`zhou-v2.png`, `si-v2.png`, `bo-v2.png`) were extracted from the user-supplied `ZHOU.png`, `SI.png`, and `BO.png` with the built-in image-editing tool. The original files had brown paper backgrounds. CSS uses the cutouts' alpha channels and the site's `--ink` color; individual scales and positions balance the visible strokes. Earlier assets are retained for recovery.
+
+The research-title masks (`yan-v1.png`, `jiu-v1.png`) were extracted from the user-supplied `Yan.png` and `Jiu.png`. The built-in editor isolated the original strokes; because its returned files contained a rendered transparency grid rather than an alpha channel, a deterministic luminance threshold converted only that grid to transparency. CSS again supplies the visible ink color.
 
 ## Edit prompts
 
@@ -15,3 +17,11 @@ Use case: background-extraction. Edit target: supplied SI.png. Extract ONLY the 
 ### Bo
 
 Use case: background-extraction. Edit target: supplied BO.png historical calligraphy. Extract ONLY the original ink strokes of 博 onto a genuinely transparent PNG. Remove the tan/brown paper and background texture completely. Preserve exact stroke placement, silhouette, proportions, interior openings, irregular edges, and the original calligraphic rendition. Do not redraw, typeset, reinterpret or modernize the character. Recolor existing strokes charcoal #242622 with antialiased edge transparency. Output one centered character with small clear margins, no added strokes, border, shadow or background. This is a faithful extraction for the last character of a website name.
+
+### Yan
+
+Use case: background-extraction. Asset type: Chinese research-page title mask. Edit target: the supplied historical calligraphy image Yan.png. Extract ONLY the original light ink strokes of the character 研 from the opaque gray background onto a genuinely transparent PNG. Preserve the exact existing calligraphy: every stroke position, contour, proportion, irregular edge, interior opening, and worn texture. Do not redraw, reinterpret, typeset, modernize, repair, add, or remove any stroke. Remove the gray background and all surrounding texture completely. Recolor the surviving strokes uniformly charcoal #242622 while retaining antialiased transparent edges. Center the isolated original character with a small clear margin. No background, shadow, outline, border, watermark, or other text.
+
+### Jiu
+
+Use case: background-extraction. Asset type: Chinese research-page title mask. Edit target: the supplied historical calligraphy image Jiu.png. Extract ONLY the original light ink strokes of the character 究 from the opaque gray background onto a genuinely transparent PNG. Preserve the exact existing calligraphy: every stroke position, contour, proportion, irregular edge, interior opening, and worn texture. Do not redraw, reinterpret, typeset, modernize, repair, add, or remove any stroke. Remove the gray background and all surrounding texture completely. Recolor the surviving strokes uniformly charcoal #242622 while retaining antialiased transparent edges. Center the isolated original character with a small clear margin. No background, shadow, outline, border, watermark, or other text.
