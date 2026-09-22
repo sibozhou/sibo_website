@@ -28,7 +28,7 @@ export function ResearchPage({ language = "en" }: { language?: Language }) {
     <SiteFrame page="research" language={language}>
       <section className="intro research-intro" aria-labelledby="research-title">
         <h1 id="research-title">{zh ? <><span className="sr-only">研究</span><span className="calligraphy-research" aria-hidden="true"><span className="calligraphy-yan" /><span className="calligraphy-jiu" /></span></> : "Research"}</h1>
-        <p className="research-description">{zh ? t("我的研究兴趣涵盖健康经济学、机器学习与统计学。以下列出我在教育与健康领域的研究，以及参与的神经肿瘤学合作研究。") : "My interests span health economics, machine learning, and statistics. The work below includes studies of education and health, alongside collaborative research in neuro-oncology."}</p>
+        <p className="research-description">{zh ? t("我的研究兴趣围绕公共卫生以及健康经济学；以下列出我在教育与健康领域的研究，以及参与的神经肿瘤学合作研究。") : "My research interests center on public health and health economics. The work below includes studies of education and health, alongside collaborative research in neuro-oncology."}</p>
       </section>
       <HomeDisclosure id="working-papers" label={zh ? t("工作论文") : "Working papers"} count="01—03">
         <div className="paper-list">

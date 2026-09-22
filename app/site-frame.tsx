@@ -2,12 +2,13 @@ import type { ReactNode } from "react";
 import { languages, type Language } from "./languages";
 import { SiteColorWave } from "./site-color-wave";
 
-export function SiteFrame({ page, language = "en", children }: { page: "home" | "research"; language?: Language; children: ReactNode }) {
+export function SiteFrame({ page, language = "en", children }: { page: "home" | "research" | "notes"; language?: Language; children: ReactNode }) {
   const root = page === "home" ? "./" : "../";
   const zh = language !== "en";
   const traditional = language === "zh-hant";
   const siteRoot = zh ? root + "../" : root;
-  const alternate = siteRoot + (zh ? "" : "zh/") + (page === "research" ? "research/" : "");
+  const pagePath = page === "home" ? "" : `${page}/`;
+  const alternate = siteRoot + (zh ? "" : "zh/") + pagePath;
   return (
     <>
       <SiteColorWave pageKey={`${language}/${page}`} />
@@ -18,6 +19,7 @@ export function SiteFrame({ page, language = "en", children }: { page: "home" | 
           <nav className="site-nav" aria-label={traditional ? "主要導覽" : zh ? "主导航" : "Primary navigation"}>
             <a href={root} aria-current={page === "home" ? "page" : undefined}><span>{traditional ? "首頁" : zh ? "首页" : "Home"}</span></a>
             <a href={root + "research/"} aria-current={page === "research" ? "page" : undefined}><span>{zh ? "研究" : "Research"}</span></a>
+            <a href={root + "notes/"} aria-current={page === "notes" ? "page" : undefined}><span>{traditional ? "隨記" : zh ? "随记" : "Notes"}</span></a>
           </nav>
         </header>
         <main id="main-content" tabIndex={-1}>{children}</main>
@@ -25,7 +27,7 @@ export function SiteFrame({ page, language = "en", children }: { page: "home" | 
           <p>© {new Date().getFullYear()} {zh ? "周思博" : "Sibo Zhou"}</p>
           <nav className="language-options" aria-label={traditional ? "語言選擇" : zh ? "语言选择" : "Languages"}>
             {languages.filter((option) => option.id !== language).map((option) => (
-              <a key={option.id} className="language-switch" href={siteRoot + option.path + (page === "research" ? "research/" : "")} hrefLang={option.tag} lang={option.tag}>{option.label}</a>
+              <a key={option.id} className="language-switch" href={siteRoot + option.path + pagePath} hrefLang={option.tag} lang={option.tag}>{option.label}</a>
             ))}
           </nav>
         </footer>

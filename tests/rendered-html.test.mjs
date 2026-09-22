@@ -9,7 +9,7 @@ const output = new URL("../dist/client/", import.meta.url);
 const site = process.env.PAGES_SITE_URL ?? "https://sibozhou.com/";
 const basePath = new URL(site).pathname;
 
-for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-hant/research/"]) {
+for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes/", "zh-hant/", "zh-hant/research/", "zh-hant/notes/"]) {
   test(`static ${route || "home"} page and every local link resolve on GitHub Pages`, async () => {
     const html = await readFile(new URL(route + "index.html", output), "utf8");
     assert.doesNotMatch(html, /id="seasonal-theme"/);
@@ -26,19 +26,24 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     const traditional = route.startsWith("zh-hant/");
     const chinese = traditional || route.startsWith("zh/");
     const research = route.endsWith("research/");
-    const title = research ? chinese ? "研究 — 周思博" : "Research — Sibo Zhou" : traditional ? "認識周思博" : chinese ? "认识周思博" : "Meet Sibo Zhou";
+    const notes = route.endsWith("notes/");
+    const title = research
+      ? chinese ? "研究 — 周思博" : "Research — Sibo Zhou"
+      : notes
+      ? traditional ? "隨記 — 周思博" : chinese ? "随记 — 周思博" : "Notes — Sibo Zhou"
+      : traditional ? "認識周思博" : chinese ? "认识周思博" : "Meet Sibo Zhou";
     assert.ok(markup.includes(`<title>${title}</title>`));
     assert.ok(markup.includes(`property="og:title" content="${title}"`));
     const arrowLinks = [...markup.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>[^]*?<\/a>/g)]
       .filter(([link]) => /[↗↓→]/.test(link));
-    assert.deepEqual(arrowLinks.map(([, href]) => href), research ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
+    assert.deepEqual(arrowLinks.map(([, href]) => href), research || notes ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
     for (const [link] of arrowLinks) {
       assert.match(link, /<span class="link-label"/);
       assert.match(link, /<span class="link-arrow" aria-hidden="true">↗<\/span>/);
     }
     const languageTag = traditional ? "zh-Hant" : chinese ? "zh-Hans" : "en";
     assert.ok(markup.includes(`<html lang="${languageTag}"`));
-    const suffix = research ? "research/" : "";
+    const suffix = research ? "research/" : notes ? "notes/" : "";
     const alternateRoute = chinese ? suffix : "zh/" + suffix;
     for (const className of ["wordmark"]) {
       const link = markup.match(new RegExp(`<a class="${className}[^\"]*"[^>]*href="([^\"]+)"[^>]*>([\\s\\S]*?)<\\/a>`));
@@ -65,7 +70,7 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
     if (traditional) {
       const main = markup.match(/<main\b[^]*?<\/main>/)?.[0] ?? "";
       assert.doesNotMatch(main, /[学与书国体奖联数经机习统员发论报网获协]/);
-      assert.match(main, research ? /工作論文/ : /資料科學/);
+      assert.match(main, research ? /工作論文/ : notes ? /一些正在想、正在學/ : /資料科學/);
     }
     if (research) {
       assert.doesNotMatch(markup, /section-jumps|href="#working-papers"|href="#publications"/);
@@ -86,6 +91,8 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
         assert.match(section, /class="disclosure-panel"[^>]*inert=""[^>]*aria-hidden="true"/);
       }
       assert.ok(markup.includes(chinese ? "研究 — 周思博" : "Research — Sibo Zhou"));
+      assert.match(markup, traditional ? /我的研究興趣圍繞公共衛生以及健康經濟學/ : chinese ? /我的研究兴趣围绕公共卫生以及健康经济学/ : /My research interests center on public health and health economics/);
+      assert.doesNotMatch(markup, /machine learning, and statistics|机器学习与统计学|機器學習與統計學/);
       assert.match(markup, /Education selectively improves TB and HIV knowledge/);
       assert.equal((markup.match(/class="paper"/g) ?? []).length, 4);
       assert.match(markup, /id="publications"/);
@@ -101,6 +108,12 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       } else {
         assert.match(markup, /Equal contribution/);
       }
+    } else if (notes) {
+      assert.match(markup, /id="notes-title"/);
+      assert.match(markup, /class="notes-description"/);
+      assert.match(markup, chinese ? /一些正在想、正在[学學]、偶然留意到/ : /A loose collection of things I’m thinking about/);
+      assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 0);
+      assert.doesNotMatch(markup, /calligraphy-name|calligraphy-research/);
     } else {
       assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 3);
       assert.doesNotMatch(markup, /disclosure-indicator/);

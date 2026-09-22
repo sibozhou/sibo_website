@@ -398,8 +398,8 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 .language-switch { position: relative; display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; }
 .language-switch:lang(zh-Hans), .wordmark-language:lang(zh-Hans) { font-family: "Noto Sans SC", var(--sans); }
 .language-switch:lang(zh-Hant) { font-family: "Noto Sans TC", var(--sans); }
-.research-intro { padding-bottom: 64px; }
-.research-description { max-width: 580px; margin-top: 24px; color: var(--ink); font-size: var(--type-body); line-height: 1.7; }
+.research-intro, .notes-intro { padding-bottom: 64px; }
+.research-description, .notes-description { max-width: 580px; margin-top: 24px; color: var(--ink); font-size: var(--type-body); line-height: 1.7; }
 .section-count { display: block; margin-top: 12px; font-size: var(--type-small); font-weight: 400; color: var(--muted); }
 .disclosure-toggle .section-count { display: inline-block; margin-top: 0; margin-inline-start: 12px; }
 .paper { position: relative; padding: 0 0 32px 36px; margin-bottom: 32px; border-bottom: 1px solid var(--rule); }
@@ -418,7 +418,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .hero-heading, .hero-content { max-width: 640px; }
   .intro-copy { max-width: none; }
   .section-body, .news-story, .recognition-links { max-width: 688px; }
-  .research-description { max-width: 680px; }
+  .research-description, .notes-description { max-width: 680px; }
   .paper h3, .authors, .paper-note { max-width: 760px; }
 }
 @media (max-width: 800px) {
@@ -450,7 +450,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .editorial-section.home-disclosure { --disclosure-space: 38px; --disclosure-indent: 0px; --disclosure-bleed: clamp(32px, 4vw, 48px); }
   .section-label { display: flex; justify-content: space-between; }
   .section-count { margin-top: 0; }
-  .section-body, .news-story, .recognition-links, .research-description { max-width: 688px; }
+  .section-body, .news-story, .recognition-links, .research-description, .notes-description { max-width: 688px; }
   .paper { padding-left: 32px; }
   .contact-link { min-height: 44px; padding: 12px 0; }
   .contact-link + .contact-link { margin-top: 0; }
