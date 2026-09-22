@@ -32,6 +32,7 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
       : notes
       ? traditional ? "隨記 — 周思博" : chinese ? "随记 — 周思博" : "Notes — Sibo Zhou"
       : traditional ? "認識周思博" : chinese ? "认识周思博" : "Meet Sibo Zhou";
+    assert.match(markup, new RegExp(`class="site-shell site-shell-${research ? "research" : notes ? "notes" : "home"}"`));
     assert.ok(markup.includes(`<title>${title}</title>`));
     assert.ok(markup.includes(`property="og:title" content="${title}"`));
     const arrowLinks = [...markup.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>[^]*?<\/a>/g)]
@@ -111,7 +112,8 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
     } else if (notes) {
       assert.match(markup, /id="notes-title"/);
       assert.match(markup, /class="notes-description"/);
-      assert.match(markup, chinese ? /一些正在想、正在[学學]、偶然留意到/ : /A loose collection of things I’m thinking about/);
+      assert.match(markup, traditional ? /一些正在想、正在學的事。/ : chinese ? /一些正在想、正在学的事。/ : /A loose collection of things I’m thinking about or learning/);
+      assert.doesNotMatch(markup, /偶然留意到|simply want to remember/);
       assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 0);
       assert.doesNotMatch(markup, /calligraphy-name|calligraphy-research/);
     } else {
@@ -257,25 +259,27 @@ test("portrait iPad fade adjustment changes only the mask", async () => {
   assert.match(css, /@media screen and \(min-width: 760px\) and \(max-width: 900px\) and \(orientation: portrait\) and \(hover: none\) and \(pointer: coarse\) \{\s*\.hero-art \{ mask-size: calc\(100% \+ 20px\) 100%; mask-position: -20px bottom; \}\s*\}/);
 });
 
-test("square favicon fades from ink to paper along the wave's 75-degree boundary", async () => {
+test("square favicon uses the site palette and the name's serif S", async () => {
   const icon = await readFile(new URL("favicon.svg", output), "utf8");
-  assert.match(icon, /<rect width="32" height="32" fill="url\(#ink-fade\)"/);
-  assert.match(icon, /<stop offset="0" stop-color="#242622"/);
-  assert.match(icon, /<stop offset="1" stop-color="#f7f6f2"/);
-  const gradient = icon.match(/<linearGradient id="ink-fade" gradientUnits="userSpaceOnUse" x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)" y2="([\d.]+)"/);
-  assert.ok(gradient);
-  const [, x1, y1, x2, y2] = gradient.map(Number);
-  assert.ok(x2 > x1 && y2 > y1, "Ink starts upper-left; paper ends lower-right");
-  assert.ok(Math.abs(Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI - 15) < .01);
-  assert.doesNotMatch(icon, /<path|<circle|\brx=/);
+  assert.match(icon, /<rect width="32" height="32" fill="#242622"/);
+  assert.match(icon, /<text[^>]*fill="#f7f6f2"[^>]*font-family="'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"[^>]*font-size="24"[^>]*text-anchor="middle">S<\/text>/);
+  assert.doesNotMatch(icon, /linearGradient|<circle|\brx=/);
 });
 
-test("animated footer fills the screen and section text keeps desktop layout on tablets", async () => {
+test("animated footer fills the screen, with short secondary pages aligned to the bottom", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.site-shell \{[^}]*min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column/);
   assert.match(css, /\.site-footer \{[^}]*flex-grow: 1;[^}]*align-content: flex-start/);
+  assert.match(css, /\.site-shell-research \.site-footer, \.site-shell-notes \.site-footer \{ align-content: flex-end; \}/);
+  assert.equal((css.match(/\.site-shell-research \.site-footer, \.site-shell-notes \.site-footer/g) ?? []).length, 1);
   assert.match(css, /\.disclosure-toggle \.section-label \{ display: block; width: fit-content/);
   assert.match(css, /\.site-shell \{ width: 100%; min-height: 0; display: block/);
+});
+
+test("introductory copy uses one typographic role across Home, Research, and Notes", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.intro-copy, \.research-description, \.notes-description \{ color: var\(--ink\); font-family: var\(--sans\); font-size: var\(--type-body\); line-height: 1\.7; \}/);
+  assert.match(css, /html:lang\(zh\) \.intro-copy, html:lang\(zh\) \.section-body, html:lang\(zh\) \.research-description, html:lang\(zh\) \.notes-description \{ font-size: 17px; line-height: 1\.75; \}/);
 });
 
 test("neutral palette and static accessible fallbacks replace seasonal colors", async () => {
