@@ -115,6 +115,12 @@ for (const route of ["", "research/", "zh/", "zh/research/", "zh-hant/", "zh-han
       }
       assert.match(markup, /Sibo Zhou/);
       const intro = markup.match(/<section[^>]*aria-labelledby="intro-title"[^]*?<\/section>/)?.[0] ?? "";
+      if (chinese) {
+        assert.match(intro, /class="calligraphy-link"[^>]*href="https:\/\/digitalarchive\.npm\.gov\.tw\/Collection\/Detail\/14960\?dep=P"/);
+        assert.doesNotMatch(intro.match(/<a class="calligraphy-link"[^]*?<\/a>/)?.[0] ?? "", /link-arrow|↗/);
+      } else {
+        assert.doesNotMatch(intro, /calligraphy-link|digitalarchive\.npm\.gov\.tw/);
+      }
       const heading = intro.indexOf('class="hero-heading"');
       const portrait = intro.indexOf('class="hero-art"');
       const biography = intro.indexOf('class="hero-content"');

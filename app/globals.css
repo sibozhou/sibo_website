@@ -327,11 +327,13 @@ p, h1, h2, h3 { margin: 0; }
 .eyebrow { color: var(--ink); margin-bottom: 24px; }
 h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; letter-spacing: -.03em; font-weight: 400; }
 .calligraphy-name { display: inline-flex; height: 1.2em; gap: .16em; align-items: center; vertical-align: top; }
-.calligraphy-name > span { display: block; width: 1em; height: 1em; background: var(--ink); mask-repeat: no-repeat; mask-position: center; mask-mode: alpha; }
+.calligraphy-link { display: inline-flex; color: var(--ink); text-decoration: none; transition: color 220ms ease; }
+.calligraphy-link:is(:hover, :focus-visible, :active, :visited) { color: var(--muted); text-decoration: none; }
+.calligraphy-name > span { display: block; width: 1em; height: 1em; background: currentColor; mask-repeat: no-repeat; mask-position: center; mask-mode: alpha; }
 /* Balance the visible ink, preserving the tall Zhou and broader Si proportions. */
-.calligraphy-name > .calligraphy-zhou { width: .8em; height: 1.1em; mask-image: url("./calligraphy/zhou-v2.png"); mask-size: .992em auto; mask-position: -.108em -.022em; }
+.calligraphy-name > .calligraphy-zhou { width: .84em; height: 1.16em; mask-image: url("./calligraphy/zhou-v2.png"); mask-size: 1.044em auto; mask-position: -.114em -.024em; transform: translateY(-.01em); }
 .calligraphy-name > .calligraphy-si { width: 1.08em; height: 1.1em; mask-image: url("./calligraphy/si-v2.png"); mask-size: 1.339em auto; mask-position: -.173em -.076em; }
-.calligraphy-name > .calligraphy-bo { width: .96em; height: 1.1em; mask-image: url("./calligraphy/bo-v2.png"); mask-size: .95em auto; mask-position: .016em -.045em; }
+.calligraphy-name > .calligraphy-bo { width: 1.01em; height: 1.16em; mask-image: url("./calligraphy/bo-v2.png"); mask-size: 1.002em auto; mask-position: .017em -.048em; transform: translateY(.005em); }
 .lead { margin-top: 24px; font-size: var(--type-lead); line-height: 1.5; letter-spacing: -.015em; }
 .intro-copy { max-width: 620px; margin-top: 32px; color: var(--ink); }
 .intro-copy p + p, .section-body p + p { margin-top: 16px; }
