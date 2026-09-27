@@ -24,7 +24,7 @@ export function SiteFrame({ page, language = "en", children }: { page: "home" | 
         </header>
         <main id="main-content" tabIndex={-1}>{children}</main>
         <footer className="site-footer">
-          <p>© {new Date().getFullYear()} {zh ? "周思博" : "Sibo Zhou"}</p>
+          <p>© {new Date().getFullYear()} {zh ? "周思博" : "sibo zhou"}</p>
           <nav className="language-options" aria-label={traditional ? "語言選擇" : zh ? "语言选择" : "Languages"}>
             {languages.filter((option) => option.id !== language).map((option) => (
               <a key={option.id} className="language-switch" href={siteRoot + option.path + pagePath} hrefLang={option.tag} lang={option.tag}>{option.label}</a>

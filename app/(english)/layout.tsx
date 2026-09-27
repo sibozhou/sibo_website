@@ -4,7 +4,7 @@ import { languageAlternates } from "../site-metadata";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sibozhou.com/"),
-  title: "Meet Sibo Zhou",
+  title: "Meet sibo zhou",
   icons: { icon: { url: "/favicon.svg", type: "image/svg+xml" } },
   alternates: languageAlternates("home", "en"),
   description:
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Sibo Zhou" }],
   creator: "Sibo Zhou",
   openGraph: {
-    title: "Meet Sibo Zhou",
+    title: "Meet sibo zhou",
     url: "https://sibozhou.com/",
     description:
       "Sibo Zhou’s interests in health economics, machine learning, and statistics, informed by a background in mathematics, economics, and the humanities.",
