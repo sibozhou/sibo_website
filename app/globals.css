@@ -323,7 +323,7 @@ p, h1, h2, h3 { margin: 0; }
 .home-intro { position: relative; isolation: isolate; }
 .hero-art { --photo-fade-midpoint: .3084760577; position: absolute; top: 0; bottom: 0; right: -56px; width: 54%; pointer-events: none; clip-path: inset(0 4% 0 0); transform: translateY(-20px); }
 .hero-photo { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 52% 48%; filter: saturate(.9) contrast(.98); opacity: .86; mask-image: url("./masks/photo-desktop.png"); mask-size: 100% auto; mask-position: left bottom; mask-repeat: no-repeat; }
-.photo-caption { position: absolute; bottom: 16px; right: clamp(32px, 4vw, 72px); color: var(--paper); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.2; letter-spacing: .025em; white-space: nowrap; text-shadow: 0 1px 3px rgb(0 0 0 / .35); }
+.photo-caption { position: absolute; bottom: 16px; right: 16px; color: var(--paper); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.2; letter-spacing: .025em; white-space: nowrap; text-shadow: 0 1px 3px rgb(0 0 0 / .35); }
 .photo-caption strong { font-weight: 700; }
 .hero-heading, .hero-content { position: relative; z-index: 1; max-width: 560px; }
 .eyebrow, .section-label { font-family: var(--sans); font-size: var(--type-small); font-weight: 500; line-height: 1.6; letter-spacing: 0; }
@@ -453,7 +453,6 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .hero-art { --photo-fade-midpoint: .14; position: absolute; grid-column: 2; grid-row: 1 / 3; inset: 0 calc(0px - clamp(32px, 4vw, 48px)) -40px 0; width: auto; height: auto; margin: 0; clip-path: none; transform: none; }
   .hero-photo { mask-image: url("./masks/photo-tablet.png"); mask-size: 100% 100%; }
   .hero-photo { object-position: 50% 46%; opacity: .9; }
-  .photo-caption { right: clamp(32px, 4vw, 48px); }
   .hero-content { grid-column: 1; grid-row: 2; width: 100%; max-width: 688px; }
   .home-intro .intro-copy { max-width: none; margin-top: 0; }
   .home-intro .intro-copy { max-width: 64ch; }
@@ -488,7 +487,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .home-intro { padding-top: 32px; padding-left: 0; }
   .hero-art { --photo-fade-midpoint: none; position: relative; top: auto; bottom: auto; left: -20px; width: calc(100% + 40px); height: 360px; clip-path: none; margin-top: 24px; transform: none; }
   .hero-photo { object-position: 50% 48%; opacity: .9; mask-image: url("./masks/photo-mobile.png"); mask-size: 100% 100%; }
-  .photo-caption { bottom: 12px; right: 20px; color: var(--muted); text-shadow: none; }
+  .photo-caption { bottom: 12px; right: 12px; color: var(--muted); text-shadow: none; }
   .hero-heading, .hero-content { max-width: none; }
   .home-intro .intro-copy { margin-top: 24px; }
   .eyebrow { margin-bottom: 20px; }
