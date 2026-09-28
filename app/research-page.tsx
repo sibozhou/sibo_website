@@ -29,6 +29,10 @@ export function ResearchPage({ language = "en" }: { language?: Language }) {
       <section className="intro research-intro" aria-labelledby="research-title">
         <h1 id="research-title">{zh ? <><span className="sr-only">研究</span><span className="calligraphy-research" aria-hidden="true"><span className="calligraphy-yan" /><span className="calligraphy-jiu" /></span></> : "research"}</h1>
         <p className="research-description">{zh ? t("我的研究兴趣围绕公共卫生以及健康经济学；以下列出我在教育与健康领域的研究，以及参与的神经肿瘤学合作研究。") : "My research interests center on public health and health economics. The work below includes studies of education and health, alongside collaborative research in neuro-oncology."}</p>
+        <svg className="research-contour" viewBox="0 0 720 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <defs><linearGradient id="research-contour-fade"><stop offset="0" stopColor="currentColor" stopOpacity="0" /><stop offset=".28" stopColor="currentColor" stopOpacity=".78" /><stop offset=".76" stopColor="currentColor" stopOpacity=".78" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></linearGradient></defs>
+          <path d="M0 176 C162 174 235 116 365 119 C505 122 575 78 720 73" fill="none" stroke="url(#research-contour-fade)" strokeWidth="1" />
+        </svg>
       </section>
       <HomeDisclosure id="working-papers" label={zh ? t("工作论文") : "working papers"} count="01—03">
         <div className="paper-list">
