@@ -115,12 +115,12 @@ p, h1, h2, h3 { margin: 0; }
 .site-header::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--paper); box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax); pointer-events: none; }
 .wordmark { font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 27px; font-weight: 700; font-synthesis: none; letter-spacing: .04em; text-decoration: none; }
 .wordmark-english { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 400; letter-spacing: -1px; }
-.wordmark, .contact-link { display: inline-flex; align-items: flex-start; column-gap: 6px; }
+.wordmark { display: inline-flex; align-items: flex-start; column-gap: 6px; }
 .wordmark:not(.wordmark-english) .link-label { letter-spacing: 0; }
-.wordmark .link-label, .contact-link .link-label, .wordmark-language, .contact-link .link-arrow { line-height: 1; text-box-trim: trim-both; text-box-edge: cap alphabetic; }
+.wordmark .link-label, .wordmark-language { line-height: 1; text-box-trim: trim-both; text-box-edge: cap alphabetic; }
 .wordmark-language { font-family: var(--sans); font-size: var(--type-arrow); font-weight: 400; letter-spacing: 0; }
 .link-label { min-width: 0; }
-.wordmark-language, .contact-link .link-arrow { flex-shrink: 0; }
+.wordmark-language { flex-shrink: 0; }
 /* One diagonal coordinate system joins the bars and footer into an ink wash. */
 @property --wave-x {
   syntax: "<length>";
@@ -381,7 +381,8 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
 .recognition-links a { display: inline-block; padding: 8px 0; font-size: var(--type-small); font-weight: 500; }
 .recognition-links p { color: var(--muted); font-family: var(--sans); font-size: var(--type-small); }
 .contact-section { padding-bottom: 64px; }
-.contact-link { display: flex; width: fit-content; max-width: 100%; font-family: var(--serif); font-size: var(--type-body); letter-spacing: 0; color: var(--ink); overflow-wrap: anywhere; }
+.contact-link { display: block; width: fit-content; max-width: 100%; font-family: var(--serif); font-size: var(--type-body); letter-spacing: 0; color: var(--ink); overflow-wrap: anywhere; }
+.contact-link .link-arrow { margin-left: .25em; }
 .contact-link + .contact-link { margin-top: 12px; }
 .news-meta, .contact-link { line-height: 1.2; text-box-trim: trim-start; text-box-edge: cap alphabetic; }
 .editorial-section.home-disclosure { --disclosure-space: 44px; --disclosure-indent: 192px; --disclosure-bleed: clamp(32px, 4vw, 72px); display: block; padding: 0; }

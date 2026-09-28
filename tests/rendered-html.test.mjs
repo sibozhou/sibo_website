@@ -238,8 +238,8 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
 test("wordmark language labels retain the small top-aligned treatment and footer fonts", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /--type-arrow: 12px/);
-  assert.match(css, /\.wordmark, \.contact-link \{[^}]*align-items: flex-start; column-gap: 6px/);
-  assert.match(css, /\.wordmark \.link-label, \.contact-link \.link-label, \.wordmark-language, \.contact-link \.link-arrow \{[^}]*text-box-trim: trim-both; text-box-edge: cap alphabetic/);
+  assert.match(css, /\.wordmark \{[^}]*align-items: flex-start; column-gap: 6px/);
+  assert.match(css, /\.wordmark \.link-label, \.wordmark-language \{[^}]*text-box-trim: trim-both; text-box-edge: cap alphabetic/);
   assert.match(css, /\.wordmark-language \{[^}]*font-family: var\(--sans\); font-size: var\(--type-arrow\); font-weight: 400; letter-spacing: 0/);
   assert.match(css, /\.language-switch:lang\(zh-Hans\), \.wordmark-language:lang\(zh-Hans\) \{ font-family: "Noto Sans SC", var\(--sans\)/);
   assert.match(css, /a\.wordmark:is\(:hover, :focus-visible\) \{ text-decoration-line: none/);
