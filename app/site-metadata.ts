@@ -11,7 +11,7 @@ export function languageAlternates(page: "home" | "research" | "notes", language
 
 export function researchMetadata(language: Language): Metadata {
   const zh = language !== "en";
-  const title = zh ? "研究 — 周思博" : "Research — sibo zhou";
+  const title = zh ? "研究 — 周思博" : "research — sibo zhou";
   const description = language === "zh-hant"
     ? "周思博的已發表論文與工作論文，涵蓋教育與健康，以及神經腫瘤學合作研究。"
     : zh
@@ -23,7 +23,7 @@ export function researchMetadata(language: Language): Metadata {
 
 export function notesMetadata(language: Language): Metadata {
   const zh = language !== "en";
-  const title = language === "zh-hant" ? "隨記 — 周思博" : zh ? "随记 — 周思博" : "Notes — sibo zhou";
+  const title = language === "zh-hant" ? "隨記 — 周思博" : zh ? "随记 — 周思博" : "notes — sibo zhou";
   const description = language === "zh-hant"
     ? "周思博不定期寫下的想法、見聞與近況。"
     : zh

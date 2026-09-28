@@ -28,9 +28,9 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
     const research = route.endsWith("research/");
     const notes = route.endsWith("notes/");
     const title = research
-      ? chinese ? "研究 — 周思博" : "Research — sibo zhou"
+      ? chinese ? "研究 — 周思博" : "research — sibo zhou"
       : notes
-      ? traditional ? "隨記 — 周思博" : chinese ? "随记 — 周思博" : "Notes — sibo zhou"
+      ? traditional ? "隨記 — 周思博" : chinese ? "随记 — 周思博" : "notes — sibo zhou"
       : traditional ? "認識周思博" : chinese ? "认识周思博" : "Meet sibo zhou";
     assert.match(markup, new RegExp(`class="site-shell site-shell-${research ? "research" : notes ? "notes" : "home"}"`));
     assert.ok(markup.includes(`<title>${title}</title>`));
@@ -50,7 +50,7 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
       const link = markup.match(new RegExp(`<a class="${className}[^\"]*"[^>]*href="([^\"]+)"[^>]*>([\\s\\S]*?)<\\/a>`));
       assert.ok(link, `Missing ${className}`);
       assert.equal(new URL(link[1], site + route).href, site + alternateRoute);
-      assert.equal(link[2].replace(/<[^>]*>/g, ""), chinese ? "SiboEN" : "思博中");
+      assert.equal(link[2].replace(/<[^>]*>/g, ""), chinese ? "siboEN" : "思博中");
       assert.ok(link[2].includes(`<span class="wordmark-language" lang="${chinese ? "en" : "zh-Hans"}" aria-hidden="true">${chinese ? "EN" : "中"}</span>`));
       assert.doesNotMatch(link[2], /link-arrow|↗/);
     }
@@ -91,7 +91,7 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
         assert.ok(section.includes(`aria-controls="${id}-content"`));
         assert.match(section, /class="disclosure-panel"[^>]*inert=""[^>]*aria-hidden="true"/);
       }
-      assert.ok(markup.includes(chinese ? "研究 — 周思博" : "Research — sibo zhou"));
+      assert.ok(markup.includes(chinese ? "研究 — 周思博" : "research — sibo zhou"));
       assert.match(markup, traditional ? /我的研究興趣圍繞公共衛生以及健康經濟學/ : chinese ? /我的研究兴趣围绕公共卫生以及健康经济学/ : /My research interests center on public health and health economics/);
       assert.doesNotMatch(markup, /machine learning, and statistics|机器学习与统计学|機器學習與統計學/);
       assert.match(markup, /Education selectively improves TB and HIV knowledge/);
@@ -127,7 +127,7 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
       for (const id of ["background", "news", "contact"]) {
         const section = markup.match(new RegExp(`<section[^>]*aria-labelledby="${id}-title"[^]*?<\\/section>`))?.[0] ?? "";
         assert.match(section, /data-open="false"/);
-        const labels = traditional ? ["經歷", "相關報導", "聯絡我"] : chinese ? ["经历", "相关报道", "联系我"] : ["Background", "Recognition &amp; media", "Get in touch"];
+        const labels = traditional ? ["經歷", "相關報導", "聯絡我"] : chinese ? ["经历", "相关报道", "联系我"] : ["background", "recognition &amp; media", "get in touch"];
         assert.ok(section.includes(`<span class="section-label">${labels[["background", "news", "contact"].indexOf(id)]}</span>`));
         const button = section.match(/<button\b[^>]*>/)?.[0] ?? "";
         assert.match(button, /type="button"/);

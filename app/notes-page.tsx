@@ -2,7 +2,7 @@ import type { Language } from "./languages";
 import { SiteFrame } from "./site-frame";
 
 export function NotesPage({ language = "en" }: { language?: Language }) {
-  const title = language === "zh-hant" ? "隨記" : language === "zh" ? "随记" : "Notes";
+  const title = language === "zh-hant" ? "隨記" : language === "zh" ? "随记" : "notes";
   const description = language === "zh-hant"
     ? "一些正在想、正在學的事。"
     : language === "zh"

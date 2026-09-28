@@ -114,7 +114,7 @@ p, h1, h2, h3 { margin: 0; }
 .site-header { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: var(--header-height); background: var(--paper); }
 .site-header::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--paper); box-shadow: 0 0 0 100vmax var(--paper); clip-path: inset(0 -100vmax); pointer-events: none; }
 .wordmark { font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 27px; font-weight: 700; font-synthesis: none; letter-spacing: .04em; text-decoration: none; }
-.wordmark-english { font-family: var(--serif); font-weight: 400; letter-spacing: -1px; }
+.wordmark-english { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 400; letter-spacing: -1px; }
 .wordmark, .contact-link { display: inline-flex; align-items: flex-start; column-gap: 6px; }
 .wordmark:not(.wordmark-english) .link-label { letter-spacing: 0; }
 .wordmark .link-label, .contact-link .link-label, .wordmark-language, .contact-link .link-arrow { line-height: 1; text-box-trim: trim-both; text-box-edge: cap alphabetic; }
