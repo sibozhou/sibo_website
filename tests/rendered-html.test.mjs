@@ -151,6 +151,7 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
       const biography = intro.indexOf('class="hero-content"');
       assert.ok(heading >= 0 && heading < portrait && portrait < biography, "Identity must precede the mobile portrait and biography");
       assert.match(intro, /sibo-zhou-coast\.jpg/);
+      assert.match(intro, /<span class="photo-caption" lang="en">newport, <strong>rhode island<\/strong><\/span>/);
       assert.doesNotMatch(intro, /natural-history|自然病程|My interests span|我的研究兴趣|我的研究興趣/);
       const copy = intro.match(/<div class="intro-copy">[^]*?<\/div>/)?.[0] ?? "";
       const paragraphs = [...copy.matchAll(/<p>([^]*?)<\/p>/g)].map(([, paragraph]) => paragraph.replace(/<[^>]*>/g, ""));
@@ -261,7 +262,7 @@ test("tablet introduction uses a compact portrait and measured reading width", a
 
 test("portrait iPad fade adjustment changes only the mask", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(css, /@media screen and \(min-width: 760px\) and \(max-width: 900px\) and \(orientation: portrait\) and \(hover: none\) and \(pointer: coarse\) \{\s*\.hero-art \{ mask-size: calc\(100% \+ 20px\) 100%; mask-position: -20px bottom; \}\s*\}/);
+  assert.match(css, /@media screen and \(min-width: 760px\) and \(max-width: 900px\) and \(orientation: portrait\) and \(hover: none\) and \(pointer: coarse\) \{\s*\.hero-photo \{ mask-size: calc\(100% \+ 20px\) 100%; mask-position: -20px bottom; \}\s*\}/);
 });
 
 test("square favicon uses the site palette and the name's serif S", async () => {

@@ -25,6 +25,7 @@ export function HomePage({ language = "en" }: { language?: Language }) {
         <div className="hero-art">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="hero-photo" src={assets + "sibo-zhou-coast.jpg"} alt={zh ? "周思博" : "Sibo Zhou"} width={1012} height={1800} fetchPriority="high" />
+          <span className="photo-caption" lang="en">newport, <strong>rhode island</strong></span>
         </div>
         <div className="hero-content">
         <div className="intro-copy">
