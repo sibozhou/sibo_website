@@ -441,6 +441,14 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .editorial-section { grid-template-columns: 112px minmax(0, 1fr); gap: 28px; }
   html { --header-height: 72px; }
 }
+/* Ease the home inset and spacing from 1600px to 1100px, matching the tablet's 1.15:1 columns. */
+@media screen and (min-width: 1100px) {
+  .home-intro { --hero-text-inset: clamp(0px, calc(38.4vw - 422.4px), 192px); padding: clamp(32px, calc(12.8vw - 108.8px), 96px) 0 clamp(40px, calc(8vw - 48px), 80px) var(--hero-text-inset); }
+  .hero-heading, .hero-content { max-width: min(640px, calc((100vw - clamp(64px, 8vw, 144px) - 32px) * 1.15 / 2.15 - var(--hero-text-inset))); }
+  .hero-heading h1 { font-size: clamp(48px, 5.5vw, 72px); }
+  .home-intro .lead { font-size: clamp(20px, calc(.8vw + 11.2px), 24px); }
+  .home-intro .intro-copy, .home-intro .text-links { margin-top: clamp(24px, calc(1.6vw + 6.4px), 32px); }
+}
 /* Tablet widths, plus larger touch-first tablets in landscape. */
 @media screen and (min-width: 541px) and (max-width: 1099px), screen and (min-width: 1100px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   html { --wave-unit: .9vw; --wave-duration: 86s; --wave-delay: -4.296487169s; --wave-entry-shift: 0; }
@@ -450,6 +458,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .intro { padding: 32px 0 40px; }
   .home-intro { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px 32px; align-items: center; }
   .hero-heading { grid-column: 1; grid-row: 1; max-width: none; }
+  .hero-heading h1 { font-size: var(--type-title); }
   .hero-art { --photo-fade-midpoint: .14; position: absolute; grid-column: 2; grid-row: 1 / 3; inset: 0 calc(0px - clamp(32px, 4vw, 48px)) -40px 0; width: auto; height: auto; margin: 0; clip-path: none; transform: none; }
   .hero-photo { mask-image: url("./masks/photo-tablet.png"); mask-size: 100% 100%; }
   .hero-photo { object-position: 50% 46%; opacity: .9; }
@@ -458,6 +467,7 @@ html:lang(zh) .news-story h3:not([lang="en"]) { line-height: 1.4; letter-spacing
   .home-intro .intro-copy { max-width: 64ch; }
   .home-intro .text-links { margin-top: 24px; }
   .lead { font-size: 20px; max-width: 32ch; }
+  .home-intro .lead { font-size: 20px; max-width: none; }
   .editorial-section { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 40px 0; }
   .editorial-section.home-disclosure { --disclosure-space: 38px; --disclosure-indent: 0px; --disclosure-bleed: clamp(32px, 4vw, 48px); }
   .section-label { display: flex; justify-content: space-between; }
