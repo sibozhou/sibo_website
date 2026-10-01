@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { languages, type Language } from "./languages";
 import { SiteColorWave } from "./site-color-wave";
 
-export function SiteFrame({ page, language = "en", children }: { page: "home" | "research" | "notes"; language?: Language; children: ReactNode }) {
+export function SiteFrame({ page, language = "en", children }: { page: "home" | "research" | "notes" | "map"; language?: Language; children: ReactNode }) {
   const root = page === "home" ? "./" : "../";
   const zh = language !== "en";
   const traditional = language === "zh-hant";
@@ -20,6 +20,7 @@ export function SiteFrame({ page, language = "en", children }: { page: "home" | 
             <a href={root} aria-current={page === "home" ? "page" : undefined}><span>{traditional ? "首頁" : zh ? "首页" : "home"}</span></a>
             <a href={root + "research/"} aria-current={page === "research" ? "page" : undefined}><span>{zh ? "研究" : "research"}</span></a>
             <a href={root + "notes/"} aria-current={page === "notes" ? "page" : undefined}><span>{traditional ? "隨記" : zh ? "随记" : "notes"}</span></a>
+            <a href={root + "map/"} aria-current={page === "map" ? "page" : undefined}><span>{traditional ? "地圖" : zh ? "地图" : "map"}</span></a>
           </nav>
         </header>
         <main id="main-content" tabIndex={-1}>{children}</main>

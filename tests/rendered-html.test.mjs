@@ -9,7 +9,7 @@ const output = new URL("../dist/client/", import.meta.url);
 const site = process.env.PAGES_SITE_URL ?? "https://sibozhou.com/";
 const basePath = new URL(site).pathname;
 
-for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes/", "zh-hant/", "zh-hant/research/", "zh-hant/notes/"]) {
+for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "zh/notes/", "zh/map/", "zh-hant/", "zh-hant/research/", "zh-hant/notes/", "zh-hant/map/"]) {
   test(`static ${route || "home"} page and every local link resolve on GitHub Pages`, async () => {
     const html = await readFile(new URL(route + "index.html", output), "utf8");
     assert.doesNotMatch(html, /id="seasonal-theme"/);
@@ -27,24 +27,27 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
     const chinese = traditional || route.startsWith("zh/");
     const research = route.endsWith("research/");
     const notes = route.endsWith("notes/");
+    const map = route.endsWith("map/");
     const title = research
       ? chinese ? "研究 — 周思博" : "research — sibo zhou"
       : notes
       ? traditional ? "隨記 — 周思博" : chinese ? "随记 — 周思博" : "notes — sibo zhou"
+      : map
+      ? traditional ? "地圖 — 周思博" : chinese ? "地图 — 周思博" : "map — sibo zhou"
       : traditional ? "認識周思博" : chinese ? "认识周思博" : "Meet sibo zhou";
-    assert.match(markup, new RegExp(`class="site-shell site-shell-${research ? "research" : notes ? "notes" : "home"}"`));
+    assert.match(markup, new RegExp(`class="site-shell site-shell-${research ? "research" : notes ? "notes" : map ? "map" : "home"}"`));
     assert.ok(markup.includes(`<title>${title}</title>`));
     assert.ok(markup.includes(`property="og:title" content="${title}"`));
     const arrowLinks = [...markup.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>[^]*?<\/a>/g)]
       .filter(([link]) => /[↗↓→]/.test(link));
-    assert.deepEqual(arrowLinks.map(([, href]) => href), research || notes ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
+    assert.deepEqual(arrowLinks.map(([, href]) => href), research || notes || map ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
     for (const [link] of arrowLinks) {
       assert.match(link, /<span class="link-label"/);
       assert.match(link, /<span class="link-arrow" aria-hidden="true">↗<\/span>/);
     }
     const languageTag = traditional ? "zh-Hant" : chinese ? "zh-Hans" : "en";
     assert.ok(markup.includes(`<html lang="${languageTag}"`));
-    const suffix = research ? "research/" : notes ? "notes/" : "";
+    const suffix = research ? "research/" : notes ? "notes/" : map ? "map/" : "";
     const alternateRoute = chinese ? suffix : "zh/" + suffix;
     for (const className of ["wordmark"]) {
       const link = markup.match(new RegExp(`<a class="${className}[^\"]*"[^>]*href="([^\"]+)"[^>]*>([\\s\\S]*?)<\\/a>`));
@@ -71,7 +74,7 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
     if (traditional) {
       const main = markup.match(/<main\b[^]*?<\/main>/)?.[0] ?? "";
       assert.doesNotMatch(main, /[学与书国体奖联数经机习统员发论报网获协]/);
-      assert.match(main, research ? /工作論文/ : notes ? /一些正在想、正在學/ : /資料科學/);
+      assert.match(main, research ? /工作論文/ : notes ? /一些正在想、正在學/ : map ? /從海口出發/ : /資料科學/);
     }
     if (research) {
       assert.doesNotMatch(markup, /section-jumps|href="#working-papers"|href="#publications"/);
@@ -121,6 +124,15 @@ for (const route of ["", "research/", "notes/", "zh/", "zh/research/", "zh/notes
       assert.doesNotMatch(markup, /偶然留意到|simply want to remember/);
       assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 0);
       assert.doesNotMatch(markup, /calligraphy-name|calligraphy-research/);
+    } else if (map) {
+      assert.match(markup, /id="map-title"/);
+      assert.equal((markup.match(/class="map-place"/g) ?? []).length, 5);
+      assert.equal((markup.match(/class="map-pin"/g) ?? []).length, 5);
+      assert.match(markup, /class="map-land"/);
+      assert.match(markup, /class="map-caption" aria-live="polite" aria-atomic="true"/);
+      assert.match(markup, traditional ? /家鄉/ : chinese ? /家乡/ : /home/);
+      assert.match(markup, traditional ? /柏克萊/ : chinese ? /伯克利/ : /Berkeley/);
+      assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 0);
     } else {
       assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 3);
       assert.doesNotMatch(markup, /disclosure-indicator/);
@@ -449,6 +461,48 @@ test("shared research disclosures toggle counts and reset on a fresh mount", asy
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.ok(css.includes('#main-content:has(> .home-disclosure:last-of-type[data-open="false"]) + .site-footer { border-top: 0; }'));
   assert.match(css, /\.disclosure-toggle \.section-count \{ display: inline-block; margin-top: 0; margin-inline-start: 12px/);
+});
+
+test("map selection focuses each city and zoom controls return to the world view", async () => {
+  const projectionSource = await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8");
+  const projection = {};
+  runInNewContext(ts.transpileModule(projectionSource, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
+  const source = await readFile(new URL("../app/personal-map.tsx", import.meta.url), "utf8");
+  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
+  const exports = {};
+  const states = [];
+  let cursor = 0;
+  runInNewContext(compiled, {
+    exports,
+    window: { matchMedia: () => ({ matches: false }) },
+    require: name => name === "react" ? {
+      useState: initial => { const index = cursor++; states[index] ??= initial; return [states[index], value => { states[index] = value; }]; },
+      useRef: () => ({ current: null }),
+    } : name.includes("projection") ? projection : name.includes("world-land") ? { default: { land: "", graticule: "" } } : {
+      jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
+    },
+  });
+  const flatten = node => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(flatten) : [node, ...flatten(node.props?.children)];
+  const render = () => { cursor = 0; return flatten(exports.PersonalMap({ language: "en" })); };
+  const find = (nodes, className) => nodes.find(node => node.props?.className === className);
+  const coordinates = [[110.1999, 20.044], [-87.9403, 41.8995], [-118.2437, 34.0522], [-71.4128, 41.824], [-122.273, 37.8715]];
+  assert.equal(find(render(), "map-reset").props.disabled, true);
+  coordinates.forEach(([longitude, latitude], index) => {
+    render().filter(node => node.props?.className === "map-place")[index].props.onClick();
+    const nodes = render();
+    assert.equal(nodes.filter(node => node.props?.className === "map-place")[index].props["aria-pressed"], true);
+    const point = projection.projectLocation(longitude, latitude);
+    assert.equal(find(nodes, "map-geography").props.style.transform, `translate(${500 - point.x * 3.2}px, ${270 - point.y * 3.2}px) scale(3.2)`);
+    const selectedPin = nodes.find(node => node.props?.className === "map-point" && node.props["data-selected"]);
+    assert.equal(selectedPin.props.hidden, false);
+    assert.equal(selectedPin.props.style.left, "50%");
+    assert.equal(selectedPin.props.style.top, "50%");
+  });
+  for (let index = 0; index < 10; index++) render().find(node => node.props?.["aria-label"] === "Zoom in").props.onClick();
+  assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom in").props.disabled, true);
+  find(render(), "map-reset").props.onClick();
+  assert.equal(find(render(), "map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
+  assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom out").props.disabled, true);
 });
 
 test("wave lifecycle has no reload, navigation, or iteration handler", async () => {

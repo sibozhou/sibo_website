@@ -1,10 +1,12 @@
 # Sibo Zhou — Personal Website
 
-A two-page academic website inspired by Physical Intelligence's restrained
+A personal website inspired by Physical Intelligence's restrained
 typography and editorial layout.
 
 - Home: introduction, background, recognition and media, contact details, and downloadable CV.
 - Research: working papers and publications, with status and authorship from the CV.
+- Notes: an informal space for thoughts and things I’m learning.
+- Map: five places along the way, with an interactive, self-hosted world map.
 
 The Research page lists three working papers and one published article in
 `Cancers (Basel)` (2026), using the CV and the author's updated publication
@@ -26,12 +28,15 @@ npm test
 ```
 
 The site uses Next-compatible React components through vinext and is packaged
-as a static export for GitHub Pages. Both pages are pre-rendered HTML and work
-without JavaScript. There are no runtime API, database, login, or server requirements.
+as a static export for GitHub Pages. All pages are pre-rendered HTML. The map adds
+client-side place selection and zoom, with local Natural Earth geography and no
+third-party map service. There are no runtime API, database, login, or server requirements.
 The inherited Worker tooling is used during the build, not deployed to GitHub Pages.
 
-Edit `app/page.tsx` for Home, `app/research/page.tsx` for papers, and
-`app/globals.css` for the shared design. Replace `public/Sibo_Zhou_CV.pdf`
+Edit `app/home-page.tsx` for Home, `app/research-page.tsx` for papers,
+`app/notes-page.tsx` for Notes, `app/personal-map.tsx` for map locations, and
+`app/globals.css` for the shared design. All four pages have English, simplified
+Chinese, and traditional Chinese versions. Replace `public/Sibo_Zhou_CV.pdf`
 to update the downloadable CV.
 
 ## Deployment

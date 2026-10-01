@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { type Language } from "./languages";
 
-export function languageAlternates(page: "home" | "research" | "notes", language: Language) {
+export function languageAlternates(page: "home" | "research" | "notes" | "map", language: Language) {
   const path = page === "home" ? "" : `${page}/`;
   const en = "https://sibozhou.com/" + path;
   const zh = "https://sibozhou.com/zh/" + path;
@@ -31,4 +31,15 @@ export function notesMetadata(language: Language): Metadata {
     : "An informal collection of thoughts, observations, and occasional updates from Sibo Zhou.";
   const alternates = languageAlternates("notes", language);
   return { title, description, alternates, openGraph: { title, description, url: alternates.canonical, locale: language === "zh-hant" ? "zh_TW" : zh ? "zh_CN" : "en_US" } };
+}
+
+export function mapMetadata(language: Language): Metadata {
+  const title = language === "zh-hant" ? "地圖 — 周思博" : language === "zh" ? "地图 — 周思博" : "map — sibo zhou";
+  const description = language === "zh-hant"
+    ? "從海口出發，走過的一些地方：海口、埃爾姆赫斯特、洛杉磯、普羅維登斯與柏克萊。"
+    : language === "zh"
+    ? "从海口出发，走过的一些地方：海口、埃尔姆赫斯特、洛杉矶、普罗维登斯与伯克利。"
+    : "From Haikou, a few places along the way: Haikou, Elmhurst, Los Angeles, Providence, and Berkeley.";
+  const alternates = languageAlternates("map", language);
+  return { title, description, alternates, openGraph: { title, description, url: alternates.canonical, locale: language === "zh-hant" ? "zh_TW" : language === "zh" ? "zh_CN" : "en_US" } };
 }
