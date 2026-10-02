@@ -435,7 +435,7 @@ html:lang(zh) .map-description { font-size: 17px; line-height: 1.75; }
 .map-place:focus-visible, .map-controls button:focus-visible, .map-pin:focus-visible, .map-scale:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .map-viewport { min-width: 0; }
 .map-stage { position: relative; display: grid; place-items: center; min-height: 320px; padding-top: 48px; scroll-margin-top: calc(var(--header-height) + 16px); }
-.map-canvas { position: relative; width: 100%; max-width: 1000px; aspect-ratio: 1000 / 540; overflow: hidden; cursor: grab; user-select: none; }
+.map-canvas { position: relative; width: 100%; max-width: 1000px; aspect-ratio: 1000 / 540; overflow: hidden; cursor: grab; user-select: none; touch-action: none; }
 .map-canvas[data-dragging="true"] { cursor: grabbing; }
 .map-canvas[data-direct="true"] :is(.map-geography, .map-point, .map-pin, .map-detail-label) { transition: none; }
 .map-world { display: block; width: 100%; height: 100%; }

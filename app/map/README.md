@@ -2,7 +2,7 @@
 
 All geography is bundled locally. The map makes no third-party requests and needs no API key.
 
-Mouse/trackpad wheel input zooms around the pointer; left-button dragging pans the map. The wheel listener is non-passive and attached only to the map canvas, so scrolling outside the map is unchanged. Pointer capture keeps a drag active outside the canvas and is released on pointer-up/cancel. Pin buttons do not start a drag. Touch input retains native page scrolling; the existing zoom and boundary buttons remain available on every device. Direct gestures have no delayed CSS easing; preset views retain their existing transitions. `world view` resets both pan and zoom.
+Mouse/trackpad wheel input zooms around the pointer; left-button or one-finger dragging pans the map. Two-finger pinching zooms around the moving midpoint, with the same zoom limits as the buttons. The wheel listener is non-passive and attached only to the map canvas. Only that canvas uses `touch-action: none`; native page scrolling and zooming outside it are unchanged. Pointer capture keeps gestures active outside the canvas and is released on pointer-up/cancel. Lifting one finger continues as a one-finger drag without jumping. Pin buttons do not start a drag; the existing zoom and boundary buttons remain available on every device. Direct gestures have no delayed CSS easing; preset views retain their existing transitions. `world view` resets both pan and zoom.
 
 ## Sources
 

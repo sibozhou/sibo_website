@@ -47,7 +47,7 @@ export function PersonalMap({ language }: { language: Language }) {
   const [interaction, setInteraction] = useState<"preset" | "direct" | "dragging">("preset");
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ id: number; x: number; y: number; width: number; height: number; view: typeof worldView } | null>(null);
+  const drag = useRef(new Map<number, { x: number; y: number }>());
   const text = copy[language];
   const translation = language === "en" ? 0 : language === "zh" ? 1 : 2;
   const place = places[selected];
@@ -64,7 +64,7 @@ export function PersonalMap({ language }: { language: Language }) {
     const wheel = (event: WheelEvent) => {
       if (!event.deltaY) return;
       event.preventDefault();
-      if (drag.current) return;
+      if (drag.current.size) return;
       const box = element.getBoundingClientRect();
       const anchor = { x: (event.clientX - box.left) / box.width * 1000, y: (event.clientY - box.top) / box.height * 540 };
       const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? box.height : 1);
@@ -77,23 +77,35 @@ export function PersonalMap({ language }: { language: Language }) {
     return () => element.removeEventListener("wheel", wheel);
   }, [maxZoom]);
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType !== "mouse" || event.button !== 0 || (event.target as Element).closest("button")) return;
-    const box = event.currentTarget.getBoundingClientRect();
-    drag.current = { id: event.pointerId, x: event.clientX, y: event.clientY, width: box.width, height: box.height, view };
+    if (event.button !== 0 || drag.current.size >= 2 || (event.target as Element).closest("button")) return;
+    drag.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     event.currentTarget.setPointerCapture(event.pointerId);
     setInteraction("dragging");
   };
   const moveDrag = (event: PointerEvent<HTMLDivElement>) => {
-    const start = drag.current;
-    if (!start || start.id !== event.pointerId) return;
+    if (!drag.current.has(event.pointerId)) return;
+    const [a, b = a] = Array.from(drag.current.values());
+    drag.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const [c, d = c] = Array.from(drag.current.values());
+    const box = event.currentTarget.getBoundingClientRect();
+    const anchor = { x: ((a.x + b.x) / 2 - box.left) / box.width * 1000, y: ((a.y + b.y) / 2 - box.top) / box.height * 540 };
+    const dx = (c.x + d.x - a.x - b.x) / 2 / box.width * 1000;
+    const dy = (c.y + d.y - a.y - b.y) / 2 / box.height * 540;
+    const distance = Math.hypot(b.x - a.x, b.y - a.y);
+    const amount = distance ? Math.hypot(d.x - c.x, d.y - c.y) / distance : 1;
     setScale(null);
-    setView({ ...start.view, x: start.view.x - (event.clientX - start.x) / start.width * 1000 / start.view.zoom, y: start.view.y - (event.clientY - start.y) / start.height * 540 / start.view.zoom });
+    // Incremental updates preserve every movement, even before React renders.
+    // Zoom around the old midpoint, then carry that location to the new midpoint.
+    setView(current => {
+      const next = amount === 1 ? current : zoomAt(current, amount, maxZoom, anchor);
+      if (amount !== 1 && next.zoom === 1) return next;
+      return { ...next, x: next.x - dx / next.zoom, y: next.y - dy / next.zoom };
+    });
   };
   const endDrag = (event: PointerEvent<HTMLDivElement>) => {
-    if (drag.current?.id !== event.pointerId) return;
-    drag.current = null;
+    if (!drag.current.delete(event.pointerId)) return;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    setInteraction("direct");
+    setInteraction(drag.current.size ? "dragging" : "direct");
   };
   const showBoundary = (index: number, boundary: BoundaryView) => {
     setInteraction("preset");

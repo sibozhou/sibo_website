@@ -812,15 +812,16 @@ test("map selection reveals real country, state/province and municipal boundarie
   assert.ok(Buffer.byteLength(JSON.stringify(geography)) < 4_000_000, "Both projections must stay within the local asset budget");
 });
 
-test("map wheel zoom follows the pointer and mouse dragging pans without selecting a city", async () => {
+test("map wheel, mouse and touch gestures preserve their anchors and selected city", async () => {
   const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
   const projection = {};
   runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
   const source = await readFile(new URL("../app/personal-map.tsx", import.meta.url), "utf8");
   const exports = {}, hooks = [], listeners = new Map(), captured = new Set();
   let cursor = 0, pending = [];
+  const box = { left: 100, top: 50, width: 800, height: 432 };
   const canvas = {
-    getBoundingClientRect: () => ({ left: 100, top: 50, width: 800, height: 432 }),
+    getBoundingClientRect: () => ({ ...box }),
     addEventListener: (type, handler, options) => listeners.set(type, { handler, options }),
     removeEventListener: (type, handler) => { if (listeners.get(type)?.handler === handler) listeners.delete(type); },
     setPointerCapture: id => captured.add(id),
@@ -889,7 +890,8 @@ test("map wheel zoom follows the pointer and mouse dragging pans without selecti
   assert.equal(captured.size, 0);
   assert.equal(find("map-canvas").props["data-dragging"], false);
   find("map-canvas").props.onPointerDown(pointer(400, 200, { pointerType: "touch" }));
-  assert.equal(captured.size, 0, "Touch input must remain available for native page scrolling");
+  assert.equal(captured.size, 1, "A finger drag inside the map must capture its pointer");
+  find("map-canvas").props.onPointerUp(pointer(400, 200, { pointerType: "touch" }));
   find("map-canvas").props.onPointerDown(pointer(400, 200, { target: { closest: () => ({ tagName: "BUTTON" }) } }));
   assert.equal(captured.size, 0, "A pin click must not start a map drag");
   find("map-canvas").props.onPointerDown(pointer(400, 200));
@@ -904,8 +906,98 @@ test("map wheel zoom follows the pointer and mouse dragging pans without selecti
   find("map-reset").props.onClick();
   assert.equal(find("map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
   assert.equal(find("map-canvas").props["data-direct"], false);
+  const touch = (x, y, id) => pointer(x, y, { pointerType: "touch", pointerId: id });
+  const gestureView = () => {
+    const transform = find("map-geography").props.style.transform;
+    const [x, y] = translations(transform);
+    return { x, y, zoom: Number(transform.match(/scale\(([^)]+)\)/)[1]) };
+  };
+  for (const width of [390, 820]) {
+    box.width = width; box.height = width * .54;
+    render().filter(node => node.props?.className === "map-place")[1].props.onClick();
+    const before = gestureView();
+    const first = { x: box.left + width * .35, y: box.top + box.height * .5 };
+    const second = { x: box.left + width * .65, y: first.y };
+    find("map-canvas").props.onPointerDown(touch(first.x, first.y, 11));
+    const movedFirst = { x: first.x + 24, y: first.y + 18 };
+    find("map-canvas").props.onPointerMove(touch(movedFirst.x, movedFirst.y, 11));
+    const panned = gestureView();
+    close(panned.x - before.x, 24 / width * 1000);
+    close(panned.y - before.y, 18 / box.height * 540);
+    close(panned.zoom, before.zoom);
+    find("map-canvas").props.onPointerDown(touch(second.x, second.y, 12));
+    assert.equal(captured.size, 2);
+    assert.deepEqual(gestureView(), panned, "Adding a second finger must not jump the map");
+    const anchor = { x: ((movedFirst.x + second.x) / 2 - box.left) / width * 1000, y: ((movedFirst.y + second.y) / 2 - box.top) / box.height * 540 };
+    const location = { x: (anchor.x - panned.x) / panned.zoom, y: (anchor.y - panned.y) / panned.zoom };
+    const startDistance = Math.hypot(second.x - movedFirst.x, second.y - movedFirst.y);
+    // Both events may arrive before React renders; neither movement may be lost.
+    const handlers = find("map-canvas").props;
+    handlers.onPointerMove(touch(movedFirst.x - 32, movedFirst.y - 12, 11));
+    handlers.onPointerMove(touch(second.x + 32, second.y + 12, 12));
+    const pinched = gestureView();
+    close(pinched.zoom, panned.zoom * Math.hypot(second.x - movedFirst.x + 64, second.y - movedFirst.y + 24) / startDistance);
+    close(pinched.x + location.x * pinched.zoom, anchor.x);
+    close(pinched.y + location.y * pinched.zoom, anchor.y);
+    assert.equal(find("map-canvas").props["data-direct"], true);
+    handlers.onPointerMove(touch(movedFirst.x, movedFirst.y, 11));
+    handlers.onPointerMove(touch(second.x, second.y, 12));
+    const contracted = gestureView();
+    close(contracted.zoom, panned.zoom); close(contracted.x, panned.x); close(contracted.y, panned.y);
+    handlers.onPointerMove(touch(movedFirst.x + 12, movedFirst.y + 6, 11));
+    handlers.onPointerMove(touch(second.x + 12, second.y + 6, 12));
+    const carried = gestureView();
+    close(carried.zoom, contracted.zoom);
+    close(carried.x + location.x * carried.zoom, anchor.x + 12 / width * 1000);
+    close(carried.y + location.y * carried.zoom, anchor.y + 6 / box.height * 540);
+    listeners.get("wheel").handler({ clientX: 400, clientY: 250, deltaY: -120, deltaMode: 0, preventDefault: () => {} });
+    assert.deepEqual(gestureView(), carried, "Wheel events must not interrupt an active touch gesture");
+    find("map-canvas").props.onPointerCancel(touch(second.x + 12, second.y + 6, 12));
+    assert.equal(captured.size, 1);
+    assert.equal(find("map-canvas").props["data-dragging"], true);
+    find("map-canvas").props.onLostPointerCapture(touch(second.x + 12, second.y + 6, 12));
+    assert.equal(find("map-canvas").props["data-dragging"], true, "Losing the finished pointer must not interrupt the remaining finger");
+    find("map-canvas").props.onPointerMove(touch(movedFirst.x + 28, movedFirst.y + 14, 11));
+    const resumed = gestureView();
+    close(resumed.x - carried.x, 16 / width * 1000);
+    close(resumed.y - carried.y, 8 / box.height * 540);
+    close(resumed.zoom, carried.zoom);
+    find("map-canvas").props.onPointerUp(touch(movedFirst.x + 28, movedFirst.y + 14, 11));
+    assert.equal(captured.size, 0);
+    assert.equal(find("map-canvas").props["data-dragging"], false);
+    find("map-canvas").props.onPointerMove(touch(movedFirst.x + 80, movedFirst.y, 11));
+    assert.deepEqual(gestureView(), resumed, "A released pointer must not keep moving the map");
+    assert.equal(render().filter(node => node.props?.className === "map-place")[1].props["aria-pressed"], true);
+    find("map-reset").props.onClick();
+  }
+  box.width = 800; box.height = 432;
+  const anchorX = box.left + overview.x * .8, anchorY = box.top + overview.y * .8;
+  find("map-canvas").props.onPointerDown(touch(anchorX - 40, anchorY, 21));
+  find("map-canvas").props.onPointerDown(touch(anchorX + 40, anchorY, 22));
+  find("map-canvas").props.onPointerMove(touch(anchorX - 60, anchorY, 21));
+  find("map-canvas").props.onPointerMove(touch(anchorX + 60, anchorY, 22));
+  close(gestureView().zoom, 1.5);
+  const anchoredPin = render().filter(node => node.props?.className === "map-point")[1];
+  close(parseFloat(anchoredPin.props.style.left), overview.x / 10);
+  close(parseFloat(anchoredPin.props.style.top), overview.y / 5.4);
+  find("map-canvas").props.onPointerMove(touch(anchorX - 1, anchorY, 21));
+  find("map-canvas").props.onPointerMove(touch(anchorX + 1, anchorY, 22));
+  assert.equal(find("map-geography").props.style.transform, "translate(0px, 0px) scale(1)", "Pinching out must respect the world-view minimum");
+  find("map-canvas").props.onPointerUp(touch(anchorX - 1, anchorY, 21));
+  find("map-canvas").props.onPointerUp(touch(anchorX + 1, anchorY, 22));
   for (let i = 0; i < 50; i++) listeners.get("wheel").handler({ clientX: 500, clientY: 266, deltaY: -1000, deltaMode: 0, ctrlKey: false, preventDefault: () => {} });
   assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom in").props.disabled, true, "Wheel zoom must respect the same upper limit as the zoom buttons");
+  const maximum = gestureView().zoom;
+  find("map-canvas").props.onPointerDown(touch(400, 250, 31));
+  find("map-canvas").props.onPointerDown(touch(600, 250, 32));
+  find("map-canvas").props.onPointerMove(touch(650, 250, 32));
+  close(gestureView().zoom, maximum);
+  find("map-canvas").props.onPointerUp(touch(400, 250, 31));
+  find("map-canvas").props.onLostPointerCapture(touch(650, 250, 32));
+  assert.equal(captured.size, 0);
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.map-canvas \{[^}]*touch-action: none;/, "Only the map canvas should take over browser touch gestures");
+  assert.equal((css.match(/touch-action: none/g) ?? []).length, 1, "Native page gestures outside the map must remain unchanged");
   hooks.forEach(hook => hook?.cleanup?.());
   assert.equal(listeners.size, 0, "Unmount must remove the wheel listener");
 });
