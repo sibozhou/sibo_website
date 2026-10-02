@@ -128,7 +128,16 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
       assert.match(markup, /id="map-title"/);
       assert.equal((markup.match(/class="map-place"/g) ?? []).length, 5);
       assert.equal((markup.match(/class="map-pin"/g) ?? []).length, 5);
+      const placeNumbers = [...markup.matchAll(/class="map-place-number" aria-hidden="true">(\d+)<\/span>/g)].map(match => match[1]);
+      const pinNumbers = (markup.match(/class="map-pin"[^]*?<\/button>/g) ?? []).map(pin => pin.match(/<span aria-hidden="true">(\d+)<\/span>/)?.[1]);
+      assert.deepEqual(placeNumbers, ["1", "2", "3", "4", "5"]);
+      assert.deepEqual(pinNumbers, ["1", "2", "3", "4", "5"]);
       assert.match(markup, /class="map-land"/);
+      for (const layer of ["country", "region", "city", "lakes"]) assert.match(markup, new RegExp(`class="map-${layer}"`));
+      assert.equal((markup.match(/class="map-scale"/g) ?? []).length, 3);
+      assert.doesNotMatch(markup, /map-coordinates|° [NSEW]/);
+      assert.match(markup, chinese ? /海南/ : /Hainan, China/);
+      assert.match(markup, /https:\/\/www.openstreetmap.org\/copyright/);
       assert.match(markup, /class="map-caption" aria-live="polite" aria-atomic="true"/);
       assert.match(markup, traditional ? /家鄉/ : chinese ? /家乡/ : /home/);
       assert.match(markup, traditional ? /柏克萊/ : chinese ? /伯克利/ : /Berkeley/);
@@ -463,7 +472,8 @@ test("shared research disclosures toggle counts and reset on a fresh mount", asy
   assert.match(css, /\.disclosure-toggle \.section-count \{ display: inline-block; margin-top: 0; margin-inline-start: 12px/);
 });
 
-test("map selection focuses each city and zoom controls return to the world view", async () => {
+test("map selection reveals real country, state/province and municipal boundaries", async () => {
+  const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
   const projectionSource = await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8");
   const projection = {};
   runInNewContext(ts.transpileModule(projectionSource, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
@@ -478,7 +488,7 @@ test("map selection focuses each city and zoom controls return to the world view
     require: name => name === "react" ? {
       useState: initial => { const index = cursor++; states[index] ??= initial; return [states[index], value => { states[index] = value; }]; },
       useRef: () => ({ current: null }),
-    } : name.includes("projection") ? projection : name.includes("world-land") ? { default: { land: "", graticule: "" } } : {
+    } : name.includes("projection") ? projection : name.includes("world-land") ? { default: geography } : {
       jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
     },
   });
@@ -486,23 +496,42 @@ test("map selection focuses each city and zoom controls return to the world view
   const render = () => { cursor = 0; return flatten(exports.PersonalMap({ language: "en" })); };
   const find = (nodes, className) => nodes.find(node => node.props?.className === className);
   const coordinates = [[110.1999, 20.044], [-87.9403, 41.8995], [-118.2437, 34.0522], [-71.4128, 41.824], [-122.273, 37.8715]];
+  const countries = ["CHN", "USA", "USA", "USA", "USA"];
+  const regions = ["CN-HI", "US-IL", "US-CA", "US-RI", "US-CA"];
+  const cities = ["haikou", "elmhurst", "los-angeles", "providence", "berkeley"];
+  const framing = ([left, top, right, bottom]) => ({ x: (left + right) / 2, y: (top + bottom) / 2, zoom: Math.min(800 / (right - left), 400 / (bottom - top)) });
+  const transform = ({ x, y, zoom }) => `translate(${500 - x * zoom}px, ${270 - y * zoom}px) scale(${zoom})`;
   assert.equal(find(render(), "map-reset").props.disabled, true);
   coordinates.forEach(([longitude, latitude], index) => {
     render().filter(node => node.props?.className === "map-place")[index].props.onClick();
     const nodes = render();
     assert.equal(nodes.filter(node => node.props?.className === "map-place")[index].props["aria-pressed"], true);
+    assert.equal(find(nodes, "map-geography").props.style.transform, transform(framing(geography.regions[regions[index]].bounds)));
+    assert.equal(find(nodes, "map-country").props.d, geography.countries[countries[index]].path);
+    assert.equal(find(nodes, "map-region").props.d, geography.regions[regions[index]].path);
+    assert.equal(find(nodes, "map-city").props.d, geography.cities[cities[index]].path);
     const point = projection.projectLocation(longitude, latitude);
-    assert.equal(find(nodes, "map-geography").props.style.transform, `translate(${500 - point.x * 3.2}px, ${270 - point.y * 3.2}px) scale(3.2)`);
-    const selectedPin = nodes.find(node => node.props?.className === "map-point" && node.props["data-selected"]);
-    assert.equal(selectedPin.props.hidden, false);
-    assert.equal(selectedPin.props.style.left, "50%");
-    assert.equal(selectedPin.props.style.top, "50%");
+    for (const [boundary, geometry] of [["country", geography.countries[countries[index]]], ["region", geography.regions[regions[index]]], ["city", geography.cities[cities[index]]]]) {
+      render().find(node => node.props?.className === "map-scale" && node.props["data-boundary"] === boundary).props.onClick();
+      const focused = render();
+      const frame = framing(geometry.bounds);
+      assert.equal(find(focused, "map-geography").props.style.transform, transform(frame));
+      assert.equal(focused.find(node => node.props?.className === "map-scale" && node.props["data-boundary"] === boundary).props["aria-pressed"], true);
+      const selectedPin = focused.find(node => node.props?.className === "map-point" && node.props["data-selected"]);
+      assert.equal(selectedPin.props.hidden, false);
+      assert.equal(selectedPin.props.style.left, `${((point.x - frame.x) * frame.zoom + 500) / 10}%`);
+      assert.equal(selectedPin.props.style.top, `${((point.y - frame.y) * frame.zoom + 270) / 5.4}%`);
+    }
+    assert.ok((geography.cities[cities[index]].path.match(/L/g) ?? []).length > 100, "A municipal boundary must be a detailed polygon, not a box around the marker");
   });
   for (let index = 0; index < 10; index++) render().find(node => node.props?.["aria-label"] === "Zoom in").props.onClick();
   assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom in").props.disabled, true);
   find(render(), "map-reset").props.onClick();
   assert.equal(find(render(), "map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
   assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom out").props.disabled, true);
+  assert.equal(render().filter(node => node.props?.className === "map-scale" && node.props["aria-pressed"]).length, 0);
+  assert.ok(geography.lakes.length > 1000);
+  assert.ok(Buffer.byteLength(JSON.stringify(geography)) < 2_000_000, "Detailed map data must stay within the local asset budget");
 });
 
 test("wave lifecycle has no reload, navigation, or iteration handler", async () => {
