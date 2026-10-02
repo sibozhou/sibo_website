@@ -281,11 +281,8 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
       assert.match(markup, /class="map-land"/);
       for (const layer of ["country", "region", "city", "lakes"]) assert.match(markup, new RegExp(`class="map-${layer}"`));
       assert.match(markup, /class="map-maritime"/);
-      if (chinese && !traditional) {
-        assert.equal(markup.includes("中国边界采用 Natural Earth 中国视角；海上虚线表示有争议的主张。"), false, "Remove the requested Simplified Chinese map note");
-      } else {
-        assert.match(markup, traditional ? /海上虛線表示有爭議的主張/ : /maritime lines indicate disputed claims/);
-      }
+      assert.equal(/China-POV boundaries;|中国边界采用 Natural Earth 中国视角|中國邊界採用 Natural Earth 中國視角|maritime lines indicate disputed claims|海上虚线表示有争议的主张|海上虛線表示有爭議的主張/.test(markup), false, "Remove the boundary convention note in every language");
+      assert.match(markup, traditional ? /行政邊界包含水域。/ : chinese ? /行政边界包含水域。/ : /Administrative boundaries, including water areas\./);
       assert.equal((markup.match(/class="map-scale"/g) ?? []).length, 3);
       assert.doesNotMatch(markup, /map-coordinates|° [NSEW]/);
       assert.match(markup, chinese ? /海南/ : /Hainan, China/);
