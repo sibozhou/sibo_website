@@ -16,7 +16,7 @@ const places = [
 
 const copy = {
   en: { places: "Places along the way", map: "Interactive world map", world: "world view", zoomIn: "Zoom in", zoomOut: "Zoom out", country: "country", region: "state / province", city: "city", scales: "Boundary views", note: "Administrative boundaries, including water areas.", convention: "China-POV boundaries; dashed maritime lines indicate disputed claims." },
-  zh: { places: "走过的地方", map: "互动世界地图", world: "世界全景", zoomIn: "放大", zoomOut: "缩小", country: "国家", region: "省 / 州", city: "城市", scales: "边界视图", note: "行政边界包含水域。", convention: "中国边界采用 Natural Earth 中国视角；海上虚线表示有争议的主张。" },
+  zh: { places: "走过的地方", map: "互动世界地图", world: "世界全景", zoomIn: "放大", zoomOut: "缩小", country: "国家", region: "省 / 州", city: "城市", scales: "边界视图", note: "行政边界包含水域。", convention: "" },
   "zh-hant": { places: "走過的地方", map: "互動世界地圖", world: "世界全景", zoomIn: "放大", zoomOut: "縮小", country: "國家", region: "省 / 州", city: "城市", scales: "邊界檢視", note: "行政邊界包含水域。", convention: "中國邊界採用 Natural Earth 中國視角；海上虛線表示有爭議的主張。" },
 };
 
