@@ -1,13 +1,158 @@
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
-import { inflateSync } from "node:zlib";
+import { gzipSync, inflateSync } from "node:zlib";
 import ts from "typescript";
 
 const output = new URL("../dist/client/", import.meta.url);
 const site = process.env.PAGES_SITE_URL ?? "https://sibozhou.com/";
 const basePath = new URL(site).pathname;
+const pathSegments = path => new Set(path.split("M").filter(Boolean).flatMap(ring => {
+  const points = [...ring.matchAll(/(?:^|L)(-?[\d.]+),(-?[\d.]+)/g)].map(([, x, y]) => `${Number(x)},${Number(y)}`);
+  if (ring.endsWith("Z") && points.at(-1) !== points[0]) points.push(points[0]);
+  return points.slice(1).map((point, index) => [points[index], point].sort().join("|"));
+}));
+
+test("zoomable map details are local, compact, and cover all five places", async () => {
+  const context = JSON.parse(await readFile(new URL("../public/map-details/context.json", import.meta.url), "utf8"));
+  assert.ok(context.labels.some(label => label.names[0] === "Beijing"));
+  assert.ok(context.labels.some(label => label.names[0] === "San Francisco"));
+  assert.ok(context.labels.some(label => label.kind === "airport" && label.names[0] === "LAX"));
+  assert.ok(context.routes.some(route => route.kind === "road"));
+  assert.ok(context.routes.some(route => route.kind === "rail"));
+  assert.ok(Buffer.byteLength(JSON.stringify(context)) < 3_000_000);
+  for (const id of ["haikou", "elmhurst", "los-angeles", "providence", "berkeley"]) {
+    const data = JSON.parse(await readFile(new URL(`../public/map-details/${id}.json`, import.meta.url), "utf8"));
+    assert.equal(data.source, "© OpenStreetMap contributors · ODbL 1.0");
+    assert.ok(data.timestamp, "Keep the source date for reproducible extracts");
+    assert.equal(data.coverage.length, 4);
+    assert.ok(data.coverage.every(Number.isFinite));
+    assert.ok(data.routes.some(route => route.kind === "road"));
+    assert.ok(data.routes.some(route => route.kind === "rail"));
+    assert.ok(data.labels.some(label => label.kind === "station"));
+    assert.ok(Buffer.byteLength(JSON.stringify(data)) < 3_000_000);
+    assert.ok(gzipSync(JSON.stringify(data)).byteLength < 800_000);
+    for (const route of data.routes) {
+      assert.ok(route.bounds.every(Number.isFinite));
+      assert.match(route.path, /^M[\d.-]+,[\d.-]+l/);
+      assert.doesNotMatch(route.path, /NaN|Infinity|Z/);
+    }
+  }
+});
+
+test("detail labels reveal progressively, stay readable, and avoid pins and one another", async () => {
+  const details = {};
+  runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/details.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports: details });
+  const labels = [
+    { id: "city", names: ["Berkeley", "伯克利", "柏克萊"], kind: "city", x: 500, y: 270, minZoom: 2, priority: 100 },
+    { id: "nearby", names: ["Oakland", "奥克兰", "奧克蘭"], kind: "city", x: 500.01, y: 270, minZoom: 2, priority: 90 },
+    { id: "station", names: ["Downtown Berkeley", "Downtown Berkeley", "Downtown Berkeley"], kind: "station", x: 501, y: 270, minZoom: 500, priority: 60 },
+  ];
+  const view = { x: 500, y: 270, zoom: 100, detail: true };
+  const size = { width: 800, height: 432 };
+  const overlap = (a, b) => a.left < b.left + b.width + 4 && a.left + a.width + 4 > b.left && a.top < b.top + b.height + 4 && a.top + a.height + 4 > b.top;
+  assert.equal(details.layoutMapLabels(labels, { ...view, detail: false }, size, "en", []).length, 0);
+  const visible = details.layoutMapLabels(labels, view, size, "en", []);
+  assert.equal(visible[0].text, "Berkeley");
+  assert.equal(visible.some(label => label.id === "station"), false);
+  for (const a of visible) for (const b of visible) if (a !== b) assert.equal(overlap(a, b), false);
+  const reserved = [{ left: 378, top: 190, width: 44, height: 44 }];
+  const pinned = details.layoutMapLabels(labels, view, size, "zh-hant", reserved);
+  assert.equal(pinned[0].text, "柏克萊");
+  for (const label of pinned) assert.equal(overlap(label, reserved[0]), false);
+  for (const width of [320, 820, 1000]) {
+    const placed = details.layoutMapLabels(labels, { ...view, zoom: 1000 }, { width, height: width * .54 }, "en", []);
+    for (const label of placed) {
+      assert.ok(label.left >= 4 && label.left + label.width <= width - 4);
+      assert.ok(label.top >= 4 && label.top + label.height <= width * .54 - 4);
+      assert.equal(label.height, 18, "Labels must remain screen-sized, not grow with geography");
+    }
+  }
+  const dense = Array.from({ length: 40 }, (_, i) => ({ ...labels[0], id: `city-${i}`, names: [`City ${i}`, `City ${i}`, `City ${i}`], x: 500 + (i % 10 * 85 + 50 - 500) / 1000, y: 270 + (Math.floor(i / 10) * 90 + 50 - 270) / 1000 }));
+  const mixed = details.layoutMapLabels([...dense, { ...labels[2], x: 500, y: 270.18 }, { ...labels[2], id: "street", kind: "road", names: ["Ashby Avenue", "Ashby Avenue", "Ashby Avenue"], priority: 45, x: 500.2, y: 270.18 }], { ...view, zoom: 1000 }, size, "en", []);
+  assert.ok(mixed.some(label => label.kind === "station"), "City names must leave room for station detail");
+  assert.ok(mixed.some(label => label.kind === "road"), "Dense cities must leave room for key street names");
+  assert.ok(mixed.filter(label => label.kind === "city").length <= 12);
+  for (const [language, route] of [["en", "map/"], ["zh", "zh/map/"], ["zh-hant", "zh-hant/map/"]]) {
+    const path = details.mapDetailPath(language, "berkeley");
+    for (const base of ["https://sibozhou.com/", "https://sibozhou.github.io/sibo_website/"]) {
+      assert.equal(new URL(path, base + route).href, base + "map-details/berkeley.json");
+    }
+  }
+});
+
+test("map details load only on zoom, reuse downloads, and ignore stale city responses", async () => {
+  const projection = {}, details = {}, exports = {}, hooks = [], requests = new Map();
+  const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
+  runInNewContext(compile(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8")), { exports: projection });
+  runInNewContext(compile(await readFile(new URL("../app/map/details.ts", import.meta.url), "utf8")), { exports: details });
+  let cursor = 0, pending = [], disconnects = 0;
+  const root = { getBoundingClientRect: () => ({ width: 800, height: 432 }) };
+  runInNewContext(compile(await readFile(new URL("../app/map/map-details.tsx", import.meta.url), "utf8")), {
+    exports,
+    ResizeObserver: class { observe() {} disconnect() { disconnects++; } },
+    fetch: path => {
+      assert.equal(requests.has(path), false, "A cached asset must not be fetched again");
+      return new Promise(resolve => requests.set(path, resolve));
+    },
+    require: name => name === "react" ? {
+      useState: initial => { const index = cursor++; if (!(index in hooks)) hooks[index] = initial; return [hooks[index], value => { hooks[index] = value; }]; },
+      useRef: initial => { const index = cursor++; return hooks[index] ??= { current: initial }; },
+      useEffect: (effect, dependencies) => {
+        const index = cursor++;
+        if (!hooks[index] || dependencies.some((value, i) => value !== hooks[index].dependencies[i])) {
+          pending.push(() => { hooks[index]?.cleanup?.(); hooks[index] = { dependencies, cleanup: effect() }; });
+        }
+      },
+    } : name.includes("projection") ? projection : name.includes("details") ? details : {
+      jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
+    },
+  });
+  const flatten = node => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(flatten) : [node, ...flatten(node.props?.children)];
+  const view = { x: 500, y: 270, zoom: 100, detail: true };
+  const props = { language: "en", placeId: "haikou", view, locations: [] };
+  const render = overrides => {
+    Object.assign(props, overrides); cursor = 0;
+    const nodes = flatten(exports.MapDetails(props));
+    nodes.find(node => node.props?.className === "map-details").props.ref.current = root;
+    pending.forEach(effect => effect()); pending = [];
+    return nodes;
+  };
+  const data = text => ({ coverage: [499, 269, 501, 271], routes: [{ kind: "road", level: 0, minZoom: 60, bounds: [499, 269, 501, 271], path: "M499,269l2,2" }], labels: [{ id: text, names: [text, text, text], kind: "city", x: 500, y: 270, minZoom: 60, priority: 100 }] });
+  const resolve = async (path, value) => {
+    requests.get(path)({ ok: true, json: async () => value });
+    await new Promise(done => setImmediate(done));
+  };
+  render({ view: { ...view, zoom: 1, detail: false } });
+  assert.equal(requests.size, 0);
+  render({ view: { ...view, zoom: 10 } });
+  assert.deepEqual([...requests.keys()], ["../map-details/context.json"]);
+  await resolve("../map-details/context.json", data("context"));
+  render({ view });
+  assert.equal(requests.has("../map-details/haikou.json"), true);
+  render({ placeId: "berkeley" });
+  await resolve("../map-details/berkeley.json", data("Berkeley"));
+  await resolve("../map-details/haikou.json", data("Haikou"));
+  const nodes = render();
+  const words = nodes.filter(node => node.props?.className === "map-detail-label").map(node => node.props.children.at(-1));
+  assert.ok(words.includes("Berkeley"));
+  assert.equal(words.includes("Haikou"), false, "Late old-city data cannot replace the selected place");
+  assert.equal(nodes.find(node => node.props?.className === "map-geography").props.style.transform, "translate(-49500px, -26730px) scale(100)");
+  assert.ok(nodes.some(node => node.props?.mask === "url(#map-context-coverage)"));
+  assert.ok(nodes.some(node => node.props?.clipPath === "url(#map-local-coverage)"));
+  render({ view: { ...view, detail: false, zoom: 1 } });
+  const before = requests.size;
+  render({ view });
+  render({ placeId: "haikou" });
+  await new Promise(done => setImmediate(done));
+  assert.equal(requests.size, before);
+  assert.ok(render().some(node => node.props?.className === "map-detail-label" && node.props.children.at(-1) === "Haikou"));
+  assert.equal(disconnects, 0, "Zooming should not reset the resize observer or page");
+});
 
 for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "zh/notes/", "zh/map/", "zh-hant/", "zh-hant/research/", "zh-hant/notes/", "zh-hant/map/"]) {
   test(`static ${route || "home"} page and every local link resolve on GitHub Pages`, async () => {
@@ -125,6 +270,7 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
       assert.equal((markup.match(/class="disclosure-toggle"/g) ?? []).length, 0);
       assert.doesNotMatch(markup, /calligraphy-name|calligraphy-research/);
     } else if (map) {
+      assert.equal(/map-hint|map-mouse-hint|Choose a place\.|Scroll to zoom\.|选择一个地点|選擇一個地點|滚轮缩放|滾輪縮放/.test(markup), false, "Map instruction text must be absent in every language");
       assert.match(markup, /id="map-title"/);
       assert.equal((markup.match(/class="map-place"/g) ?? []).length, 5);
       assert.equal((markup.match(/class="map-pin"/g) ?? []).length, 5);
@@ -134,6 +280,8 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
       assert.deepEqual(pinNumbers, ["1", "2", "3", "4", "5"]);
       assert.match(markup, /class="map-land"/);
       for (const layer of ["country", "region", "city", "lakes"]) assert.match(markup, new RegExp(`class="map-${layer}"`));
+      assert.match(markup, /class="map-maritime"/);
+      assert.match(markup, traditional ? /海上虛線表示有爭議的主張/ : chinese ? /海上虚线表示有争议的主张/ : /maritime lines indicate disputed claims/);
       assert.equal((markup.match(/class="map-scale"/g) ?? []).length, 3);
       assert.doesNotMatch(markup, /map-coordinates|° [NSEW]/);
       assert.match(markup, chinese ? /海南/ : /Hainan, China/);
@@ -472,6 +620,113 @@ test("shared research disclosures toggle counts and reset on a fresh mount", asy
   assert.match(css, /\.disclosure-toggle \.section-count \{ display: inline-block; margin-top: 0; margin-inline-start: 12px/);
 });
 
+test("map close-ups are flat and north-up, without converging meridians", async () => {
+  const source = await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8");
+  const projection = {};
+  runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
+  assert.equal(typeof projection.projectDetailLocation, "function");
+  for (const longitude of [-122.273, -87.9403, -71.4128, 110.1999]) {
+    assert.equal(projection.projectDetailLocation(longitude, 20).x, projection.projectDetailLocation(longitude, 45).x);
+    assert.ok(projection.projectDetailLocation(longitude, 45).y < projection.projectDetailLocation(longitude, 20).y);
+  }
+  assert.equal(projection.projectDetailLocation(-120, 40).y, projection.projectDetailLocation(110, 40).y);
+  for (const latitude of [-90, 0, 90]) {
+    const point = projection.projectDetailLocation(0, latitude);
+    assert.ok(Number.isFinite(point.x) && Number.isFinite(point.y));
+  }
+  for (const longitude of [-180, -87.9403, 0, 110.1999, 180]) {
+    for (const latitude of [-80, -40, 0, 40, 80]) {
+      const converted = projection.detailFromOverview(projection.projectLocation(longitude, latitude));
+      const expected = projection.projectDetailLocation(longitude, latitude);
+      assert.ok(Math.abs(converted.x - expected.x) < 1e-8 && Math.abs(converted.y - expected.y) < 1e-8, "Zooming out of the overview must preserve the geographic cursor anchor");
+    }
+  }
+});
+
+test("China-POV extent includes Taiwan, Hong Kong, Macau and open maritime claim indicators", async () => {
+  const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
+  const source = await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8");
+  const projection = {};
+  runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
+  for (const [data, project] of [[geography, projection.projectLocation], [geography.closeup, projection.projectDetailLocation]]) {
+    assert.ok(data);
+    const country = data.countries.CHN;
+    const rings = country.path.split("Z").filter(Boolean).map(ring => [...ring.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g)].map(([, x, y]) => [Number(x), Number(y)]));
+    const contains = ({ x, y }) => rings.reduce((inside, ring) => ring.reduce((inside, [a, b], index) => {
+      const [c, d] = ring[(index + 1) % ring.length];
+      return (b > y) !== (d > y) && x < (c - a) * (y - b) / (d - b) + a ? !inside : inside;
+    }, inside), false);
+    for (const [longitude, latitude] of [[121.5654, 25.033], [114.17, 22.3], [113.54, 22.19], [110.1999, 20.044]]) {
+      assert.ok(contains(project(longitude, latitude)), "China-POV highlight must include every requested land area");
+    }
+    assert.equal((country.maritime.match(/M/g) ?? []).length, 9);
+    assert.doesNotMatch(country.maritime, /Z/); // Indicators are lines, not a filled sea polygon.
+    const southernClaim = project(111.544476, 3.401132);
+    assert.ok(country.bounds[3] >= southernClaim.y, "Country framing must include the southern maritime indicators");
+    assert.equal(data.countries.USA.maritime, "");
+  }
+});
+
+test("map layers reuse identical shared boundary segments in both projections", async () => {
+  const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
+  for (const data of [geography, geography.closeup]) {
+    for (const [region, country] of [["CN-HI", "CHN"], ["US-CA", "USA"], ["US-IL", "USA"], ["US-RI", "USA"]]) {
+      const divisions = pathSegments(data.countries[country].divisions);
+      const coast = pathSegments(data.countries[country].path);
+      const edges = [...pathSegments(data.regions[region].path)];
+      assert.ok(edges.every(segment => divisions.has(segment) || coast.has(segment)), `${region}: country-level borders and the selected region must use exactly the same segments`);
+      if (country === "USA") assert.ok([...divisions].every(segment => !coast.has(segment)), "Internal divisions must not redraw a coastline");
+      if (region !== "US-IL") {
+        assert.ok(edges.filter(segment => coast.has(segment)).length > 100, `${region}: shared coastlines must remain coincident, including at city zoom`);
+      }
+    }
+  }
+});
+
+test("map generator preserves shared city arcs and does not trim municipal water limits", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "sibo-map-alignment-"));
+  const polygon = ring => ({ type: "Polygon", coordinates: [[...ring, ring[0]]] });
+  const rectangle = (x, y, width, height) => polygon([[x, y], [x + width, y], [x + width, y + height], [x, y + height]]);
+  const coast = [[-120, 35], [-119.9998, 35.2], [-120.0001, 35.4], [-119.9998, 35.6], [-120, 35.8], [-120, 36]];
+  const usa = polygon([...coast, [-117, 36], [-117, 35]]);
+  const california = polygon([...coast, [-119, 36], [-119, 35]]);
+  const china = rectangle(110, 20, 1, 1);
+  const feature = (geometry, properties) => ({ type: "Feature", geometry, properties });
+  const collection = features => ({ type: "FeatureCollection", features });
+  const countrySource = collection([feature(usa, { ADM0_A3: "USA" }), feature(china, { ADM0_A3: "CHN" })]);
+  const sources = {
+    "countries.geojson": countrySource,
+    "countries-china-pov.geojson": countrySource,
+    "states.geojson": collection([
+      feature(california, { adm0_a3: "USA", iso_3166_2: "US-CA" }),
+      feature(rectangle(-119, 35, 1, 1), { adm0_a3: "USA", iso_3166_2: "US-IL" }),
+      feature(rectangle(-118, 35, 1, 1), { adm0_a3: "USA", iso_3166_2: "US-RI" }),
+      feature(china, { adm0_a3: "CHN", iso_3166_2: "CN-HI" }),
+    ]),
+    "us-cities.geojson": collection([
+      feature(polygon([...coast.slice(2, 5).reverse(), [-119.5, 35.4], [-119.5, 35.8]]), { BASENAME: "Berkeley" }),
+      feature(rectangle(-118.8, 35.1, .05, .05), { BASENAME: "Elmhurst" }),
+      feature(rectangle(-117.8, 35.1, .05, .05), { BASENAME: "Providence" }),
+      feature(rectangle(-119.6, 35.1, .05, .05), { BASENAME: "Los Angeles" }),
+    ]),
+    "haikou-osm.json": [{ geojson: rectangle(110.2, 20.8, .4, .4) }],
+    "lakes.geojson": collection([]),
+    "china-maritime.geojson": collection([]),
+  };
+  await Promise.all(Object.entries(sources).map(([name, data]) => writeFile(join(directory, name), JSON.stringify(data))));
+  const generated = join(directory, "aligned.json");
+  execFileSync(process.execPath, [new URL("../scripts/generate-world-map.mjs", import.meta.url).pathname, directory, generated]);
+  const geography = JSON.parse(await readFile(generated, "utf8"));
+  for (const data of [geography, geography.closeup]) {
+    const country = pathSegments(data.countries.USA.path);
+    const region = pathSegments(data.regions["US-CA"].path);
+    const common = [...pathSegments(data.cities.berkeley.path)].filter(segment => country.has(segment));
+    assert.ok(common.length >= 2, "Fine city vertices on the common coast must survive country-level simplification");
+    assert.ok(common.every(segment => region.has(segment)), "Country, state and city must reuse the same city-detail segments, regardless of ring orientation");
+    assert.ok(data.cities.haikou.bounds[1] < data.regions["CN-HI"].bounds[1], "Municipal limits beyond a land coastline must not be clipped away to fake alignment");
+  }
+});
+
 test("map selection reveals real country, state/province and municipal boundaries", async () => {
   const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
   const projectionSource = await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8");
@@ -488,6 +743,7 @@ test("map selection reveals real country, state/province and municipal boundarie
     require: name => name === "react" ? {
       useState: initial => { const index = cursor++; states[index] ??= initial; return [states[index], value => { states[index] = value; }]; },
       useRef: () => ({ current: null }),
+      useEffect: () => {},
     } : name.includes("projection") ? projection : name.includes("world-land") ? { default: geography } : {
       jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
     },
@@ -495,6 +751,11 @@ test("map selection reveals real country, state/province and municipal boundarie
   const flatten = node => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(flatten) : [node, ...flatten(node.props?.children)];
   const render = () => { cursor = 0; return flatten(exports.PersonalMap({ language: "en" })); };
   const find = (nodes, className) => nodes.find(node => node.props?.className === className);
+  const checkWorldOutlines = (nodes, data) => {
+    for (const id of ["CHN", "USA"]) {
+      assert.equal(nodes.find(node => node.props?.className === "map-land" && node.props["data-country"] === id)?.props.d, data.countries[id].path, `${id}: world and country layers must reuse the identical path`);
+    }
+  };
   const coordinates = [[110.1999, 20.044], [-87.9403, 41.8995], [-118.2437, 34.0522], [-71.4128, 41.824], [-122.273, 37.8715]];
   const countries = ["CHN", "USA", "USA", "USA", "USA"];
   const regions = ["CN-HI", "US-IL", "US-CA", "US-RI", "US-CA"];
@@ -502,16 +763,22 @@ test("map selection reveals real country, state/province and municipal boundarie
   const framing = ([left, top, right, bottom]) => ({ x: (left + right) / 2, y: (top + bottom) / 2, zoom: Math.min(800 / (right - left), 400 / (bottom - top)) });
   const transform = ({ x, y, zoom }) => `translate(${500 - x * zoom}px, ${270 - y * zoom}px) scale(${zoom})`;
   assert.equal(find(render(), "map-reset").props.disabled, true);
+  assert.equal(find(render(), "map-land").props.d, geography.land);
+  checkWorldOutlines(render(), geography);
+  const detail = geography.closeup;
   coordinates.forEach(([longitude, latitude], index) => {
     render().filter(node => node.props?.className === "map-place")[index].props.onClick();
     const nodes = render();
     assert.equal(nodes.filter(node => node.props?.className === "map-place")[index].props["aria-pressed"], true);
-    assert.equal(find(nodes, "map-geography").props.style.transform, transform(framing(geography.regions[regions[index]].bounds)));
-    assert.equal(find(nodes, "map-country").props.d, geography.countries[countries[index]].path);
-    assert.equal(find(nodes, "map-region").props.d, geography.regions[regions[index]].path);
-    assert.equal(find(nodes, "map-city").props.d, geography.cities[cities[index]].path);
-    const point = projection.projectLocation(longitude, latitude);
-    for (const [boundary, geometry] of [["country", geography.countries[countries[index]]], ["region", geography.regions[regions[index]]], ["city", geography.cities[cities[index]]]]) {
+    assert.equal(find(nodes, "map-geography").props.style.transform, transform(framing(detail.regions[regions[index]].bounds)));
+    assert.equal(find(nodes, "map-land").props.d, detail.land);
+    checkWorldOutlines(nodes, detail);
+    assert.equal(find(nodes, "map-country").props.d, detail.countries[countries[index]].path);
+    assert.equal(find(nodes, "map-maritime").props.d, detail.countries[countries[index]].maritime);
+    assert.equal(find(nodes, "map-region").props.d, detail.regions[regions[index]].path);
+    assert.equal(find(nodes, "map-city").props.d, detail.cities[cities[index]].path);
+    const point = projection.projectDetailLocation(longitude, latitude);
+    for (const [boundary, geometry] of [["country", detail.countries[countries[index]]], ["region", detail.regions[regions[index]]], ["city", detail.cities[cities[index]]]]) {
       render().find(node => node.props?.className === "map-scale" && node.props["data-boundary"] === boundary).props.onClick();
       const focused = render();
       const frame = framing(geometry.bounds);
@@ -523,15 +790,123 @@ test("map selection reveals real country, state/province and municipal boundarie
       assert.equal(selectedPin.props.style.top, `${((point.y - frame.y) * frame.zoom + 270) / 5.4}%`);
     }
     assert.ok((geography.cities[cities[index]].path.match(/L/g) ?? []).length > 100, "A municipal boundary must be a detailed polygon, not a box around the marker");
+    if (["haikou", "los-angeles"].includes(cities[index])) {
+      for (let step = 0; step < 8; step++) render().find(node => node.props?.["aria-label"] === "Zoom in").props.onClick();
+      const level = Number(find(render(), "map-geography").props.style.transform.match(/scale\(([^)]+)\)/)[1]);
+      assert.ok(level >= 2000, "Large municipalities must allow close enough zoom to reveal streets and stations");
+    }
   });
   for (let index = 0; index < 10; index++) render().find(node => node.props?.["aria-label"] === "Zoom in").props.onClick();
   assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom in").props.disabled, true);
   find(render(), "map-reset").props.onClick();
   assert.equal(find(render(), "map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
+  assert.equal(find(render(), "map-land").props.d, geography.land);
+  const worldPoint = projection.projectLocation(...coordinates[4]);
+  const pin = render().find(node => node.props?.className === "map-point" && node.props["data-selected"]);
+  assert.equal(pin.props.style.left, `${worldPoint.x / 10}%`);
+  assert.equal(pin.props.style.top, `${worldPoint.y / 5.4}%`);
   assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom out").props.disabled, true);
   assert.equal(render().filter(node => node.props?.className === "map-scale" && node.props["aria-pressed"]).length, 0);
   assert.ok(geography.lakes.length > 1000);
-  assert.ok(Buffer.byteLength(JSON.stringify(geography)) < 2_000_000, "Detailed map data must stay within the local asset budget");
+  assert.ok(Buffer.byteLength(JSON.stringify(geography)) < 4_000_000, "Both projections must stay within the local asset budget");
+});
+
+test("map wheel zoom follows the pointer and mouse dragging pans without selecting a city", async () => {
+  const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
+  const projection = {};
+  runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
+  const source = await readFile(new URL("../app/personal-map.tsx", import.meta.url), "utf8");
+  const exports = {}, hooks = [], listeners = new Map(), captured = new Set();
+  let cursor = 0, pending = [];
+  const canvas = {
+    getBoundingClientRect: () => ({ left: 100, top: 50, width: 800, height: 432 }),
+    addEventListener: (type, handler, options) => listeners.set(type, { handler, options }),
+    removeEventListener: (type, handler) => { if (listeners.get(type)?.handler === handler) listeners.delete(type); },
+    setPointerCapture: id => captured.add(id),
+    releasePointerCapture: id => captured.delete(id),
+    hasPointerCapture: id => captured.has(id),
+  };
+  runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
+    exports, window: { matchMedia: () => ({ matches: false }) },
+    require: name => name === "react" ? {
+      useState: initial => { const index = cursor++; hooks[index] ??= initial; return [hooks[index], value => { hooks[index] = typeof value === "function" ? value(hooks[index]) : value; }]; },
+      useRef: initial => { const index = cursor++; return hooks[index] ??= { current: initial }; },
+      useEffect: (effect, dependencies) => {
+        const index = cursor++;
+        if (!hooks[index] || dependencies.some((value, i) => value !== hooks[index].dependencies[i])) {
+          pending.push(() => { hooks[index]?.cleanup?.(); hooks[index] = { dependencies, cleanup: effect() }; });
+        }
+      },
+    } : name.includes("projection") ? projection : name.includes("world-land") ? { default: geography } : {
+      jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
+    },
+  });
+  const flatten = node => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(flatten) : [node, ...flatten(node.props?.children)];
+  const render = () => {
+    cursor = 0;
+    const nodes = flatten(exports.PersonalMap({ language: "en" }));
+    const canvasNode = nodes.find(node => node.props?.className === "map-canvas");
+    if (canvasNode.props.ref) canvasNode.props.ref.current = canvas;
+    pending.forEach(effect => effect()); pending = [];
+    return nodes;
+  };
+  const find = className => render().find(node => node.props?.className === className);
+  const close = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-7, `${actual} should equal ${expected}`);
+  render();
+  assert.ok(listeners.has("wheel"), "Wheel zoom must have a canvas-local listener");
+  assert.equal(listeners.get("wheel").options.passive, false, "The native wheel listener must be able to prevent page scrolling");
+  const overview = projection.projectLocation(-87.9403, 41.8995);
+  const wheel = (deltaY, deltaMode = 0) => {
+    let prevented = false;
+    listeners.get("wheel").handler({ clientX: 100 + overview.x * .8, clientY: 50 + overview.y * .8, deltaY, deltaMode, ctrlKey: false, preventDefault: () => { prevented = true; } });
+    assert.equal(prevented, true);
+    const point = render().filter(node => node.props?.className === "map-point")[1];
+    if (deltaY < 0) {
+      close(parseFloat(point.props.style.left), overview.x / 10);
+      close(parseFloat(point.props.style.top), overview.y / 5.4);
+    }
+  };
+  wheel(-120); wheel(-3, 1); wheel(-.1, 2);
+  assert.equal(find("map-canvas").props["data-direct"], true);
+  for (let i = 0; i < 8; i++) wheel(1000);
+  assert.equal(find("map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
+  render().find(node => node.props?.className === "map-place" && node.props.children[0].props.children === 2).props.onClick();
+  const transform = find("map-geography").props.style.transform;
+  const zoom = Number(transform.match(/scale\(([^)]+)\)/)[1]);
+  const pointer = (x, y, extra = {}) => ({ clientX: x, clientY: y, pointerId: 7, pointerType: "mouse", button: 0, currentTarget: canvas, target: { closest: () => null }, ...extra });
+  find("map-canvas").props.onPointerDown(pointer(400, 200));
+  assert.equal(captured.has(7), true);
+  find("map-canvas").props.onPointerMove(pointer(520, 248));
+  assert.equal(find("map-canvas").props["data-dragging"], true);
+  const moved = find("map-geography").props.style.transform;
+  const translations = value => value.match(/translate\(([^p]+)px, ([^p]+)px\)/).slice(1).map(Number);
+  const before = translations(transform), after = translations(moved);
+  close(after[0] - before[0], 150); close(after[1] - before[1], 60);
+  assert.equal(Number(moved.match(/scale\(([^)]+)\)/)[1]), zoom);
+  assert.equal(render().filter(node => node.props?.className === "map-place")[1].props["aria-pressed"], true);
+  find("map-canvas").props.onPointerUp(pointer(520, 248));
+  assert.equal(captured.size, 0);
+  assert.equal(find("map-canvas").props["data-dragging"], false);
+  find("map-canvas").props.onPointerDown(pointer(400, 200, { pointerType: "touch" }));
+  assert.equal(captured.size, 0, "Touch input must remain available for native page scrolling");
+  find("map-canvas").props.onPointerDown(pointer(400, 200, { target: { closest: () => ({ tagName: "BUTTON" }) } }));
+  assert.equal(captured.size, 0, "A pin click must not start a map drag");
+  find("map-canvas").props.onPointerDown(pointer(400, 200));
+  find("map-canvas").props.onPointerCancel(pointer(400, 200));
+  assert.equal(captured.size, 0);
+  find("map-reset").props.onClick();
+  find("map-canvas").props.onPointerDown(pointer(400, 200));
+  find("map-canvas").props.onPointerMove(pointer(440, 220));
+  assert.equal(find("map-reset").props.disabled, false, "World view must reset a panned overview, even at zoom 1");
+  find("map-canvas").props.onLostPointerCapture(pointer(440, 220));
+  assert.equal(find("map-canvas").props["data-dragging"], false);
+  find("map-reset").props.onClick();
+  assert.equal(find("map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
+  assert.equal(find("map-canvas").props["data-direct"], false);
+  for (let i = 0; i < 50; i++) listeners.get("wheel").handler({ clientX: 500, clientY: 266, deltaY: -1000, deltaMode: 0, ctrlKey: false, preventDefault: () => {} });
+  assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom in").props.disabled, true, "Wheel zoom must respect the same upper limit as the zoom buttons");
+  hooks.forEach(hook => hook?.cleanup?.());
+  assert.equal(listeners.size, 0, "Unmount must remove the wheel listener");
 });
 
 test("wave lifecycle has no reload, navigation, or iteration handler", async () => {

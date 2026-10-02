@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { Language } from "./languages";
-import { projectLocation } from "./map/projection";
+import { projectLocation, projectDetailLocation, detailFromOverview } from "./map/projection";
+import { MapDetails } from "./map/map-details";
 import geography from "./map/world-land.json";
 
 const places = [
@@ -14,36 +15,88 @@ const places = [
 ] as const;
 
 const copy = {
-  en: { places: "Places along the way", map: "Interactive world map", hint: "Choose a place. Explore its country, state or province, and city.", world: "world view", zoomIn: "Zoom in", zoomOut: "Zoom out", country: "country", region: "state / province", city: "city", scales: "Boundary views", note: "Administrative boundaries, including water areas." },
-  zh: { places: "走过的地方", map: "互动世界地图", hint: "选择一个地点，看看它所在的国家、省州与城市。", world: "世界全景", zoomIn: "放大", zoomOut: "缩小", country: "国家", region: "省 / 州", city: "城市", scales: "边界视图", note: "行政边界包含水域。" },
-  "zh-hant": { places: "走過的地方", map: "互動世界地圖", hint: "選擇一個地點，看看它所在的國家、省州與城市。", world: "世界全景", zoomIn: "放大", zoomOut: "縮小", country: "國家", region: "省 / 州", city: "城市", scales: "邊界檢視", note: "行政邊界包含水域。" },
+  en: { places: "Places along the way", map: "Interactive world map", world: "world view", zoomIn: "Zoom in", zoomOut: "Zoom out", country: "country", region: "state / province", city: "city", scales: "Boundary views", note: "Administrative boundaries, including water areas.", convention: "China-POV boundaries; dashed maritime lines indicate disputed claims." },
+  zh: { places: "走过的地方", map: "互动世界地图", world: "世界全景", zoomIn: "放大", zoomOut: "缩小", country: "国家", region: "省 / 州", city: "城市", scales: "边界视图", note: "行政边界包含水域。", convention: "中国边界采用 Natural Earth 中国视角；海上虚线表示有争议的主张。" },
+  "zh-hant": { places: "走過的地方", map: "互動世界地圖", world: "世界全景", zoomIn: "放大", zoomOut: "縮小", country: "國家", region: "省 / 州", city: "城市", scales: "邊界檢視", note: "行政邊界包含水域。", convention: "中國邊界採用 Natural Earth 中國視角；海上虛線表示有爭議的主張。" },
 };
 
-const worldView = { x: 500, y: 270, zoom: 1 };
+const worldView = { x: 500, y: 270, zoom: 1, detail: false };
 type BoundaryView = "country" | "region" | "city";
 const fitBoundary = ([left, top, right, bottom]: number[]) => ({
   x: (left + right) / 2,
   y: (top + bottom) / 2,
   zoom: Math.min(800 / (right - left), 400 / (bottom - top)),
+  detail: true,
 });
+const zoomAt = (view: typeof worldView, amount: number, maxZoom: number, anchor = { x: 500, y: 270 }) => {
+  const level = Math.min(maxZoom, Math.max(1, view.zoom * amount));
+  if (level === 1) return worldView;
+  const point = { x: view.x + (anchor.x - 500) / view.zoom, y: view.y + (anchor.y - 270) / view.zoom };
+  const detail = view.detail ? point : detailFromOverview(point);
+  return { x: detail.x - (anchor.x - 500) / level, y: detail.y - (anchor.y - 270) / level, zoom: level, detail: true };
+};
 const boundaryFor = (index: number, scale: BoundaryView) => {
   const place = places[index];
-  return scale === "country" ? geography.countries[place.country] : scale === "region" ? geography.regions[place.division] : geography.cities[place.id];
+  return scale === "country" ? geography.closeup.countries[place.country] : scale === "region" ? geography.closeup.regions[place.division] : geography.closeup.cities[place.id];
 };
 
 export function PersonalMap({ language }: { language: Language }) {
   const [selected, setSelected] = useState(0);
   const [view, setView] = useState(worldView);
   const [scale, setScale] = useState<BoundaryView | null>(null);
+  const [interaction, setInteraction] = useState<"preset" | "direct" | "dragging">("preset");
   const stage = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ id: number; x: number; y: number; width: number; height: number; view: typeof worldView } | null>(null);
   const text = copy[language];
   const translation = language === "en" ? 0 : language === "zh" ? 1 : 2;
   const place = places[selected];
-  const country = geography.countries[place.country];
-  const region = geography.regions[place.division];
-  const city = geography.cities[place.id];
-  const maxZoom = fitBoundary(city.bounds).zoom * 2;
+  const data = view.detail ? geography.closeup : geography;
+  const project = view.detail ? projectDetailLocation : projectLocation;
+  const country = data.countries[place.country];
+  const region = data.regions[place.division];
+  const city = data.cities[place.id];
+  const maxZoom = Math.max(2400, fitBoundary(geography.closeup.cities[place.id].bounds).zoom * 2);
+  const atWorld = !view.detail && view.zoom === 1 && view.x === 500 && view.y === 270;
+  useEffect(() => {
+    const element = canvas.current;
+    if (!element) return;
+    const wheel = (event: WheelEvent) => {
+      if (!event.deltaY) return;
+      event.preventDefault();
+      if (drag.current) return;
+      const box = element.getBoundingClientRect();
+      const anchor = { x: (event.clientX - box.left) / box.width * 1000, y: (event.clientY - box.top) / box.height * 540 };
+      const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? box.height : 1);
+      const amount = Math.exp(-Math.max(-240, Math.min(240, pixels)) * (event.ctrlKey ? .02 : .002));
+      setInteraction("direct");
+      setScale(null);
+      setView(current => zoomAt(current, amount, maxZoom, anchor));
+    };
+    element.addEventListener("wheel", wheel, { passive: false });
+    return () => element.removeEventListener("wheel", wheel);
+  }, [maxZoom]);
+  const startDrag = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse" || event.button !== 0 || (event.target as Element).closest("button")) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    drag.current = { id: event.pointerId, x: event.clientX, y: event.clientY, width: box.width, height: box.height, view };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setInteraction("dragging");
+  };
+  const moveDrag = (event: PointerEvent<HTMLDivElement>) => {
+    const start = drag.current;
+    if (!start || start.id !== event.pointerId) return;
+    setScale(null);
+    setView({ ...start.view, x: start.view.x - (event.clientX - start.x) / start.width * 1000 / start.view.zoom, y: start.view.y - (event.clientY - start.y) / start.height * 540 / start.view.zoom });
+  };
+  const endDrag = (event: PointerEvent<HTMLDivElement>) => {
+    if (drag.current?.id !== event.pointerId) return;
+    drag.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    setInteraction("direct");
+  };
   const showBoundary = (index: number, boundary: BoundaryView) => {
+    setInteraction("preset");
     setScale(boundary);
     setView(fitBoundary(boundaryFor(index, boundary).bounds));
     if (window.matchMedia("(max-width: 700px)").matches && stage.current && stage.current.getBoundingClientRect().top < 64) {
@@ -55,14 +108,13 @@ export function PersonalMap({ language }: { language: Language }) {
     showBoundary(index, "region");
   };
   const zoom = (amount: number) => {
-    const level = Math.min(maxZoom, Math.max(1, view.zoom * amount));
+    setInteraction("preset");
     setScale(null);
-    setView(level === 1 ? worldView : { ...view, zoom: level });
+    setView(zoomAt(view, amount, maxZoom));
   };
 
   return (
     <section className="personal-map" aria-label={text.places}>
-      <p className="map-hint">{text.hint}</p>
       <div className="map-layout">
         <ol className="map-places">
           {places.map((item, index) => (
@@ -77,25 +129,28 @@ export function PersonalMap({ language }: { language: Language }) {
         <div className="map-viewport">
           <div className="map-stage" ref={stage} role="group" aria-label={text.map}>
             <div className="map-controls">
-              <button type="button" className="map-reset" disabled={view.zoom === 1} onClick={() => { setView(worldView); setScale(null); }}>{text.world}</button>
+              <button type="button" className="map-reset" disabled={atWorld} onClick={() => { setInteraction("preset"); setView(worldView); setScale(null); }}>{text.world}</button>
               <button type="button" aria-label={text.zoomOut} disabled={view.zoom === 1} onClick={() => zoom(1 / 1.5)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" /></svg></button>
               <button type="button" aria-label={text.zoomIn} disabled={view.zoom === maxZoom} onClick={() => zoom(1.5)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4v12" /></svg></button>
             </div>
-            <div className="map-canvas">
+            <div className="map-canvas" ref={canvas} data-direct={interaction !== "preset"} data-dragging={interaction === "dragging"} onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag}>
               <svg className="map-world" viewBox="0 0 1000 540" aria-hidden="true">
                 <g className="map-geography" style={{ transform: `translate(${500 - view.x * view.zoom}px, ${270 - view.y * view.zoom}px) scale(${view.zoom})` }}>
-                  <path className="map-graticule" d={geography.graticule} />
-                  <path className="map-land" d={geography.land} fillRule="evenodd" />
+                  <path className="map-graticule" d={data.graticule} />
+                  <path className="map-land" d={data.land} fillRule="evenodd" />
+                  {(["CHN", "USA"] as const).map(id => <path key={id} className="map-land" data-country={id} d={data.countries[id].path} fillRule="evenodd" />)}
                   <path className="map-country" d={country.path} fillRule="evenodd" />
                   <path className="map-divisions" d={country.divisions} fillRule="evenodd" />
                   <path className="map-region" d={region.path} fillRule="evenodd" />
-                  <path className="map-lakes" d={geography.lakes} fillRule="evenodd" />
+                  <path className="map-lakes" d={data.lakes} fillRule="evenodd" />
                   <path className="map-lakes-detail" d={region.lakes} fillRule="evenodd" />
                   <path className="map-city" d={city.path} fillRule="evenodd" />
+                  <path className="map-maritime" d={country.maritime} />
                 </g>
               </svg>
+              <MapDetails language={language} placeId={place.id} view={view} locations={places} />
               {places.map((item, index) => {
-                const point = projectLocation(item.longitude, item.latitude);
+                const point = project(item.longitude, item.latitude);
                 const x = (point.x - view.x) * view.zoom + 500;
                 const y = (point.y - view.y) * view.zoom + 270;
                 const offsetX = x < 150 ? Math.abs(item.offset[0]) : x > 850 ? -Math.abs(item.offset[0]) : item.offset[0];
@@ -119,7 +174,7 @@ export function PersonalMap({ language }: { language: Language }) {
               ))}
             </div>
           </div>
-          <p className="map-source"><span>{text.note}</span><span>Natural Earth · U.S. Census Bureau · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></span></p>
+          <p className="map-source"><span>{text.note} {text.convention}</span><span>Natural Earth · U.S. Census Bureau · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></span></p>
         </div>
       </div>
     </section>
