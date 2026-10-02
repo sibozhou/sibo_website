@@ -419,6 +419,16 @@ test("wordmark language labels retain the small top-aligned treatment and footer
   assert.match(css, /\.wordmark:not\(\.wordmark-english\) \.link-label \{ letter-spacing: 0; \}/);
 });
 
+test("English contact arrows use the Chinese pages' system-font fallback", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const systemFont = css.match(/:root \{[^}]*--sans: ([^;]+);/)[1];
+  const arrowRule = css.match(/html\[lang="en"\] \.contact-link \.link-arrow \{([^}]+)\}/)?.[1] ?? "";
+  assert.equal(arrowRule.match(/font-family: ([^;]+);/)?.[1], systemFont);
+  assert.match(css, /\.link-arrow \{[^}]*font-size: var\(--type-arrow\); font-weight: 400; line-height: 1;/);
+  assert.match(css, /\.contact-link \.link-arrow \{ margin-left: \.25em; \}/);
+  assert.match(css, /html\[lang="en"\] :is\(h1, \.news-story h3, \.paper h3, \.contact-link\) \{ font-family: var\(--sans\); \}/);
+});
+
 test("tablet introduction uses a compact portrait and measured reading width", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const tablet = css.slice(css.indexOf("/* Tablet widths"), css.indexOf("@media (max-width: 540px)"));
