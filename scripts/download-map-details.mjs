@@ -3,8 +3,9 @@ import { join } from "node:path";
 import { detailAreas } from "./map-detail-areas.mjs";
 
 // One-time, cached source downloads. Never run this from a website build or browser.
-// Usage: node scripts/download-map-details.mjs /path/to/source-directory
+// Usage: node scripts/download-map-details.mjs /path/to/source-directory [overpass-endpoint]
 const directory = process.argv[2];
+const endpoint = process.argv[3] ?? "https://maps.mail.ru/osm/tools/overpass/api/interpreter";
 await mkdir(directory, { recursive: true });
 const download = async (name, url, options = {}) => {
   const path = join(directory, name);
@@ -32,5 +33,5 @@ for (const [id, bounds] of Object.entries(detailAreas)) {
     node["place"~"^(city|town|village|suburb|neighbourhood)$"](${bbox});
     node["railway"~"^(station|halt)$"](${bbox});
   );out geom;`;
-  await download(`osm-${id}.json`, "https://maps.mail.ru/osm/tools/overpass/api/interpreter", { method: "POST", body: new URLSearchParams({ data: query }) });
+  await download(`osm-${id}-${bounds.join("_")}.json`, endpoint, { method: "POST", body: new URLSearchParams({ data: query }) });
 }

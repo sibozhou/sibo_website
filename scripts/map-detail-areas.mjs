@@ -1,8 +1,8 @@
-// [south, west, north, east] for the five cached urban-context extracts.
+// [south, west, north, east] for the five cached city-and-surroundings extracts.
 export const detailAreas = {
-  haikou: [19.85, 110, 20.1, 110.6],
-  elmhurst: [41.79, -88.08, 42.02, -87.78],
-  "los-angeles": [33.86, -118.55, 34.3, -118.1],
-  providence: [41.66, -71.53, 41.97, -71.29],
-  berkeley: [37.73, -122.45, 38.02, -122.08],
+  haikou: [19.725, 109.7, 20.225, 110.9],
+  elmhurst: [41.675, -88.23, 42.135, -87.6],
+  "los-angeles": [33.64, -118.775, 34.52, -117.875],
+  providence: [41.45, -71.65, 42.15, -71.15],
+  berkeley: [37.55, -122.65, 38.2, -121.85],
 };

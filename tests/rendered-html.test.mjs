@@ -7,6 +7,7 @@ import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { gzipSync, inflateSync } from "node:zlib";
 import ts from "typescript";
+import { detailAreas } from "../scripts/map-detail-areas.mjs";
 
 const output = new URL("../dist/client/", import.meta.url);
 const site = process.env.PAGES_SITE_URL ?? "https://sibozhou.com/";
@@ -34,13 +35,61 @@ test("zoomable map details are local, compact, and cover all five places", async
     assert.ok(data.routes.some(route => route.kind === "road"));
     assert.ok(data.routes.some(route => route.kind === "rail"));
     assert.ok(data.labels.some(label => label.kind === "station"));
-    assert.ok(Buffer.byteLength(JSON.stringify(data)) < 3_000_000);
-    assert.ok(gzipSync(JSON.stringify(data)).byteLength < 800_000);
+    // Greater Los Angeles is denser; keep an explicit budget for its wider extract.
+    assert.ok(Buffer.byteLength(JSON.stringify(data)) < (id === "los-angeles" ? 6_500_000 : 3_000_000));
+    assert.ok(gzipSync(JSON.stringify(data)).byteLength < (id === "los-angeles" ? 1_800_000 : 800_000));
     for (const route of data.routes) {
       assert.ok(route.bounds.every(Number.isFinite));
       assert.match(route.path, /^M[\d.-]+,[\d.-]+l/);
       assert.doesNotMatch(route.path, /NaN|Infinity|Z/);
     }
+  }
+});
+
+test("zoom details include real geography across a wider surrounding area", async () => {
+  const previousAreas = {
+    haikou: [19.85, 110, 20.1, 110.6],
+    elmhurst: [41.79, -88.08, 42.02, -87.78],
+    "los-angeles": [33.86, -118.55, 34.3, -118.1],
+    providence: [41.66, -71.53, 41.97, -71.29],
+    berkeley: [37.73, -122.45, 38.02, -122.08],
+  };
+  const projection = {};
+  runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports: projection });
+  const point = (longitude, latitude) => {
+    const { x, y } = projection.projectDetailLocation(longitude, latitude);
+    return [Number(x.toFixed(6)), Number(y.toFixed(6))];
+  };
+  for (const [id, [south, west, north, east]] of Object.entries(detailAreas)) {
+    const [oldSouth, oldWest, oldNorth, oldEast] = previousAreas[id];
+    assert.ok(north - south >= (oldNorth - oldSouth) * 1.9, `${id}: expand north/south coverage`);
+    assert.ok(east - west >= (oldEast - oldWest) * 1.9, `${id}: expand east/west coverage`);
+    const data = JSON.parse(await readFile(new URL(`../public/map-details/${id}.json`, import.meta.url), "utf8"));
+    assert.deepEqual(data.coverage, [...point(west, north), ...point(east, south)]);
+    const [left, top] = point(oldWest, oldNorth), [right, bottom] = point(oldEast, oldSouth);
+    const outerLabels = data.labels.filter(({ x, y }) => x < left || x > right || y < top || y > bottom);
+    assert.ok(outerLabels.filter(label => label.kind === "city").length >= 10, `${id}: load surrounding towns, not just enlarge the coverage rectangle`);
+    assert.ok(outerLabels.some(label => label.kind === "road"), `${id}: include roads outside the old extract`);
+  }
+});
+
+test("changing detail coverage cannot reuse a smaller cached source", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "sibo-map-detail-cache-"));
+  for (const name of ["populated_places", "airports", "roads", "railroads"]) {
+    await writeFile(join(directory, `ne-${name}.geojson`), JSON.stringify({ features: [] }));
+  }
+  for (const id of Object.keys(detailAreas)) await writeFile(join(directory, `osm-${id}.json`), "{}");
+  execFileSync(process.execPath, ["--input-type=module", "-e", `
+    process.argv[2] = ${JSON.stringify(directory)};
+    globalThis.fetch = async () => ({ ok: true, json: async () => ({ osm3s: { timestamp_osm_base: "2026-10-02T00:00:00Z" }, elements: [] }) });
+    await import(${JSON.stringify(new URL("../scripts/download-map-details.mjs", import.meta.url).href)});
+    process.argv[3] = ${JSON.stringify(join(directory, "output"))};
+    await import(${JSON.stringify(new URL("../scripts/generate-map-details.mjs", import.meta.url).href)});
+  `]);
+  for (const [id, bounds] of Object.entries(detailAreas)) {
+    await access(join(directory, `osm-${id}-${bounds.join("_")}.json`));
+    const generated = JSON.parse(await readFile(join(directory, "output", `${id}.json`), "utf8"));
+    assert.equal(generated.timestamp, "2026-10-02T00:00:00Z");
   }
 });
 
@@ -285,7 +334,8 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
       assert.match(markup, traditional ? /行政邊界包含水域。/ : chinese ? /行政边界包含水域。/ : /Administrative boundaries, including water areas\./);
       assert.equal((markup.match(/class="map-scale"/g) ?? []).length, 3);
       assert.doesNotMatch(markup, /map-coordinates|° [NSEW]/);
-      assert.match(markup, chinese ? /海南/ : /Hainan, China/);
+      assert.match(markup, chinese ? /海南省/ : /Hainan, China/);
+      assert.doesNotMatch(markup, /state\s*\/\s*province|省\s*\/\s*州/);
       assert.match(markup, /https:\/\/www.openstreetmap.org\/copyright/);
       assert.match(markup, /class="map-caption" aria-live="polite" aria-atomic="true"/);
       assert.match(markup, traditional ? /家鄉/ : chinese ? /家乡/ : /home/);
@@ -760,7 +810,7 @@ test("map selection reveals real country, state/province and municipal boundarie
     },
   });
   const flatten = node => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(flatten) : [node, ...flatten(node.props?.children)];
-  const render = () => { cursor = 0; return flatten(exports.PersonalMap({ language: "en" })); };
+  const render = (language = "en") => { cursor = 0; return flatten(exports.PersonalMap({ language })); };
   const find = (nodes, className) => nodes.find(node => node.props?.className === className);
   const checkWorldOutlines = (nodes, data) => {
     for (const id of ["CHN", "USA"]) {
@@ -818,6 +868,20 @@ test("map selection reveals real country, state/province and municipal boundarie
   assert.equal(pin.props.style.top, `${worldPoint.y / 5.4}%`);
   assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom out").props.disabled, true);
   assert.equal(render().filter(node => node.props?.className === "map-scale" && node.props["aria-pressed"]).length, 0);
+  for (const [language, province, state] of [["en", "province", "state"], ["zh", "省", "州"], ["zh-hant", "省", "州"]]) {
+    for (let index = 0; index < 5; index++) {
+      render(language).filter(node => node.props?.className === "map-place")[index].props.onClick();
+      const nodes = render(language);
+      const regionControl = nodes.find(node => node.props?.className === "map-scale" && node.props["data-boundary"] === "region");
+      assert.equal(regionControl.props.children.at(-1), index === 0 ? province : state);
+      if (index === 0 && language !== "en") {
+        assert.equal(find(nodes, "map-caption-region").props.children, language === "zh" ? "中国 · 海南省" : "中國 · 海南省");
+        assert.match(nodes.find(node => node.props?.className === "map-pin" && node.props["aria-pressed"]).props["aria-label"], /海南省/);
+      }
+    }
+    render(language).filter(node => node.props?.className === "map-place")[0].props.onClick();
+    assert.equal(render(language).find(node => node.props?.className === "map-scale" && node.props["data-boundary"] === "region").props.children.at(-1), province, "Returning to Haikou must restore the province label");
+  }
   assert.ok(geography.lakes.length > 1000);
   assert.ok(Buffer.byteLength(JSON.stringify(geography)) < 4_000_000, "Both projections must stay within the local asset budget");
 });

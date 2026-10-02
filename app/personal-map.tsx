@@ -7,7 +7,7 @@ import { MapDetails } from "./map/map-details";
 import geography from "./map/world-land.json";
 
 const places = [
-  { id: "haikou", country: "CHN", division: "CN-HI", longitude: 110.1999, latitude: 20.044, offset: [12, -26], city: ["Haikou", "海口", "海口"], region: ["Hainan, China", "中国 · 海南", "中國 · 海南"], chapter: ["home", "家乡", "家鄉"] },
+  { id: "haikou", country: "CHN", division: "CN-HI", longitude: 110.1999, latitude: 20.044, offset: [12, -26], city: ["Haikou", "海口", "海口"], region: ["Hainan, China", "中国 · 海南省", "中國 · 海南省"], chapter: ["home", "家乡", "家鄉"] },
   { id: "elmhurst", country: "USA", division: "US-IL", longitude: -87.9403, latitude: 41.8995, offset: [0, -26], city: ["Elmhurst", "埃尔姆赫斯特", "埃爾姆赫斯特"], region: ["Illinois, USA", "美国 · 伊利诺伊州", "美國 · 伊利諾州"], chapter: ["high school", "高中", "高中"] },
   { id: "los-angeles", country: "USA", division: "US-CA", longitude: -118.2437, latitude: 34.0522, offset: [-34, 28], city: ["Los Angeles", "洛杉矶", "洛杉磯"], region: ["California, USA", "美国 · 加利福尼亚州", "美國 · 加州"], chapter: ["undergraduate", "本科", "大學"] },
   { id: "providence", country: "USA", division: "US-RI", longitude: -71.4128, latitude: 41.824, offset: [32, 24], city: ["Providence", "普罗维登斯", "普羅維登斯"], region: ["Rhode Island, USA", "美国 · 罗得岛州", "美國 · 羅德島州"], chapter: ["master’s", "硕士", "碩士"] },
@@ -15,9 +15,9 @@ const places = [
 ] as const;
 
 const copy = {
-  en: { places: "Places along the way", map: "Interactive world map", world: "world view", zoomIn: "Zoom in", zoomOut: "Zoom out", country: "country", region: "state / province", city: "city", scales: "Boundary views", note: "Administrative boundaries, including water areas." },
-  zh: { places: "走过的地方", map: "互动世界地图", world: "世界全景", zoomIn: "放大", zoomOut: "缩小", country: "国家", region: "省 / 州", city: "城市", scales: "边界视图", note: "行政边界包含水域。" },
-  "zh-hant": { places: "走過的地方", map: "互動世界地圖", world: "世界全景", zoomIn: "放大", zoomOut: "縮小", country: "國家", region: "省 / 州", city: "城市", scales: "邊界檢視", note: "行政邊界包含水域。" },
+  en: { places: "Places along the way", map: "Interactive world map", world: "world view", zoomIn: "Zoom in", zoomOut: "Zoom out", country: "country", region: { CHN: "province", USA: "state" }, city: "city", scales: "Boundary views", note: "Administrative boundaries, including water areas." },
+  zh: { places: "走过的地方", map: "互动世界地图", world: "世界全景", zoomIn: "放大", zoomOut: "缩小", country: "国家", region: { CHN: "省", USA: "州" }, city: "城市", scales: "边界视图", note: "行政边界包含水域。" },
+  "zh-hant": { places: "走過的地方", map: "互動世界地圖", world: "世界全景", zoomIn: "放大", zoomOut: "縮小", country: "國家", region: { CHN: "省", USA: "州" }, city: "城市", scales: "邊界檢視", note: "行政邊界包含水域。" },
 };
 
 const worldView = { x: 500, y: 270, zoom: 1, detail: false };
@@ -182,7 +182,7 @@ export function PersonalMap({ language }: { language: Language }) {
             <p><strong>{place.city[translation]}</strong><span className="map-caption-region">{place.region[translation]}</span></p>
             <div className="map-scales" role="group" aria-label={text.scales}>
               {(["country", "region", "city"] as const).map((boundary) => (
-                <button key={boundary} type="button" className="map-scale" data-boundary={boundary} aria-pressed={scale === boundary} onClick={() => showBoundary(selected, boundary)}><span aria-hidden="true" />{text[boundary]}</button>
+                <button key={boundary} type="button" className="map-scale" data-boundary={boundary} aria-pressed={scale === boundary} onClick={() => showBoundary(selected, boundary)}><span aria-hidden="true" />{boundary === "region" ? text.region[place.country] : text[boundary]}</button>
               ))}
             </div>
           </div>

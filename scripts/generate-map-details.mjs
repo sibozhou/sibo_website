@@ -64,8 +64,9 @@ for (const { geometry } of (await read("ne-railroads.geojson")).features) {
 }
 await writeFile(join(output, "context.json"), JSON.stringify({ source: "Natural Earth · public domain", labels, routes: [...routes.values()] }) + "\n");
 
-for (const [id, [south, west, north, east]] of Object.entries(detailAreas)) {
-  const data = await read(`osm-${id}.json`), groups = new Map(), labels = [], namedRoads = new Map();
+for (const [id, area] of Object.entries(detailAreas)) {
+  const [south, west, north, east] = area;
+  const data = await read(`osm-${id}-${area.join("_")}.json`), groups = new Map(), labels = [], namedRoads = new Map();
   for (const element of data.elements) {
     const tags = element.tags ?? {}, name = tags.name;
     const names = [tags["name:en"] || tags.int_name || name, tags["name:zh-Hans"] || tags["name:zh"] || name, tags["name:zh-Hant"] || tags["name:en"] || tags.int_name || tags.ref || name];
