@@ -933,7 +933,7 @@ test("map selection reveals boundaries and zoom buttons center on the selected m
       useState: initial => { const index = cursor++; states[index] ??= index === 4 ? geography.closeup : initial; return [states[index], value => { states[index] = value; }]; },
       useRef: () => ({ current: null }),
       useEffect: () => {},
-    } : name.includes("projection") ? projection : name.includes("overview") ? { default: overview } : {
+    } : name.includes("projection") ? projection : name.includes("zoom-transition") ? { animateOverviewZoom: () => null } : name.includes("overview") ? { default: overview } : {
       jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
     },
   });
@@ -1095,7 +1095,7 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
           pending.push(() => { hooks[index]?.cleanup?.(); hooks[index] = { dependencies, cleanup: effect() }; });
         }
       },
-    } : name.includes("projection") ? projection : name.includes("overview") ? { default: overviewData } : {
+    } : name.includes("projection") ? projection : name.includes("zoom-transition") ? { animateOverviewZoom: () => null } : name.includes("overview") ? { default: overviewData } : {
       jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
     },
   });
@@ -1403,6 +1403,17 @@ test("mobile map controls occupy their own row entirely above the map", async ()
   assert.match(mobile, /\.map-stage \{[^}]*padding-top: 0;[^}]*row-gap: 12px;/);
   assert.match(mobile, /\.map-controls \{ position: static; justify-self: end; \}/, "Reserve the controls' actual height rather than overlapping the drawing with absolute positioning");
   assert.match(css, /\.map-controls button \{[^}]*width: 44px; height: 44px;/, "Keep the existing button size and styling");
+});
+
+test("numbered map markers use quiet medallions without shrinking their touch targets", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const pin = css.match(/\.map-pin \{([^]*?)\}/)?.[1] ?? "";
+  assert.match(pin, /width: 44px; height: 44px;/);
+  assert.match(pin, /font-size: 11px; font-weight: 500; line-height: 1;/);
+  assert.match(pin, /font-variant-numeric: tabular-nums;/);
+  assert.match(css, /\.map-pin span \{[^}]*width: 26px; height: 26px;[^}]*border: \.75px solid color-mix\(in srgb, var\(--ink\) 28%, var\(--paper\)\)/);
+  assert.match(css, /\.map-leader path \{[^}]*stroke-width: \.6; stroke-opacity: \.7;/);
+  assert.match(css, /\.map-pin\[aria-pressed="true"\] span, \.map-pin:hover span \{ background: var\(--ink\);[^}]*color: var\(--paper\);/);
 });
 
 test("the map has a larger responsive frame while its shared drawing stays undistorted", async () => {

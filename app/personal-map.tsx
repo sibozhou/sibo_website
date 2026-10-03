@@ -6,6 +6,7 @@ import { projectOverviewLocation, projectDetailLocation, detailFromOverview, det
 import { MapDetails } from "./map/map-details";
 import geography from "./map/overview.json";
 import { loadMapAsset } from "./map/load-asset";
+import { animateOverviewZoom } from "./map/zoom-transition";
 
 const places = [
   { id: "haikou", country: "CHN", division: "CN-HI", longitude: 110.1999, latitude: 20.044, offset: [12, -26], city: ["Haikou", "海口", "海口"], region: ["Hainan, China", "中国 · 海南省", "中國 · 海南省"], chapter: ["home", "家乡", "家鄉"] },
@@ -52,6 +53,7 @@ export function PersonalMap({ language }: { language: Language }) {
   const canvas = useRef<HTMLDivElement>(null);
   const drawing = useRef<HTMLDivElement>(null);
   const drag = useRef(new Map<number, { x: number; y: number }>());
+  const projectionZoom = useRef<(() => void) | null>(null);
   const text = copy[language];
   const translation = language === "en" ? 0 : language === "zh" ? 1 : 2;
   const place = places[selected];
@@ -122,6 +124,8 @@ export function PersonalMap({ language }: { language: Language }) {
       const anchor = { x: (event.clientX - box.left) / box.width * 1000, y: (event.clientY - box.top) / box.height * 540 };
       const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? box.height : 1);
       const amount = Math.exp(-Math.max(-240, Math.min(240, pixels)) * (event.ctrlKey ? .02 : .002));
+      if (amount < 1) projectionZoom.current?.();
+      else if (!projectionZoom.current) projectionZoom.current = animateOverviewZoom(element, drawing.current, event, () => { projectionZoom.current = null; });
       setInteraction("direct");
       setScale(null);
       setView(current => zoomAt(current.detail ? current : { ...current, zoom: current.zoom * extent.overviewZoom }, amount, maxZoom, anchor, extent.overviewZoom));
@@ -129,8 +133,10 @@ export function PersonalMap({ language }: { language: Language }) {
     element.addEventListener("wheel", wheel, { passive: false });
     return () => element.removeEventListener("wheel", wheel);
   }, [maxZoom, extent.overviewZoom]);
+  useEffect(() => () => projectionZoom.current?.(), []);
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || drag.current.size >= 2 || (event.target as Element).closest("button")) return;
+    projectionZoom.current?.();
     drag.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     event.currentTarget.setPointerCapture(event.pointerId);
     setInteraction("dragging");
@@ -147,6 +153,8 @@ export function PersonalMap({ language }: { language: Language }) {
     const distance = Math.hypot(b.x - a.x, b.y - a.y);
     const amount = distance ? Math.hypot(d.x - c.x, d.y - c.y) / distance : 1;
     if (dx === 0 && dy === 0 && amount === 1) return;
+    if (amount < 1) projectionZoom.current?.();
+    else if (amount > 1 && !projectionZoom.current) projectionZoom.current = animateOverviewZoom(canvas.current, drawing.current, { clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 }, () => { projectionZoom.current = null; });
     setScale(null);
     // Incremental updates preserve every movement, even before React renders.
     // Zoom around the old midpoint, then carry that location to the new midpoint.
@@ -162,6 +170,7 @@ export function PersonalMap({ language }: { language: Language }) {
     setInteraction(drag.current.size ? "dragging" : "direct");
   };
   const showBoundary = (index: number, boundary: BoundaryView) => {
+    projectionZoom.current?.();
     setInteraction("preset");
     setScale(boundary);
     setView(fitBoundary(boundaryFor(index, boundary), extent.right - extent.left));
@@ -174,6 +183,8 @@ export function PersonalMap({ language }: { language: Language }) {
     showBoundary(index, "region");
   };
   const zoom = (amount: number) => {
+    if (amount < 1) projectionZoom.current?.();
+    else if (!projectionZoom.current) projectionZoom.current = animateOverviewZoom(canvas.current, drawing.current, undefined, () => { projectionZoom.current = null; });
     const target = scale ? { ...view, ...projectDetailLocation(place.longitude, place.latitude) } : view;
     setInteraction("preset");
     setScale(null);
@@ -196,7 +207,7 @@ export function PersonalMap({ language }: { language: Language }) {
         <div className="map-viewport">
           <div className="map-stage" ref={stage} role="group" aria-label={text.map}>
             <div className="map-controls">
-              <button type="button" className="map-reset" disabled={atWorld} onClick={() => { setInteraction("preset"); setView(worldView); setScale(null); }}>{text.world}</button>
+              <button type="button" className="map-reset" disabled={atWorld} onClick={() => { projectionZoom.current?.(); setInteraction("preset"); setView(worldView); setScale(null); }}>{text.world}</button>
               <button type="button" aria-label={text.zoomOut} disabled={atWorld} onClick={() => zoom(1 / 1.5)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" /></svg></button>
               <button type="button" aria-label={text.zoomIn} disabled={view.zoom === maxZoom} onClick={() => zoom(1.5)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4v12" /></svg></button>
             </div>
@@ -216,7 +227,7 @@ export function PersonalMap({ language }: { language: Language }) {
                   <path className="map-maritime" d={country.maritime} />
                   {tropics.map(({ latitude, path }) => <path key={latitude} className="map-tropic" data-latitude={latitude} aria-label={latitude > 0 ? ["Tropic of Cancer", "北回归线", "北回歸線"][translation] : ["Tropic of Capricorn", "南回归线", "南回歸線"][translation]} d={path} />)}
                 </g></defs>
-                <g className="map-geography" style={{ transform: `translate(${500 - frame.x * frame.zoom}px, ${270 - frame.y * frame.zoom}px) scale(${frame.zoom})` }}>
+                <g key={view.detail ? "closeup" : "overview"} className="map-geography" style={{ transform: `translate(${500 - frame.x * frame.zoom}px, ${270 - frame.y * frame.zoom}px) scale(${frame.zoom})` }}>
                   {mapWorldOffsets(view).map(offset => <use key={offset} href="#map-base-geography" x={offset} />)}
                 </g>
               </svg>
