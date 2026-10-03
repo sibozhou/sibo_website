@@ -771,11 +771,44 @@ test("map close-ups are flat and north-up, without converging meridians", async 
   }
   for (const longitude of [-180, -87.9403, 0, 110.1999, 180]) {
     for (const latitude of [-80, -40, 0, 40, 80]) {
-      const converted = projection.detailFromOverview(projection.projectLocation(longitude, latitude));
+      const converted = projection.detailFromOverview(projection.projectOverviewLocation(longitude, latitude));
       const expected = projection.projectDetailLocation(longitude, latitude);
-      assert.ok(Math.abs(converted.x - expected.x) < 1e-8 && Math.abs(converted.y - expected.y) < 1e-8, "Zooming out of the overview must preserve the geographic cursor anchor");
+      assert.ok(Math.abs(projection.nearestWorldX(converted.x, expected.x) - expected.x) < 1e-8 && Math.abs(converted.y - expected.y) < 1e-8, "Zooming out of the overview must preserve the geographic cursor anchor");
     }
   }
+});
+
+test("the overview is Pacific-centered, with an Atlantic seam and subdued geographic markings", async () => {
+  const projection = {};
+  runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
+  assert.equal(projection.projectOverviewLocation(150, 0).x, 500);
+  assert.ok(projection.projectOverviewLocation(2.35, 48.85).x < 500, "Europe belongs on the left");
+  assert.ok(projection.projectOverviewLocation(18.4, -33.9).x < 500, "Africa belongs on the left");
+  assert.ok(projection.projectOverviewLocation(-118.2859, 34.0219).x > 500, "The Americas belong on the right");
+  assert.ok(projection.projectOverviewLocation(-29.99, 0).x < 100);
+  assert.ok(projection.projectOverviewLocation(-30.01, 0).x > 900);
+  const overview = JSON.parse(await readFile(new URL("../app/map/overview.json", import.meta.url), "utf8"));
+  for (const data of [overview, overview.preview]) {
+    assert.equal(data.tropics.length, 2);
+    assert.deepEqual(data.tropics.map(line => line.latitude), [23.5, -23.5]);
+    assert.ok(data.tropics.every(line => line.path.startsWith("M") && !line.path.includes("Z")), "The Tropics are open parallels, not filled outlines");
+  }
+  const source = await readFile(new URL("../app/personal-map.tsx", import.meta.url), "utf8");
+  assert.match(source, /className="map-tropic"/);
+  assert.match(source, /className="map-coordinate"/);
+  assert.match(source, /aria-hidden="true"/);
+  // Multi-part SVG <title> children caused a server/client hydration mismatch.
+  assert.doesNotMatch(source, /<title>/);
+  for (const route of ["map", "zh/map", "zh-hant/map"]) {
+    const html = await readFile(new URL(`../dist/client/${route}/index.html`, import.meta.url), "utf8");
+    assert.equal((html.match(/class="map-tropic"/g) ?? []).length, 2);
+    assert.match(html, /data-latitude="23.5"/);
+    assert.match(html, /data-latitude="-23.5"/);
+    assert.doesNotMatch(html, /class="map-coordinate"/, "The initial world view must not show coordinate numbers");
+  }
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.map-tropic \{[^}]*stroke-dasharray:/);
+  assert.match(css, /\.map-coordinate \{[^}]*pointer-events: none/);
 });
 
 test("China-POV extent includes Taiwan, Hong Kong, Macau and open maritime claim indicators", async () => {
@@ -902,10 +935,14 @@ test("map selection reveals boundaries and zoom buttons center on the selected m
   assert.equal(find(render(), "map-reset").props.disabled, true);
   assert.equal(find(render(), "map-land").props.d, overview.land);
   checkWorldOutlines(render(), overview);
+  assert.equal(render().filter(node => node.props?.className === "map-coordinate").length, 0);
+  render().find(node => node.props?.["aria-label"] === "Zoom in").props.onClick();
+  assert.ok(render().some(node => node.props?.className === "map-coordinate"), "Coordinate numbers should appear only after zooming in");
+  find(render(), "map-reset").props.onClick();
   for (const language of ["en", "zh", "zh-hant"]) {
     const points = render(language).filter(node => node.props?.className === "map-point");
     coordinates.forEach(([longitude, latitude], index) => {
-      const point = projection.projectLocation(longitude, latitude);
+      const point = projection.projectOverviewLocation(longitude, latitude);
       assert.equal(points[index].props.style.left, `${point.x / 10}%`);
       assert.equal(points[index].props.style.top, `${point.y / 5.4}%`);
     });
@@ -959,7 +996,7 @@ test("map selection reveals boundaries and zoom buttons center on the selected m
   find(render(), "map-reset").props.onClick();
   assert.equal(find(render(), "map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
   assert.equal(find(render(), "map-land").props.d, overview.land);
-  const worldPoint = projection.projectLocation(...coordinates[4]);
+  const worldPoint = projection.projectOverviewLocation(...coordinates[4]);
   const pin = render().find(node => node.props?.className === "map-point" && node.props["data-selected"]);
   assert.equal(pin.props.style.left, `${worldPoint.x / 10}%`);
   assert.equal(pin.props.style.top, `${worldPoint.y / 5.4}%`);
@@ -1029,7 +1066,7 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   render();
   assert.ok(listeners.has("wheel"), "Wheel zoom must have a canvas-local listener");
   assert.equal(listeners.get("wheel").options.passive, false, "The native wheel listener must be able to prevent page scrolling");
-  const overview = projection.projectLocation(-87.942, 41.8953);
+  const overview = projection.projectOverviewLocation(-87.942, 41.8953);
   const wheel = (deltaY, deltaMode = 0) => {
     let prevented = false;
     listeners.get("wheel").handler({ clientX: 100 + overview.x * .8, clientY: 50 + overview.y * .8, deltaY, deltaMode, ctrlKey: false, preventDefault: () => { prevented = true; } });

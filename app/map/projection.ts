@@ -9,6 +9,12 @@ export function projectLocation(longitude: number, latitude: number) {
   return { x: 500 + 170 * x, y: 270 - 170 * y };
 }
 
+// An Atlantic seam (30°W) keeps Europe/Africa left and the Americas right.
+export const overviewLongitude = 150;
+export function projectOverviewLocation(longitude: number, latitude: number) {
+  return projectLocation(((longitude - overviewLongitude + 180) % 360 + 360) % 360 - 180, latitude);
+}
+
 // Mercator close-ups: north is up and meridians remain vertical at every zoom.
 export function projectDetailLocation(longitude: number, latitude: number) {
   const radians = Math.PI / 180;
@@ -29,8 +35,8 @@ export function mapWorldOffsets(view: { x: number; zoom: number; detail: boolean
   return [offset - detailWorldWidth, offset, offset + detailWorldWidth];
 }
 
-// Preserve the geographic point under the cursor when leaving the overview.
-export function detailFromOverview(point: { x: number; y: number }) {
+// Inverse of the canonical, unrotated Equal Earth geometry.
+export function unprojectLocation(point: { x: number; y: number }) {
   const pole = Math.PI / 3;
   const limit = pole * (1.340264 - .081106 * pole ** 2 + pole ** 6 * (.000893 + .003796 * pole ** 2));
   const y = Math.max(-limit, Math.min(limit, (270 - point.y) / 170));
@@ -44,5 +50,11 @@ export function detailFromOverview(point: { x: number; y: number }) {
   const squared = theta * theta;
   const longitude = (point.x - 500) / 170 * (Math.sqrt(3) / 2) * (1.340264 - 3 * .081106 * squared + squared ** 3 * (7 * .000893 + 9 * .003796 * squared)) / Math.cos(theta);
   const latitude = Math.asin(Math.max(-1, Math.min(1, Math.sin(theta) / (Math.sqrt(3) / 2))));
-  return projectDetailLocation(longitude * 180 / Math.PI, latitude * 180 / Math.PI);
+  return { longitude: longitude * 180 / Math.PI, latitude: latitude * 180 / Math.PI };
+}
+
+// Preserve the geographic point under the cursor when leaving the overview.
+export function detailFromOverview(point: { x: number; y: number }) {
+  const { longitude, latitude } = unprojectLocation(point);
+  return projectDetailLocation(longitude + overviewLongitude, latitude);
 }

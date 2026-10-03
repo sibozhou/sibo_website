@@ -435,7 +435,7 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
 .map-stage { position: relative; display: grid; place-items: center; min-height: 320px; padding-top: 48px; scroll-margin-top: calc(var(--header-height) + 16px); }
 .map-canvas { position: relative; width: 100%; max-width: 1000px; aspect-ratio: 1000 / 540; overflow: hidden; cursor: grab; user-select: none; touch-action: none; }
 .map-canvas[data-dragging="true"] { cursor: grabbing; }
-.map-canvas[data-direct="true"] :is(.map-geography, .map-point, .map-pin, .map-detail-label) { transition: none; }
+.map-canvas[data-direct="true"] :is(.map-geography, .map-point, .map-pin, .map-detail-label, .map-coordinate) { transition: none; }
 .map-world { display: block; width: 100%; height: 100%; }
 .map-geography { transition: transform 800ms cubic-bezier(.22, 1, .36, 1); }
 .map-land { fill: #e3e4dc; stroke: #c7cbbf; stroke-width: .6; vector-effect: non-scaling-stroke; }
@@ -446,6 +446,9 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
 .map-lakes, .map-lakes-detail { fill: var(--paper); stroke: #c6d4d6; stroke-width: .45; vector-effect: non-scaling-stroke; }
 .map-city { fill: #d5b7a2; fill-opacity: .65; stroke: #98735b; stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .map-graticule { fill: none; stroke: #e4e5dc; stroke-width: .7; vector-effect: non-scaling-stroke; }
+.map-tropic { fill: none; stroke: #98a397; stroke-width: .75; stroke-dasharray: 3.5 5.5; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.map-coordinate { position: absolute; transform: translate(-50%, -50%); color: #8b9386; opacity: .7; font-size: 10px; font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper); transition: left 800ms cubic-bezier(.22, 1, .36, 1), top 800ms cubic-bezier(.22, 1, .36, 1); }
+.map-coordinate[data-axis="latitude"] { transform: translateY(-50%); }
 .map-details { position: absolute; inset: 0; pointer-events: none; }
 .map-detail-road, .map-detail-rail, .map-detail-runway { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .map-detail-road { stroke: #f6f5ee; stroke-width: 1.25; }
@@ -571,6 +574,7 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
   .map-layout { grid-template-columns: 152px minmax(0, 1fr); gap: 24px; }
 }
 @media (max-width: 700px) {
+  .map-coordinate[data-axis="longitude"][data-secondary="true"] { display: none; }
   .site-nav { gap: 16px; }
   .personal-map { padding-top: 20px; padding-bottom: 40px; }
   .map-layout { display: flex; flex-direction: column; gap: 24px; }

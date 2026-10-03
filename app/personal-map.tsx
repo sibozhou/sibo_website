@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { Language } from "./languages";
-import { projectLocation, projectDetailLocation, detailFromOverview, detailWorldWidth, nearestWorldX, mapWorldOffsets } from "./map/projection";
+import { projectOverviewLocation, projectDetailLocation, detailFromOverview, detailWorldWidth, nearestWorldX, mapWorldOffsets, overviewLongitude } from "./map/projection";
 import { MapDetails } from "./map/map-details";
 import geography from "./map/overview.json";
 import { loadMapAsset } from "./map/load-asset";
@@ -46,7 +46,7 @@ export function PersonalMap({ language }: { language: Language }) {
   const [view, setView] = useState(worldView);
   const [scale, setScale] = useState<BoundaryView | null>(null);
   const [interaction, setInteraction] = useState<"preset" | "direct" | "dragging">("preset");
-  const [closeup, setCloseup] = useState<typeof geography.preview | null>(null);
+  const [closeup, setCloseup] = useState<Omit<typeof geography.preview, "tropics"> | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const drag = useRef(new Map<number, { x: number; y: number }>());
@@ -54,12 +54,25 @@ export function PersonalMap({ language }: { language: Language }) {
   const translation = language === "en" ? 0 : language === "zh" ? 1 : 2;
   const place = places[selected];
   const data = view.detail ? closeup ?? geography.preview : geography;
-  const project = view.detail ? projectDetailLocation : projectLocation;
+  const project = view.detail ? projectDetailLocation : projectOverviewLocation;
   const country = data.countries[place.country];
   const region = data.regions[place.division];
   const city = data.cities[place.id];
   const maxZoom = Math.max(2400, fitBoundary(geography.closeupBounds.cities[place.id]).zoom * 2);
   const atWorld = !view.detail && view.zoom === 1 && view.x === 500 && view.y === 270;
+  const tropics = view.detail ? geography.preview.tropics : geography.tropics;
+  // Screen-sized coordinates sit at the edges, never scale up over the places.
+  const coordinates = [
+    ...[-180, -120, -60, 0, 60, 120].map((longitude, i) => {
+      const point = project(longitude, -60);
+      const x = ((view.detail ? nearestWorldX(point.x, view.x) : point.x) - view.x) * view.zoom + 500;
+      return { axis: "longitude", value: longitude, x, y: view.detail ? 522 : point.y + 14, secondary: i % 2 === 1 };
+    }),
+    ...[-60, -30, 0, 30, 60].map(latitude => {
+      const point = project(overviewLongitude - 180 + .01, latitude);
+      return { axis: "latitude", value: latitude, x: view.detail ? 18 : point.x + 14, y: (point.y - view.y) * view.zoom + 270, secondary: false };
+    }),
+  ].filter(point => view.detail && view.zoom > 1 && view.zoom <= 4 && (point.axis === "latitude" || point.x > 50 && point.x < 950) && point.y > 12 && point.y < 530);
   const pins = places.flatMap((item, index) => {
     const point = project(item.longitude, item.latitude);
     const nearestX = ((view.detail ? nearestWorldX(point.x, view.x) : point.x) - view.x) * view.zoom + 500;
@@ -71,7 +84,7 @@ export function PersonalMap({ language }: { language: Language }) {
     if (!view.detail || closeup) return;
     const controller = new AbortController();
     const path = `${language === "en" ? "../" : "../../"}map-geography/${geography.closeupFile}`;
-    loadMapAsset<typeof geography.preview>(path, controller.signal).then(setCloseup).catch(() => {});
+    loadMapAsset<Omit<typeof geography.preview, "tropics">>(path, controller.signal).then(setCloseup).catch(() => {});
     return () => controller.abort();
   }, [language, view.detail, closeup]);
   useEffect(() => {
@@ -166,7 +179,7 @@ export function PersonalMap({ language }: { language: Language }) {
             <div className="map-canvas" ref={canvas} data-direct={interaction !== "preset"} data-dragging={interaction === "dragging"} onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag}>
               <svg className="map-world" viewBox="0 0 1000 540" aria-hidden="true">
                 <defs><g id="map-base-geography">
-                  <path className="map-graticule" d={data.graticule} />
+                  <path className="map-graticule" d={view.detail ? geography.preview.graticule : data.graticule} />
                   <path className="map-land" d={data.land} fillRule="evenodd" />
                   {(["CHN", "USA"] as const).map(id => <path key={id} className="map-land" data-country={id} d={data.countries[id].path} fillRule="evenodd" />)}
                   <path className="map-country" d={country.path} fillRule="evenodd" />
@@ -176,12 +189,14 @@ export function PersonalMap({ language }: { language: Language }) {
                   <path className="map-lakes-detail" d={region.lakes} fillRule="evenodd" />
                   <path className="map-city" d={city.path} fillRule="evenodd" />
                   <path className="map-maritime" d={country.maritime} />
+                  {tropics.map(({ latitude, path }) => <path key={latitude} className="map-tropic" data-latitude={latitude} aria-label={latitude > 0 ? ["Tropic of Cancer", "北回归线", "北回歸線"][translation] : ["Tropic of Capricorn", "南回归线", "南回歸線"][translation]} d={path} />)}
                 </g></defs>
                 <g className="map-geography" style={{ transform: `translate(${500 - view.x * view.zoom}px, ${270 - view.y * view.zoom}px) scale(${view.zoom})` }}>
                   {mapWorldOffsets(view).map(offset => <use key={offset} href="#map-base-geography" x={offset} />)}
                 </g>
               </svg>
               <MapDetails language={language} placeId={place.id} view={view} locations={places} />
+              {coordinates.map(({ axis, value, x, y, secondary }) => <span key={`${axis}-${value}`} className="map-coordinate" data-axis={axis} data-secondary={secondary} aria-hidden="true" style={{ left: `${x / 10}%`, top: `${y / 5.4}%` }}>{Math.abs(value)}°{value ? axis === "longitude" ? value > 0 ? "E" : "W" : value > 0 ? "N" : "S" : ""}</span>)}
               {pins.map(({ item, index, x, y, copy }) => {
                 const offsetX = x < 150 ? Math.abs(item.offset[0]) : x > 850 ? -Math.abs(item.offset[0]) : item.offset[0];
                 const offsetY = y < 100 ? Math.abs(item.offset[1]) : y > 440 ? -Math.abs(item.offset[1]) : item.offset[1];
