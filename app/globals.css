@@ -582,6 +582,7 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
 @media (max-width: 540px) {
   html { --wave-unit: .75vw; --wave-duration: 77s; --wave-delay: -3.562281723s; --wave-entry-shift: 0; }
   .site-shell { width: calc(100% - 40px); }
+  .map-canvas { width: calc(100% + 40px); max-width: none; margin-inline: -20px; }
   .site-header, .editorial-section, .site-footer { margin-right: 0; }
   html { --header-height: 64px; }
   .site-header { gap: 12px; }

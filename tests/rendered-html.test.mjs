@@ -1152,6 +1152,14 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   assert.equal(listeners.size, 0, "Unmount must remove the wheel listener");
 });
 
+test("the mobile map canvas reaches both screen edges without widening the rest of the page", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const mobile = css.match(/@media \(max-width: 540px\) \{([^]*?)\n\}/)?.[1] ?? "";
+  assert.match(mobile, /\.site-shell \{ width: calc\(100% - 40px\); \}/);
+  assert.match(mobile, /\.map-canvas \{ width: calc\(100% \+ 40px\); max-width: none; margin-inline: -20px; \}/);
+  assert.equal((css.match(/\.map-canvas \{/g) ?? []).length, 2, "Only the mobile breakpoint should override the existing canvas width");
+});
+
 test("wave lifecycle has no reload, navigation, or iteration handler", async () => {
   const wave = await readFile(new URL("../app/site-color-wave.tsx", import.meta.url), "utf8");
   const disclosure = await readFile(new URL("../app/home-disclosure.tsx", import.meta.url), "utf8");
