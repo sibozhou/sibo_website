@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { detailAreas } from "./map-detail-areas.mjs";
+import { cityDetailAreas, detailAreas } from "./map-detail-areas.mjs";
 
 // One-time, cached source downloads. Never run this from a website build or browser.
 // Usage: node scripts/download-map-details.mjs /path/to/source-directory [overpass-endpoint]
@@ -22,7 +22,7 @@ for (const name of ["populated_places", "airports", "roads", "railroads"]) {
 }
 
 // Modest regional extracts, requested sequentially in accordance with Overpass's
-// usage policy. Main roads/railways only; no full-world scrape or live API calls.
+// usage policy. No full-world scrape or live API calls.
 for (const [id, bounds] of Object.entries(detailAreas)) {
   const bbox = bounds.join(",");
   const query = `[out:json][timeout:60];(
@@ -34,4 +34,7 @@ for (const [id, bounds] of Object.entries(detailAreas)) {
     node["railway"~"^(station|halt)$"](${bbox});
   );out geom;`;
   await download(`osm-${id}-${bounds.join("_")}.json`, endpoint, { method: "POST", body: new URLSearchParams({ data: query }) });
+  const cityBounds = cityDetailAreas[id];
+  const streets = `[out:json][timeout:60];way["highway"~"^(residential|unclassified|living_street|service)$"]["access"!~"^(private|no)$"](${cityBounds.join(",")});out geom;`;
+  await download(`osm-streets-${id}-${cityBounds.join("_")}.json`, endpoint, { method: "POST", body: new URLSearchParams({ data: streets }) });
 }

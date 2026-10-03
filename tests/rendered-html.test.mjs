@@ -7,7 +7,7 @@ import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { gzipSync, inflateSync } from "node:zlib";
 import ts from "typescript";
-import { detailAreas } from "../scripts/map-detail-areas.mjs";
+import { cityDetailAreas, detailAreas } from "../scripts/map-detail-areas.mjs";
 
 const output = new URL("../dist/client/", import.meta.url);
 const site = process.env.PAGES_SITE_URL ?? "https://sibozhou.com/";
@@ -17,28 +17,34 @@ const pathSegments = path => new Set(path.split("M").filter(Boolean).flatMap(rin
   if (ring.endsWith("Z") && points.at(-1) !== points[0]) points.push(points[0]);
   return points.slice(1).map((point, index) => [points[index], point].sort().join("|"));
 }));
+const detailRoutes = async (id, data) => (await Promise.all((data.tiles ?? []).map(async tile => {
+  const chunk = JSON.parse(await readFile(new URL(`../public/map-details/${id}/${tile.id}.json`, import.meta.url), "utf8"));
+  return chunk.routes;
+}))).flat();
 
 test("zoomable map details are local, compact, and cover all five places", async () => {
   const context = JSON.parse(await readFile(new URL("../public/map-details/context.json", import.meta.url), "utf8"));
+  const contextRoutes = await detailRoutes("context", context);
   assert.ok(context.labels.some(label => label.names[0] === "Beijing"));
   assert.ok(context.labels.some(label => label.names[0] === "San Francisco"));
   assert.ok(context.labels.some(label => label.kind === "airport" && label.names[0] === "LAX"));
-  assert.ok(context.routes.some(route => route.kind === "road"));
-  assert.ok(context.routes.some(route => route.kind === "rail"));
+  assert.ok(contextRoutes.some(route => route.kind === "road"));
+  assert.ok(contextRoutes.some(route => route.kind === "rail"));
   assert.ok(Buffer.byteLength(JSON.stringify(context)) < 3_000_000);
   for (const id of ["haikou", "elmhurst", "los-angeles", "providence", "berkeley"]) {
     const data = JSON.parse(await readFile(new URL(`../public/map-details/${id}.json`, import.meta.url), "utf8"));
+    const routes = await detailRoutes(id, data);
     assert.equal(data.source, "© OpenStreetMap contributors · ODbL 1.0");
     assert.ok(data.timestamp, "Keep the source date for reproducible extracts");
     assert.equal(data.coverage.length, 4);
     assert.ok(data.coverage.every(Number.isFinite));
-    assert.ok(data.routes.some(route => route.kind === "road"));
-    assert.ok(data.routes.some(route => route.kind === "rail"));
+    assert.ok(routes.some(route => route.kind === "road"));
+    assert.ok(routes.some(route => route.kind === "rail"));
     assert.ok(data.labels.some(label => label.kind === "station"));
     // Greater Los Angeles is denser; keep an explicit budget for its wider extract.
     assert.ok(Buffer.byteLength(JSON.stringify(data)) < (id === "los-angeles" ? 6_500_000 : 3_000_000));
     assert.ok(gzipSync(JSON.stringify(data)).byteLength < (id === "los-angeles" ? 1_800_000 : 800_000));
-    for (const route of data.routes) {
+    for (const route of routes) {
       assert.ok(route.bounds.every(Number.isFinite));
       assert.match(route.path, /^M[\d.-]+,[\d.-]+l/);
       assert.doesNotMatch(route.path, /NaN|Infinity|Z/);
@@ -73,6 +79,23 @@ test("zoom details include real geography across a wider surrounding area", asyn
   }
 });
 
+test("street coverage contains the whole municipal boundary of every city", async () => {
+  const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
+  for (const [id, city] of Object.entries(geography.closeup.cities)) {
+    const data = JSON.parse(await readFile(new URL(`../public/map-details/${id}.json`, import.meta.url), "utf8"));
+    const [left, top, right, bottom] = data.coverage;
+    const [cityLeft, cityTop, cityRight, cityBottom] = city.bounds;
+    assert.ok(left < cityLeft && top < cityTop && right > cityRight && bottom > cityBottom, `${id}: include the full municipality and a surrounding buffer`);
+    const streetTiles = data.tiles.filter(tile => tile.minZoom >= 700);
+    assert.ok(streetTiles.length > 0, `${id}: include local streets, not only arterial roads`);
+    for (const tile of streetTiles) {
+      const streets = JSON.parse(await readFile(new URL(`../public/map-details/${id}/${tile.id}.json`, import.meta.url), "utf8"));
+      assert.ok(streets.routes.some(route => route.kind === "road" && route.level >= 4));
+      assert.ok(gzipSync(JSON.stringify(streets)).byteLength < 200_000, `${id}/${tile.id}: keep each street download small`);
+    }
+  }
+});
+
 test("changing detail coverage cannot reuse a smaller cached source", async () => {
   const directory = await mkdtemp(join(tmpdir(), "sibo-map-detail-cache-"));
   for (const name of ["populated_places", "airports", "roads", "railroads"]) {
@@ -81,13 +104,21 @@ test("changing detail coverage cannot reuse a smaller cached source", async () =
   for (const id of Object.keys(detailAreas)) await writeFile(join(directory, `osm-${id}.json`), "{}");
   execFileSync(process.execPath, ["--input-type=module", "-e", `
     process.argv[2] = ${JSON.stringify(directory)};
-    globalThis.fetch = async () => ({ ok: true, json: async () => ({ osm3s: { timestamp_osm_base: "2026-10-02T00:00:00Z" }, elements: [] }) });
+    const queries = [];
+    globalThis.fetch = async (url, options) => {
+      queries.push(options.body.get("data"));
+      return { ok: true, json: async () => ({ osm3s: { timestamp_osm_base: "2026-10-02T00:00:00Z" }, elements: [] }) };
+    };
     await import(${JSON.stringify(new URL("../scripts/download-map-details.mjs", import.meta.url).href)});
+    const assert = (await import("node:assert/strict")).default;
+    assert.equal(queries.length, 10, "Each city needs both arterial and local street sources");
+    assert.equal(queries.filter(query => query.includes("residential|unclassified|living_street|service")).length, 5);
     process.argv[3] = ${JSON.stringify(join(directory, "output"))};
     await import(${JSON.stringify(new URL("../scripts/generate-map-details.mjs", import.meta.url).href)});
   `]);
   for (const [id, bounds] of Object.entries(detailAreas)) {
     await access(join(directory, `osm-${id}-${bounds.join("_")}.json`));
+    await access(join(directory, `osm-streets-${id}-${cityDetailAreas[id].join("_")}.json`));
     const generated = JSON.parse(await readFile(join(directory, "output", `${id}.json`), "utf8"));
     assert.equal(generated.timestamp, "2026-10-02T00:00:00Z");
   }
@@ -136,6 +167,8 @@ test("detail labels reveal progressively, stay readable, and avoid pins and one 
 
 test("map details load only on zoom, reuse downloads, and ignore stale city responses", async () => {
   const projection = {}, details = {}, exports = {}, hooks = [], requests = new Map();
+  const downloads = new Map(), frames = new Map(), signals = new Map();
+  let frameId = 0;
   const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   runInNewContext(compile(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8")), { exports: projection });
   runInNewContext(compile(await readFile(new URL("../app/map/details.ts", import.meta.url), "utf8")), { exports: details });
@@ -143,13 +176,12 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
   const root = { getBoundingClientRect: () => ({ width: 800, height: 432 }) };
   runInNewContext(compile(await readFile(new URL("../app/map/map-details.tsx", import.meta.url), "utf8")), {
     exports,
+    AbortController,
+    requestAnimationFrame: callback => { frames.set(++frameId, callback); return frameId; },
+    cancelAnimationFrame: id => frames.delete(id),
     ResizeObserver: class { observe() {} disconnect() { disconnects++; } },
-    fetch: path => {
-      assert.equal(requests.has(path), false, "A cached asset must not be fetched again");
-      return new Promise(resolve => requests.set(path, resolve));
-    },
     require: name => name === "react" ? {
-      useState: initial => { const index = cursor++; if (!(index in hooks)) hooks[index] = initial; return [hooks[index], value => { hooks[index] = value; }]; },
+      useState: initial => { const index = cursor++; if (!(index in hooks)) hooks[index] = initial; return [hooks[index], value => { hooks[index] = typeof value === "function" ? value(hooks[index]) : value; }]; },
       useRef: initial => { const index = cursor++; return hooks[index] ??= { current: initial }; },
       useEffect: (effect, dependencies) => {
         const index = cursor++;
@@ -157,7 +189,13 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
           pending.push(() => { hooks[index]?.cleanup?.(); hooks[index] = { dependencies, cleanup: effect() }; });
         }
       },
-    } : name.includes("projection") ? projection : name.includes("details") ? details : {
+    } : name.includes("projection") ? projection : name.includes("load-asset") ? {
+      loadMapAsset: (path, signal) => {
+        signals.set(path, signal);
+        if (!downloads.has(path)) downloads.set(path, new Promise(resolve => requests.set(path, value => resolve(value.json()))));
+        return downloads.get(path);
+      },
+    } : name.includes("details") ? details : {
       jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
     },
   });
@@ -171,10 +209,12 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
     pending.forEach(effect => effect()); pending = [];
     return nodes;
   };
-  const data = text => ({ coverage: [499, 269, 501, 271], routes: [{ kind: "road", level: 0, minZoom: 60, bounds: [499, 269, 501, 271], path: "M499,269l2,2" }], labels: [{ id: text, names: [text, text, text], kind: "city", x: 500, y: 270, minZoom: 60, priority: 100 }] });
+  const flush = () => { for (const [id, callback] of [...frames]) { frames.delete(id); callback(); } };
+  const data = text => ({ coverage: [499, 269, 503, 271], tiles: [{ id: "near", bounds: [499.8, 269.8, 500.2, 270.2], minZoom: 700 }, { id: "far", bounds: [501.8, 269.8, 502.2, 270.2], minZoom: 700 }, { id: "overlap", bounds: [499, 269, 503, 271], minZoom: 700 }], routes: [{ kind: "road", level: 0, minZoom: 60, bounds: [499, 269, 501, 271], path: "M499,269l2,2" }], labels: [{ id: text, names: [text, text, text], kind: "city", x: 500, y: 270, minZoom: 60, priority: 100 }] });
   const resolve = async (path, value) => {
     requests.get(path)({ ok: true, json: async () => value });
     await new Promise(done => setImmediate(done));
+    flush();
   };
   render({ view: { ...view, zoom: 1, detail: false } });
   assert.equal(requests.size, 0);
@@ -198,8 +238,32 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
   render({ view });
   render({ placeId: "haikou" });
   await new Promise(done => setImmediate(done));
+  flush();
   assert.equal(requests.size, before);
   assert.ok(render().some(node => node.props?.className === "map-detail-label" && node.props.children.at(-1) === "Haikou"));
+  assert.equal([...requests.keys()].some(path => path.includes("/haikou/")), false, "Local street tiles should not load at overview zoom");
+  render({ view: { ...view, zoom: 1000 } });
+  assert.equal(requests.has("../map-details/haikou/near.json"), true);
+  assert.equal(requests.has("../map-details/haikou/far.json"), false, "Only visible street tiles should download");
+  const street = { kind: "road", level: 4, minZoom: 700, bounds: [499.8, 269.8, 500.2, 270.2], path: "M499.8,269.8l.4,.4" };
+  await resolve("../map-details/haikou/near.json", { routes: [street], labels: [] });
+  assert.ok(render().some(node => node.props?.d === street.path));
+  const overlapSignal = signals.get("../map-details/haikou/overlap.json");
+  render({ view: { ...view, x: 502, zoom: 1000 } });
+  assert.equal(signals.get("../map-details/haikou/overlap.json"), overlapSignal, "Panning must not restart a download that is still visible");
+  assert.equal(overlapSignal.aborted, false);
+  assert.equal(requests.has("../map-details/haikou/far.json"), true, "Panning should reveal detail across the rest of the city");
+  render({ placeId: "berkeley" });
+  await resolve("../map-details/haikou/far.json", { routes: [{ ...street, bounds: [501.8, 269.8, 502.2, 270.2], path: "M501.8,269.8l.4,.4" }], labels: [] });
+  assert.equal(render().some(node => node.props?.d === "M501.8,269.8l.4,.4"), false, "Late street downloads cannot leak into another city");
+  const downloaded = requests.size;
+  render({ placeId: "haikou", view: { ...view, zoom: 1000 } });
+  await new Promise(done => setImmediate(done));
+  render(); // React rerenders after the cached manifest restores localData.
+  await new Promise(done => setImmediate(done));
+  flush();
+  assert.equal(requests.size, downloaded, "Returning to an already visited tile must reuse its download");
+  assert.ok(render().some(node => node.props?.d === street.path));
   assert.equal(disconnects, 0, "Zooming should not reset the resize observer or page");
 });
 
@@ -790,6 +854,7 @@ test("map generator preserves shared city arcs and does not trim municipal water
 
 test("map selection reveals real country, state/province and municipal boundaries", async () => {
   const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
+  const overview = JSON.parse(await readFile(new URL("../app/map/overview.json", import.meta.url), "utf8"));
   const projectionSource = await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8");
   const projection = {};
   runInNewContext(ts.transpileModule(projectionSource, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
@@ -802,10 +867,10 @@ test("map selection reveals real country, state/province and municipal boundarie
     exports,
     window: { matchMedia: () => ({ matches: false }) },
     require: name => name === "react" ? {
-      useState: initial => { const index = cursor++; states[index] ??= initial; return [states[index], value => { states[index] = value; }]; },
+      useState: initial => { const index = cursor++; states[index] ??= index === 4 ? geography.closeup : initial; return [states[index], value => { states[index] = value; }]; },
       useRef: () => ({ current: null }),
       useEffect: () => {},
-    } : name.includes("projection") ? projection : name.includes("world-land") ? { default: geography } : {
+    } : name.includes("projection") ? projection : name.includes("overview") ? { default: overview } : {
       jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
     },
   });
@@ -825,8 +890,8 @@ test("map selection reveals real country, state/province and municipal boundarie
   const framing = ([left, top, right, bottom]) => ({ x: (left + right) / 2, y: (top + bottom) / 2, zoom: Math.min(800 / (right - left), 400 / (bottom - top)) });
   const transform = ({ x, y, zoom }) => `translate(${500 - x * zoom}px, ${270 - y * zoom}px) scale(${zoom})`;
   assert.equal(find(render(), "map-reset").props.disabled, true);
-  assert.equal(find(render(), "map-land").props.d, geography.land);
-  checkWorldOutlines(render(), geography);
+  assert.equal(find(render(), "map-land").props.d, overview.land);
+  checkWorldOutlines(render(), overview);
   for (const language of ["en", "zh", "zh-hant"]) {
     const points = render(language).filter(node => node.props?.className === "map-point");
     coordinates.forEach(([longitude, latitude], index) => {
@@ -870,7 +935,7 @@ test("map selection reveals real country, state/province and municipal boundarie
   assert.equal(render().find(node => node.props?.["aria-label"] === "Zoom in").props.disabled, true);
   find(render(), "map-reset").props.onClick();
   assert.equal(find(render(), "map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
-  assert.equal(find(render(), "map-land").props.d, geography.land);
+  assert.equal(find(render(), "map-land").props.d, overview.land);
   const worldPoint = projection.projectLocation(...coordinates[4]);
   const pin = render().find(node => node.props?.className === "map-point" && node.props["data-selected"]);
   assert.equal(pin.props.style.left, `${worldPoint.x / 10}%`);
@@ -897,6 +962,7 @@ test("map selection reveals real country, state/province and municipal boundarie
 
 test("map wheel, mouse and touch gestures preserve their anchors and selected city", async () => {
   const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
+  const overviewData = JSON.parse(await readFile(new URL("../app/map/overview.json", import.meta.url), "utf8"));
   const projection = {};
   runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
   const source = await readFile(new URL("../app/personal-map.tsx", import.meta.url), "utf8");
@@ -914,7 +980,7 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
     exports, window: { matchMedia: () => ({ matches: false }) },
     require: name => name === "react" ? {
-      useState: initial => { const index = cursor++; hooks[index] ??= initial; return [hooks[index], value => { hooks[index] = typeof value === "function" ? value(hooks[index]) : value; }]; },
+      useState: initial => { const index = cursor++; hooks[index] ??= index === 4 ? geography.closeup : initial; return [hooks[index], value => { hooks[index] = typeof value === "function" ? value(hooks[index]) : value; }]; },
       useRef: initial => { const index = cursor++; return hooks[index] ??= { current: initial }; },
       useEffect: (effect, dependencies) => {
         const index = cursor++;
@@ -922,7 +988,7 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
           pending.push(() => { hooks[index]?.cleanup?.(); hooks[index] = { dependencies, cleanup: effect() }; });
         }
       },
-    } : name.includes("projection") ? projection : name.includes("world-land") ? { default: geography } : {
+    } : name.includes("projection") ? projection : name.includes("overview") ? { default: overviewData } : {
       jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
     },
   });

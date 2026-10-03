@@ -4,7 +4,8 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { Language } from "./languages";
 import { projectLocation, projectDetailLocation, detailFromOverview } from "./map/projection";
 import { MapDetails } from "./map/map-details";
-import geography from "./map/world-land.json";
+import geography from "./map/overview.json";
+import { loadMapAsset } from "./map/load-asset";
 
 const places = [
   { id: "haikou", country: "CHN", division: "CN-HI", longitude: 110.1999, latitude: 20.044, offset: [12, -26], city: ["Haikou", "海口", "海口"], region: ["Hainan, China", "中国 · 海南省", "中國 · 海南省"], chapter: ["home", "家乡", "家鄉"] },
@@ -37,7 +38,7 @@ const zoomAt = (view: typeof worldView, amount: number, maxZoom: number, anchor 
 };
 const boundaryFor = (index: number, scale: BoundaryView) => {
   const place = places[index];
-  return scale === "country" ? geography.closeup.countries[place.country] : scale === "region" ? geography.closeup.regions[place.division] : geography.closeup.cities[place.id];
+  return scale === "country" ? geography.closeupBounds.countries[place.country] : scale === "region" ? geography.closeupBounds.regions[place.division] : geography.closeupBounds.cities[place.id];
 };
 
 export function PersonalMap({ language }: { language: Language }) {
@@ -45,19 +46,27 @@ export function PersonalMap({ language }: { language: Language }) {
   const [view, setView] = useState(worldView);
   const [scale, setScale] = useState<BoundaryView | null>(null);
   const [interaction, setInteraction] = useState<"preset" | "direct" | "dragging">("preset");
+  const [closeup, setCloseup] = useState<typeof geography.preview | null>(null);
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const drag = useRef(new Map<number, { x: number; y: number }>());
   const text = copy[language];
   const translation = language === "en" ? 0 : language === "zh" ? 1 : 2;
   const place = places[selected];
-  const data = view.detail ? geography.closeup : geography;
+  const data = view.detail ? closeup ?? geography.preview : geography;
   const project = view.detail ? projectDetailLocation : projectLocation;
   const country = data.countries[place.country];
   const region = data.regions[place.division];
   const city = data.cities[place.id];
-  const maxZoom = Math.max(2400, fitBoundary(geography.closeup.cities[place.id].bounds).zoom * 2);
+  const maxZoom = Math.max(2400, fitBoundary(geography.closeupBounds.cities[place.id]).zoom * 2);
   const atWorld = !view.detail && view.zoom === 1 && view.x === 500 && view.y === 270;
+  useEffect(() => {
+    if (!view.detail || closeup) return;
+    const controller = new AbortController();
+    const path = `${language === "en" ? "../" : "../../"}map-geography/${geography.closeupFile}`;
+    loadMapAsset<typeof geography.preview>(path, controller.signal).then(setCloseup).catch(() => {});
+    return () => controller.abort();
+  }, [language, view.detail, closeup]);
   useEffect(() => {
     const element = canvas.current;
     if (!element) return;
@@ -110,7 +119,7 @@ export function PersonalMap({ language }: { language: Language }) {
   const showBoundary = (index: number, boundary: BoundaryView) => {
     setInteraction("preset");
     setScale(boundary);
-    setView(fitBoundary(boundaryFor(index, boundary).bounds));
+    setView(fitBoundary(boundaryFor(index, boundary)));
     if (window.matchMedia("(max-width: 700px)").matches && stage.current && stage.current.getBoundingClientRect().top < 64) {
       stage.current.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
     }

@@ -42,7 +42,7 @@ jobs:
       - name: Verify static output
         env:
           PAGES_SITE_URL: ${{ steps.pages.outputs.base_url }}/
-        run: node --test tests/rendered-html.test.mjs
+        run: node --test tests/*.test.mjs
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5

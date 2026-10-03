@@ -4,18 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Language } from "../languages";
 import { projectDetailLocation } from "./projection";
 import { layoutMapLabels, mapDetailPath, routeInView, type MapDetailData, type MapView } from "./details";
-
-// Same-origin static files only; shared promises prevent repeated downloads on zoom.
-const downloads = new Map<string, Promise<MapDetailData>>();
-const load = (path: string) => {
-  if (!downloads.has(path)) {
-    downloads.set(path, fetch(path).then(response => {
-      if (!response.ok) throw new Error("Map detail asset unavailable");
-      return response.json() as Promise<MapDetailData>;
-    }).catch(error => { downloads.delete(path); throw error; }));
-  }
-  return downloads.get(path)!;
-};
+import { loadMapAsset } from "./load-asset";
 type Location = { longitude: number; latitude: number; offset: readonly number[] };
 
 export function MapDetails({ language, placeId, view, locations }: { language: Language; placeId: string; view: MapView; locations: readonly Location[] }) {
@@ -23,6 +12,8 @@ export function MapDetails({ language, placeId, view, locations }: { language: L
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [context, setContext] = useState<MapDetailData | null>(null);
   const [local, setLocal] = useState<{ id: string; data: MapDetailData } | null>(null);
+  const [tiles, setTiles] = useState<Record<string, MapDetailData>>({});
+  const tileWork = useRef({ paths: new Set<string>(), loaded: new Set<string>(), requests: new Map<string, AbortController>(), updates: {} as Record<string, MapDetailData>, frame: 0 });
   const localEnabled = view.detail && view.zoom >= 60;
   useEffect(() => {
     const element = root.current;
@@ -34,19 +25,63 @@ export function MapDetails({ language, placeId, view, locations }: { language: L
     return () => observer.disconnect();
   }, []);
   useEffect(() => {
-    let active = true;
-    if (view.detail) load(mapDetailPath(language, "context")).then(data => { if (active) setContext(data); }).catch(() => {});
-    return () => { active = false; };
+    const controller = new AbortController();
+    if (view.detail) loadMapAsset<MapDetailData>(mapDetailPath(language, "context"), controller.signal).then(data => { if (!controller.signal.aborted) setContext(data); }).catch(() => {});
+    return () => controller.abort();
   }, [language, view.detail]);
   useEffect(() => {
-    let active = true;
-    if (localEnabled) load(mapDetailPath(language, placeId)).then(data => { if (active) setLocal({ id: placeId, data }); }).catch(() => {});
-    return () => { active = false; };
+    const controller = new AbortController();
+    if (localEnabled) loadMapAsset<MapDetailData>(mapDetailPath(language, placeId), controller.signal).then(data => { if (!controller.signal.aborted) setLocal({ id: placeId, data }); }).catch(() => {});
+    return () => controller.abort();
   }, [language, placeId, localEnabled]);
   const localData = localEnabled && local?.id === placeId ? local.data : null;
-  const routes = (context?.routes ?? []).filter(route => routeInView(route, view));
-  const localRoutes = (localData?.routes ?? []).filter(route => routeInView(route, view));
-  const coverage = localData?.coverage;
+  const contextPaths = (context?.tiles ?? []).filter(tile => routeInView(tile, view)).map(tile => mapDetailPath(language, `context/${tile.id}`, tile.version));
+  const localTiles = (localData?.tiles ?? []).filter(tile => routeInView(tile, view));
+  const localPaths = localTiles.map(tile => mapDetailPath(language, `${placeId}/${tile.id}`, tile.version));
+  const tilePaths = [...localPaths, ...contextPaths].join("|");
+  useEffect(() => {
+    const work = tileWork.current;
+    work.paths = new Set(tilePaths.split("|").filter(Boolean));
+    for (const [path, controller] of work.requests) {
+      if (!work.paths.has(path)) { controller.abort(); work.requests.delete(path); }
+    }
+    for (const path of work.loaded) {
+      if (!work.paths.has(path)) { work.loaded.delete(path); delete work.updates[path]; }
+    }
+    const flush = () => {
+      work.frame = 0;
+      const paths = [...work.paths], updates = work.updates;
+      work.updates = {};
+      setTiles(previous => Object.fromEntries(paths.flatMap(path => updates[path] || previous[path] ? [[path, updates[path] ?? previous[path]]] : [])));
+    };
+    // Drop offscreen references; the shared byte-limited cache handles revisits.
+    if (!work.frame) work.frame = requestAnimationFrame(flush);
+    for (const path of work.paths) {
+      if (work.loaded.has(path) || work.requests.has(path)) continue;
+      const controller = new AbortController();
+      work.requests.set(path, controller);
+      loadMapAsset<MapDetailData>(path, controller.signal).then(data => {
+        if (controller.signal.aborted) return;
+        work.updates[path] = data;
+        work.loaded.add(path);
+        if (!work.frame) work.frame = requestAnimationFrame(flush);
+      }).catch(() => {}).finally(() => { if (work.requests.get(path) === controller) work.requests.delete(path); });
+    }
+  }, [tilePaths]);
+  useEffect(() => {
+    const work = tileWork.current;
+    return () => {
+      for (const controller of work.requests.values()) controller.abort();
+      work.requests.clear(); work.loaded.clear(); work.updates = {};
+      cancelAnimationFrame(work.frame); work.frame = 0;
+    };
+  }, []);
+  const contextData = contextPaths.flatMap(path => tiles[path] ? [tiles[path]] : []);
+  const localReady = localTiles.every((tile, index) => tile.minZoom >= 700 || tiles[localPaths[index]]);
+  const localChunks = localPaths.flatMap(path => tiles[path] ? [tiles[path]] : []);
+  const routes = [...(context?.routes ?? []), ...contextData.flatMap(tile => tile.routes)].filter(route => routeInView(route, view));
+  const localRoutes = localReady ? [...(localData?.routes ?? []), ...localChunks.flatMap(tile => tile.routes)].filter(route => routeInView(route, view)) : [];
+  const coverage = localReady ? localData?.coverage : undefined;
   const area = coverage && { x: coverage[0], y: coverage[1], width: coverage[2] - coverage[0], height: coverage[3] - coverage[1] };
   const reserved = locations.map(item => {
     const point = projectDetailLocation(item.longitude, item.latitude);
@@ -55,7 +90,7 @@ export function MapDetails({ language, placeId, view, locations }: { language: L
     const dy = y < 100 ? Math.abs(item.offset[1]) : y > 440 ? -Math.abs(item.offset[1]) : item.offset[1];
     return { left: x / 1000 * size.width + dx - 22, top: y / 540 * size.height + dy - 22, width: 44, height: 44 };
   });
-  const labels = layoutMapLabels([...(localData?.labels ?? []), ...(context?.labels ?? [])], view, size, language, reserved);
+  const labels = layoutMapLabels([...(localData?.labels ?? []), ...localChunks.flatMap(tile => tile.labels), ...(context?.labels ?? [])], view, size, language, reserved);
   return (
     <div className="map-details" ref={root} aria-hidden="true">
       <svg className="map-world" viewBox="0 0 1000 540">

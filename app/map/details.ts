@@ -3,11 +3,12 @@ import type { Language } from "../languages";
 export type MapView = { x: number; y: number; zoom: number; detail: boolean };
 export type MapRoute = { path: string; bounds: number[]; kind: "road" | "rail" | "runway"; level: number; minZoom: number };
 export type MapLabel = { id: string; x: number; y: number; names: string[]; kind: "city" | "neighbourhood" | "airport" | "station" | "road"; minZoom: number; priority: number };
-export type MapDetailData = { routes: MapRoute[]; labels: MapLabel[]; coverage?: number[] };
+export type MapDetailTile = { id: string; bounds: number[]; minZoom: number; version?: string };
+export type MapDetailData = { routes: MapRoute[]; labels: MapLabel[]; coverage?: number[]; tiles?: MapDetailTile[] };
 type Box = { left: number; top: number; width: number; height: number };
 
-export const mapDetailPath = (language: Language, id: string) => `${language === "en" ? "../" : "../../"}map-details/${id}.json`;
-export const routeInView = (route: MapRoute, view: MapView) => {
+export const mapDetailPath = (language: Language, id: string, version?: string) => `${language === "en" ? "../" : "../../"}map-details/${id}.json${version ? `?v=${version}` : ""}`;
+export const routeInView = (route: Pick<MapRoute, "bounds" | "minZoom">, view: MapView) => {
   const [left, top, right, bottom] = route.bounds;
   return view.detail && view.zoom >= route.minZoom && right >= view.x - 500 / view.zoom && left <= view.x + 500 / view.zoom && bottom >= view.y - 270 / view.zoom && top <= view.y + 270 / view.zoom;
 };
@@ -23,7 +24,9 @@ export function layoutMapLabels(labels: MapLabel[], view: MapView, size: { width
     ? { city: 5, airport: 2, station: 3, road: 4, neighbourhood: 2 }
     : { city: 12, airport: 5, station: 6, road: 8, neighbourhood: 6 }) : null;
   const translation = language === "en" ? 0 : language === "zh" ? 1 : 2;
-  for (const label of [...labels].sort((a, b) => b.priority - a.priority)) {
+  // Cull anchors before sorting: only the visible subset needs collision layout.
+  const visible = labels.filter(label => view.zoom >= label.minZoom && Math.abs(label.x - view.x) <= 500 / view.zoom && Math.abs(label.y - view.y) <= 270 / view.zoom);
+  for (const label of visible.sort((a, b) => b.priority - a.priority)) {
     if (view.zoom < label.minZoom || placed.length >= (size.width < 500 ? 16 : 30)) continue;
     if (limits && counts[label.kind] >= limits[label.kind]) continue;
     const text = label.names[translation] || label.names[0];

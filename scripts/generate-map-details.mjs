@@ -1,7 +1,8 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 import { projectDetailLocation } from "../app/map/projection.ts";
-import { detailAreas } from "./map-detail-areas.mjs";
+import { cityDetailAreas, detailAreas } from "./map-detail-areas.mjs";
 
 // Usage: node scripts/generate-map-details.mjs /path/to/source-directory [output-directory]
 // Cached real geography, projected identically to the existing boundary layers.
@@ -30,21 +31,32 @@ const simplify = (points, tolerance) => {
   return points.filter((_, index) => keep.has(index));
 };
 // Spatial batches keep the SVG small; culling a batch never changes its coordinates.
-const addRoute = (groups, coordinates, kind, level, minZoom, local) => {
+const addRoute = (groups, coordinates, kind, level, minZoom, local, tile = local ? .5 : 24) => {
   if (coordinates.length < 2) return;
   const precision = local ? 5 : 4;
   const points = simplify(coordinates.map(point), local ? .00012 : .02).map(p => p.map(value => Number(value.toFixed(precision)))), box = bounds(points);
-  const tile = local ? .5 : 24;
   const key = `${kind}-${level}-${Math.floor(box[0] / tile)}-${Math.floor(box[1] / tile)}`;
   const route = groups.get(key) ?? { kind, level, minZoom, bounds: box, path: "" };
   route.bounds = [Math.min(route.bounds[0], box[0]), Math.min(route.bounds[1], box[1]), Math.max(route.bounds[2], box[2]), Math.max(route.bounds[3], box[3])];
   const number = value => String(Number(value.toFixed(precision))).replace(/^(-?)0\./, "$1.");
   route.path += points.map(([x, y], index) => index ? `l${number(x - points[index - 1][0])},${number(y - points[index - 1][1])}` : `M${number(x)},${number(y)}`).join("");
   groups.set(key, route);
+  return key;
 };
 const label = (id, coordinates, names, kind, minZoom, priority) => {
   const [x, y] = point(coordinates);
   return { id, x, y, names, kind, minZoom, priority };
+};
+const writeTiles = async (id, groups, source, timestamp, labelsByTile = new Map()) => {
+  const tiles = [];
+  await mkdir(join(output, id), { recursive: true });
+  for (const [tileId, route] of groups) {
+    const payload = JSON.stringify({ source, timestamp, routes: [route], labels: labelsByTile.get(tileId) ?? [] }) + "\n";
+    const version = createHash("sha256").update(payload).digest("hex").slice(0, 12);
+    tiles.push({ id: tileId, bounds: route.bounds, minZoom: route.minZoom, version });
+    await writeFile(join(output, id, `${tileId}.json`), payload);
+  }
+  return tiles;
 };
 const cities = await read("ne-populated_places.geojson"), airports = await read("ne-airports.geojson");
 const labels = cities.features.map(({ geometry, properties: p }) => label(`ne-${p.NE_ID}`, geometry.coordinates,
@@ -62,7 +74,9 @@ for (const { geometry, properties: p } of (await read("ne-roads.geojson")).featu
 for (const { geometry } of (await read("ne-railroads.geojson")).features) {
   if (geometry.coordinates.some(regional)) addRoute(routes, geometry.coordinates, "rail", 0, 20, false);
 }
-await writeFile(join(output, "context.json"), JSON.stringify({ source: "Natural Earth · public domain", labels, routes: [...routes.values()] }) + "\n");
+const contextSource = "Natural Earth · public domain";
+const contextTiles = await writeTiles("context", routes, contextSource);
+await writeFile(join(output, "context.json"), JSON.stringify({ source: contextSource, labels, routes: [], tiles: contextTiles }) + "\n");
 
 for (const [id, area] of Object.entries(detailAreas)) {
   const [south, west, north, east] = area;
@@ -96,5 +110,28 @@ for (const [id, area] of Object.entries(detailAreas)) {
   for (const [name, road] of namedRoads) {
     labels.push(label(`road-${name}`, road.coordinates[Math.floor(road.coordinates.length / 2)], road.names, "road", road.level === 0 ? 180 : road.level === 1 ? 600 : road.level === 2 ? 900 : 1400, [68, 45, 25, 15][road.level]));
   }
-  await writeFile(join(output, `${id}.json`), JSON.stringify({ source: "© OpenStreetMap contributors · ODbL 1.0", timestamp: data.osm3s.timestamp_osm_base, coverage: [...point([west, north]), ...point([east, south])], routes: [...groups.values()], labels }) + "\n");
+  const streets = await read(`osm-streets-${id}-${cityDetailAreas[id].join("_")}.json`), streetGroups = new Map(), streetNames = new Map();
+  for (const element of streets.elements) {
+    const tags = element.tags ?? {}, coordinates = element.geometry?.map(({ lon, lat }) => [lon, lat]);
+    if (!coordinates || /^(private|no)$/.test(tags.access ?? "")) continue;
+    const level = tags.highway === "service" ? 5 : 4;
+    const tileId = addRoute(streetGroups, coordinates, "road", level, level === 4 ? 700 : 1200, true, .12);
+    if (tileId && tags.name && level === 4) {
+      const key = `${tileId}-${tags.name}`;
+      const length = coordinates.slice(1).reduce((sum, [x, y], index) => sum + Math.hypot(x - coordinates[index][0], y - coordinates[index][1]), 0);
+      if (length > (streetNames.get(key)?.length ?? 0)) streetNames.set(key, { tileId, length, label: label(`street-${element.id}`, coordinates[Math.floor(coordinates.length / 2)],
+        [tags["name:en"] || tags.int_name || tags.name, tags["name:zh-Hans"] || tags["name:zh"] || tags.name, tags["name:zh-Hant"] || tags["name:en"] || tags.int_name || tags.name], "road", 1400, 15) });
+    }
+  }
+  const labelsByTile = new Map();
+  for (const street of streetNames.values()) {
+    if (!labelsByTile.has(street.tileId)) labelsByTile.set(street.tileId, []);
+    labelsByTile.get(street.tileId).push(street.label);
+  }
+  const source = "© OpenStreetMap contributors · ODbL 1.0";
+  const tiles = [
+    ...await writeTiles(id, groups, source, data.osm3s.timestamp_osm_base),
+    ...await writeTiles(id, streetGroups, source, streets.osm3s.timestamp_osm_base, labelsByTile),
+  ];
+  await writeFile(join(output, `${id}.json`), JSON.stringify({ source, timestamp: data.osm3s.timestamp_osm_base, streetTimestamp: streets.osm3s.timestamp_osm_base, tiles, coverage: [...point([west, north]), ...point([east, south])], routes: [], labels }) + "\n");
 }
