@@ -272,7 +272,7 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
     const html = await readFile(new URL(route + "index.html", output), "utf8");
     assert.doesNotMatch(html, /id="seasonal-theme"/);
     const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
-    assert.equal((markup.match(/<h1\b/g) ?? []).length, 1);
+    assert.equal((markup.match(/<h1\b/g) ?? []).length, route.endsWith("map/") ? 0 : 1);
     assert.match(markup, /aria-current="page"/);
     assert.match(markup, /id="main-content"/);
     assert.doesNotMatch(markup, /class="header-color"/);
@@ -332,7 +332,7 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
     if (traditional) {
       const main = markup.match(/<main\b[^]*?<\/main>/)?.[0] ?? "";
       assert.doesNotMatch(main, /[学与书国体奖联数经机习统员发论报网获协]/);
-      assert.match(main, research ? /工作論文/ : notes ? /一些正在想、正在學/ : map ? /從海口出發/ : /資料科學/);
+      assert.match(main, research ? /工作論文/ : notes ? /一些正在想、正在學/ : map ? /家鄉/ : /資料科學/);
     }
     if (research) {
       assert.doesNotMatch(markup, /section-jumps|href="#working-papers"|href="#publications"/);
@@ -384,7 +384,8 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
       assert.doesNotMatch(markup, /calligraphy-name|calligraphy-research/);
     } else if (map) {
       assert.equal(/map-hint|map-mouse-hint|Choose a place\.|Scroll to zoom\.|选择一个地点|選擇一個地點|滚轮缩放|滾輪縮放/.test(markup), false, "Map instruction text must be absent in every language");
-      assert.match(markup, /id="map-title"/);
+      assert.doesNotMatch(markup, /map-title|map-intro|map-description|From Haikou, a few places along the way\.|从海口出发，走过的一些地方。|從海口出發，走過的一些地方。/);
+      assert.match(markup, /<main\b[^>]*>\s*<section class="personal-map" aria-label="[^"]+">/);
       assert.equal((markup.match(/class="map-place"/g) ?? []).length, 5);
       assert.equal((markup.match(/class="map-pin"/g) ?? []).length, 5);
       const placeNumbers = [...markup.matchAll(/class="map-place-number" aria-hidden="true">(\d+)<\/span>/g)].map(match => match[1]);
