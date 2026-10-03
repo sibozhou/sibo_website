@@ -19,6 +19,16 @@ export function projectDetailLocation(longitude: number, latitude: number) {
   };
 }
 
+// One Mercator world; adjoining copies share the same date-line coordinates.
+export const detailWorldWidth = 280 * Math.PI;
+export const nearestWorldX = (x: number, center: number) => x + Math.round((center - x) / detailWorldWidth) * detailWorldWidth;
+export function mapWorldOffsets(view: { x: number; zoom: number; detail: boolean }) {
+  if (!view.detail) return [0];
+  const offset = Math.round((view.x - 500) / detailWorldWidth) * detailWorldWidth;
+  // Keep both neighbours during animated zooms, not just in the final frame.
+  return [offset - detailWorldWidth, offset, offset + detailWorldWidth];
+}
+
 // Preserve the geographic point under the cursor when leaving the overview.
 export function detailFromOverview(point: { x: number; y: number }) {
   const pole = Math.PI / 3;

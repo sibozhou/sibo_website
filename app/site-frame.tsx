@@ -19,7 +19,9 @@ export function SiteFrame({ page, language = "en", children }: { page: "home" | 
           <nav className="site-nav" aria-label={traditional ? "主要導覽" : zh ? "主导航" : "Primary navigation"}>
             <a href={root} aria-current={page === "home" ? "page" : undefined}><span>{traditional ? "首頁" : zh ? "首页" : "home"}</span></a>
             <a href={root + "research/"} aria-current={page === "research" ? "page" : undefined}><span>{zh ? "研究" : "research"}</span></a>
+            {/* Notes navigation is temporarily hidden until the page has content.
             <a href={root + "notes/"} aria-current={page === "notes" ? "page" : undefined}><span>{traditional ? "隨記" : zh ? "随记" : "notes"}</span></a>
+            */}
             <a href={root + "map/"} aria-current={page === "map" ? "page" : undefined}><span>{traditional ? "地圖" : zh ? "地图" : "map"}</span></a>
           </nav>
         </header>

@@ -563,6 +563,10 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
 @media (max-width: 1399px) {
   .research-contour { display: none; }
 }
+@media (min-width: 701px) {
+  .map-places { margin-top: 32px; }
+  .map-stage { align-items: start; }
+}
 @media (max-width: 1099px) {
   .map-layout { grid-template-columns: 152px minmax(0, 1fr); gap: 24px; }
 }

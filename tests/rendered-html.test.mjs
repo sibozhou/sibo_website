@@ -125,8 +125,9 @@ test("changing detail coverage cannot reuse a smaller cached source", async () =
 });
 
 test("detail labels reveal progressively, stay readable, and avoid pins and one another", async () => {
-  const details = {};
-  runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/details.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports: details });
+  const details = {}, projection = {};
+  runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
+  runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/details.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports: details, require: () => projection });
   const labels = [
     { id: "city", names: ["Berkeley", "伯克利", "柏克萊"], kind: "city", x: 500, y: 270, minZoom: 2, priority: 100 },
     { id: "nearby", names: ["Oakland", "奥克兰", "奧克蘭"], kind: "city", x: 500.01, y: 270, minZoom: 2, priority: 90 },
@@ -171,7 +172,7 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
   let frameId = 0;
   const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   runInNewContext(compile(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8")), { exports: projection });
-  runInNewContext(compile(await readFile(new URL("../app/map/details.ts", import.meta.url), "utf8")), { exports: details });
+  runInNewContext(compile(await readFile(new URL("../app/map/details.ts", import.meta.url), "utf8")), { exports: details, require: () => projection });
   let cursor = 0, pending = [], disconnects = 0;
   const root = { getBoundingClientRect: () => ({ width: 800, height: 432 }) };
   runInNewContext(compile(await readFile(new URL("../app/map/map-details.tsx", import.meta.url), "utf8")), {
@@ -233,6 +234,11 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
   assert.equal(nodes.find(node => node.props?.className === "map-geography").props.style.transform, "translate(-49500px, -26730px) scale(100)");
   assert.ok(nodes.some(node => node.props?.mask === "url(#map-context-coverage)"));
   assert.ok(nodes.some(node => node.props?.clipPath === "url(#map-local-coverage)"));
+  const downloadsBeforeWrap = requests.size;
+  const wrapped = render({ view: { ...view, x: view.x + 3 * projection.detailWorldWidth } });
+  assert.deepEqual(wrapped.filter(node => node.props?.className === "map-detail-label").map(node => node.props.style), nodes.filter(node => node.props?.className === "map-detail-label").map(node => node.props.style));
+  assert.equal(requests.size, downloadsBeforeWrap, "Returning around the world must reuse the same detail downloads");
+  assert.ok(wrapped.some(node => node.type === "use" && node.props.href === "#map-base-details" && node.props.x === 3 * projection.detailWorldWidth), "The existing road and coverage layers must travel with the wrapped world");
   render({ view: { ...view, detail: false, zoom: 1 } });
   const before = requests.size;
   render({ view });
@@ -273,7 +279,10 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
     assert.doesNotMatch(html, /id="seasonal-theme"/);
     const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
     assert.equal((markup.match(/<h1\b/g) ?? []).length, route.endsWith("map/") ? 0 : 1);
-    assert.match(markup, /aria-current="page"/);
+    const primaryNav = markup.match(/<nav class="site-nav"[^]*?<\/nav>/)?.[0] ?? "";
+    assert.equal((primaryNav.match(/<a\b/g) ?? []).length, 3);
+    assert.doesNotMatch(primaryNav, /notes\/|随记|隨記/);
+    if (!route.endsWith("notes/")) assert.match(primaryNav, /aria-current="page"/);
     assert.match(markup, /id="main-content"/);
     assert.doesNotMatch(markup, /class="header-color"/);
     const favicon = markup.match(/<link\b(?=[^>]*rel="icon")[^>]*>/)?.[0] ?? "";
@@ -853,7 +862,7 @@ test("map generator preserves shared city arcs and does not trim municipal water
   }
 });
 
-test("map selection reveals real country, state/province and municipal boundaries", async () => {
+test("map selection reveals boundaries and zoom buttons center on the selected marker", async () => {
   const geography = JSON.parse(await readFile(new URL("../app/map/world-land.json", import.meta.url), "utf8"));
   const overview = JSON.parse(await readFile(new URL("../app/map/overview.json", import.meta.url), "utf8"));
   const projectionSource = await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8");
@@ -913,6 +922,19 @@ test("map selection reveals real country, state/province and municipal boundarie
     assert.equal(find(nodes, "map-maritime").props.d, detail.countries[countries[index]].maritime);
     assert.equal(find(nodes, "map-region").props.d, detail.regions[regions[index]].path);
     assert.equal(find(nodes, "map-city").props.d, detail.cities[cities[index]].path);
+    for (const language of ["en", "zh", "zh-hant"]) {
+      render(language).filter(node => node.props?.className === (language === "en" ? "map-place" : "map-pin"))[index].props.onClick();
+      for (let step = 0; step < 3; step++) {
+        render(language).find(node => node.props?.["aria-label"] === (language === "en" ? "Zoom in" : "放大")).props.onClick();
+        const marker = render(language).find(node => node.props?.className === "map-point" && node.props["data-selected"]);
+        assert.equal(marker.props.style.left, "50%", `${language}, ${cities[index]}: zoom must center on the selected location`);
+        assert.equal(marker.props.style.top, "50%");
+      }
+      render(language).find(node => node.props?.["aria-label"] === (language === "en" ? "Zoom out" : language === "zh" ? "缩小" : "縮小")).props.onClick();
+      const marker = render(language).find(node => node.props?.className === "map-point" && node.props["data-selected"]);
+      assert.equal(marker.props.style.left, "50%");
+      assert.equal(marker.props.style.top, "50%", "Zooming back out must keep the same marker-centered camera");
+    }
     const point = projection.projectDetailLocation(longitude, latitude);
     for (const [boundary, geometry] of [["country", detail.countries[countries[index]]], ["region", detail.regions[regions[index]]], ["city", detail.cities[cities[index]]]]) {
       render().find(node => node.props?.className === "map-scale" && node.props["data-boundary"] === boundary).props.onClick();
@@ -1023,9 +1045,13 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   for (let i = 0; i < 8; i++) wheel(1000);
   assert.equal(find("map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
   render().find(node => node.props?.className === "map-place" && node.props.children[0].props.children === 2).props.onClick();
+  const pointer = (x, y, extra = {}) => ({ clientX: x, clientY: y, pointerId: 7, pointerType: "mouse", button: 0, currentTarget: canvas, target: { closest: () => null }, ...extra });
+  find("map-canvas").props.onPointerDown(pointer(400, 200));
+  find("map-canvas").props.onPointerMove(pointer(400, 200));
+  find("map-canvas").props.onPointerUp(pointer(400, 200));
+  assert.equal(render().find(node => node.props?.className === "map-scale" && node.props["data-boundary"] === "region").props["aria-pressed"], true, "A pointer gesture without movement must preserve the selected boundary and zoom target");
   const transform = find("map-geography").props.style.transform;
   const zoom = Number(transform.match(/scale\(([^)]+)\)/)[1]);
-  const pointer = (x, y, extra = {}) => ({ clientX: x, clientY: y, pointerId: 7, pointerType: "mouse", button: 0, currentTarget: canvas, target: { closest: () => null }, ...extra });
   find("map-canvas").props.onPointerDown(pointer(400, 200));
   assert.equal(captured.has(7), true);
   find("map-canvas").props.onPointerMove(pointer(520, 248));
@@ -1039,6 +1065,12 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   find("map-canvas").props.onPointerUp(pointer(520, 248));
   assert.equal(captured.size, 0);
   assert.equal(find("map-canvas").props["data-dragging"], false);
+  render().find(node => node.props?.["aria-label"] === "Zoom in").props.onClick();
+  const zoomedAfterDrag = find("map-geography").props.style.transform;
+  const afterDragZoom = Number(zoomedAfterDrag.match(/scale\(([^)]+)\)/)[1]);
+  const afterDragTranslation = translations(zoomedAfterDrag);
+  close((500 - afterDragTranslation[0]) / afterDragZoom, (500 - after[0]) / zoom);
+  close((270 - afterDragTranslation[1]) / afterDragZoom, (270 - after[1]) / zoom);
   find("map-canvas").props.onPointerDown(pointer(400, 200, { pointerType: "touch" }));
   assert.equal(captured.size, 1, "A finger drag inside the map must capture its pointer");
   find("map-canvas").props.onPointerUp(pointer(400, 200, { pointerType: "touch" }));
@@ -1145,11 +1177,79 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   find("map-canvas").props.onPointerUp(touch(400, 250, 31));
   find("map-canvas").props.onLostPointerCapture(touch(650, 250, 32));
   assert.equal(captured.size, 0);
+  for (const width of [390, 820, 1200]) {
+    box.width = width; box.height = width * .54;
+    find("map-reset").props.onClick();
+    const type = width === 1200 ? "mouse" : "touch";
+    const start = box.left + width / 2;
+    find("map-canvas").props.onPointerDown(pointer(start, box.top + box.height / 2, { pointerType: type }));
+    find("map-canvas").props.onPointerMove(pointer(start + 20, box.top + box.height / 2, { pointerType: type }));
+    find("map-canvas").props.onPointerUp(pointer(start + 20, box.top + box.height / 2, { pointerType: type }));
+    const before = gestureView();
+    const markerPositions = () => render().filter(node => node.props?.className === "map-point").map(node => [parseFloat(node.props.style.left), parseFloat(node.props.style.top)]);
+    const markers = markerPositions();
+    let repeatedPin = false;
+    assert.equal(render().find(node => node.props?.placeId)?.props.view.detail, true, "Panning the overview must enter the seamless north-up world");
+    for (const direction of [-1, 1]) {
+      find("map-canvas").props.onPointerDown(pointer(start, box.top + box.height / 2, { pointerType: type }));
+      for (let step = 1; step <= 48; step++) {
+        const x = start + direction * 3 * projection.detailWorldWidth * width / 1000 * step / 48;
+        find("map-canvas").props.onPointerMove(pointer(x, box.top + box.height / 2, { pointerType: type }));
+        const frame = render().find(node => node.props?.placeId)?.props.view;
+        assert.ok(frame.x >= 500 - projection.detailWorldWidth / 2 && frame.x <= 500 + projection.detailWorldWidth / 2);
+        const copies = render().filter(node => node.type === "use" && node.props.href === "#map-base-geography");
+        assert.ok(copies.length >= 2 && copies.length <= 3, "Every world-scale pan must keep adjoining geography in the viewport");
+        repeatedPin ||= render().filter(node => node.props?.className === "map-point" && !node.props.hidden).length > 5;
+      }
+      find("map-canvas").props.onPointerUp(pointer(start + direction * 3 * projection.detailWorldWidth * width / 1000, box.top + box.height / 2, { pointerType: type }));
+      close(gestureView().x, before.x); close(gestureView().y, before.y);
+      markerPositions().forEach((position, index) => position.forEach((value, axis) => close(value, markers[index][axis])));
+    }
+    assert.ok(repeatedPin, "When a place appears in two visible world copies, both must have a marker");
+    find("map-reset").props.onClick();
+    assert.equal(find("map-geography").props.style.transform, "translate(0px, 0px) scale(1)");
+  }
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.map-canvas \{[^}]*touch-action: none;/, "Only the map canvas should take over browser touch gestures");
   assert.equal((css.match(/touch-action: none/g) ?? []).length, 1, "Native page gestures outside the map must remain unchanged");
   hooks.forEach(hook => hook?.cleanup?.());
   assert.equal(listeners.size, 0, "Unmount must remove the wheel listener");
+});
+
+test("the world wraps at the date line without gaps or detached detail layers", async () => {
+  const projection = {}, details = {};
+  const compile = source => ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  runInNewContext(compile(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8")), { exports: projection });
+  runInNewContext(compile(await readFile(new URL("../app/map/details.ts", import.meta.url), "utf8")), { exports: details, require: () => projection });
+  const width = projection.projectDetailLocation(180, 0).x - projection.projectDetailLocation(-180, 0).x;
+  assert.equal(projection.detailWorldWidth, width);
+  const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-7, `${a} should equal ${b}`);
+  for (const lap of [-12, -1, 0, 1, 12]) {
+    const view = { x: 930 + lap * width, y: 270, zoom: 2, detail: true };
+    close(projection.nearestWorldX(70, view.x), 70 + (lap + 1) * width);
+    const offsets = projection.mapWorldOffsets(view);
+    const left = 500 - width / 2, right = 500 + width / 2;
+    assert.ok(left + offsets[0] <= view.x - 500 / view.zoom);
+    assert.ok(right + offsets.at(-1) >= view.x + 500 / view.zoom);
+    for (let i = 1; i < offsets.length; i++) close(right + offsets[i - 1], left + offsets[i]);
+    assert.ok(offsets.length <= 3, "Keep wrapping bounded to three reused world copies");
+    const route = { bounds: [69, 269, 71, 271], minZoom: 2 };
+    assert.equal(details.routeInView(route, view), true, "Detail on the opposite side of the date line must remain visible");
+    const labels = [{ id: "across-date-line", x: 70, y: 270, names: ["Island"], kind: "city", minZoom: 2, priority: 100 }];
+    const words = details.layoutMapLabels(labels, view, { width: 800, height: 432 }, "en", []);
+    assert.equal(words.length, 1);
+    close(words[0].left, ((70 + (lap + 1) * width - view.x) * view.zoom + 500) * .8 + 8);
+  }
+  assert.deepEqual(Array.from(projection.mapWorldOffsets({ x: 500, y: 270, zoom: 1, detail: false })), [0], "The original overview should remain unchanged");
+});
+
+test("desktop and tablet align the first place label with the map canvas", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const sideBySide = css.match(/@media \(min-width: 701px\) \{([^]*?)\n\}/)?.[1] ?? "";
+  assert.match(sideBySide, /\.map-places \{ margin-top: 32px; \}/);
+  assert.match(sideBySide, /\.map-stage \{ align-items: start; \}/);
+  const stacked = css.match(/@media \(max-width: 700px\) \{([^]*?)\n\}/)?.[1] ?? "";
+  assert.match(stacked, /\.map-places \{ margin-top: 0; \}/, "The mobile list must stay below the map with its original spacing");
 });
 
 test("the mobile map canvas reaches both screen edges without widening the rest of the page", async () => {

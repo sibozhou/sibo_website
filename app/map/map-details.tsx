@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Language } from "../languages";
-import { projectDetailLocation } from "./projection";
+import { projectDetailLocation, nearestWorldX, mapWorldOffsets } from "./projection";
 import { layoutMapLabels, mapDetailPath, routeInView, type MapDetailData, type MapView } from "./details";
 import { loadMapAsset } from "./load-asset";
 type Location = { longitude: number; latitude: number; offset: readonly number[] };
@@ -85,7 +85,7 @@ export function MapDetails({ language, placeId, view, locations }: { language: L
   const area = coverage && { x: coverage[0], y: coverage[1], width: coverage[2] - coverage[0], height: coverage[3] - coverage[1] };
   const reserved = locations.map(item => {
     const point = projectDetailLocation(item.longitude, item.latitude);
-    const x = (point.x - view.x) * view.zoom + 500, y = (point.y - view.y) * view.zoom + 270;
+    const x = (nearestWorldX(point.x, view.x) - view.x) * view.zoom + 500, y = (point.y - view.y) * view.zoom + 270;
     const dx = x < 150 ? Math.abs(item.offset[0]) : x > 850 ? -Math.abs(item.offset[0]) : item.offset[0];
     const dy = y < 100 ? Math.abs(item.offset[1]) : y > 440 ? -Math.abs(item.offset[1]) : item.offset[1];
     return { left: x / 1000 * size.width + dx - 22, top: y / 540 * size.height + dy - 22, width: 44, height: 44 };
@@ -98,13 +98,16 @@ export function MapDetails({ language, placeId, view, locations }: { language: L
           <mask id="map-context-coverage" maskUnits="userSpaceOnUse" x="0" y="-500" width="1000" height="1540"><rect x="0" y="-500" width="1000" height="1540" fill="white" /><rect {...area} fill="black" /></mask>
           <clipPath id="map-local-coverage"><rect {...area} /></clipPath>
         </defs>}
-        <g className="map-geography" style={{ transform: `translate(${500 - view.x * view.zoom}px, ${270 - view.y * view.zoom}px) scale(${view.zoom})` }}>
+        <defs><g id="map-base-details">
           <g mask={area ? "url(#map-context-coverage)" : undefined}>
             {routes.map((route, index) => <path key={`${route.kind}-${route.level}-${index}`} className={`map-detail-${route.kind}`} data-level={route.level} d={route.path} />)}
           </g>
           <g clipPath={area ? "url(#map-local-coverage)" : undefined}>
             {localRoutes.map((route, index) => <path key={`${route.kind}-${route.level}-${index}`} className={`map-detail-${route.kind}`} data-level={route.level} d={route.path} />)}
           </g>
+        </g></defs>
+        <g className="map-geography" style={{ transform: `translate(${500 - view.x * view.zoom}px, ${270 - view.y * view.zoom}px) scale(${view.zoom})` }}>
+          {mapWorldOffsets(view).map(offset => <use key={offset} href="#map-base-details" x={offset} />)}
         </g>
       </svg>
       {labels.map(label => (

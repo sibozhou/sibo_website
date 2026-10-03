@@ -1,4 +1,5 @@
 import type { Language } from "../languages";
+import { nearestWorldX } from "./projection";
 
 export type MapView = { x: number; y: number; zoom: number; detail: boolean };
 export type MapRoute = { path: string; bounds: number[]; kind: "road" | "rail" | "runway"; level: number; minZoom: number };
@@ -10,7 +11,8 @@ type Box = { left: number; top: number; width: number; height: number };
 export const mapDetailPath = (language: Language, id: string, version?: string) => `${language === "en" ? "../" : "../../"}map-details/${id}.json${version ? `?v=${version}` : ""}`;
 export const routeInView = (route: Pick<MapRoute, "bounds" | "minZoom">, view: MapView) => {
   const [left, top, right, bottom] = route.bounds;
-  return view.detail && view.zoom >= route.minZoom && right >= view.x - 500 / view.zoom && left <= view.x + 500 / view.zoom && bottom >= view.y - 270 / view.zoom && top <= view.y + 270 / view.zoom;
+  const offset = nearestWorldX((left + right) / 2, view.x) - (left + right) / 2;
+  return view.detail && view.zoom >= route.minZoom && right + offset >= view.x - 500 / view.zoom && left + offset <= view.x + 500 / view.zoom && bottom >= view.y - 270 / view.zoom && top <= view.y + 270 / view.zoom;
 };
 const overlaps = (a: Box, b: Box) => a.left < b.left + b.width + 4 && a.left + a.width + 4 > b.left && a.top < b.top + b.height + 4 && a.top + a.height + 4 > b.top;
 
@@ -25,14 +27,14 @@ export function layoutMapLabels(labels: MapLabel[], view: MapView, size: { width
     : { city: 12, airport: 5, station: 6, road: 8, neighbourhood: 6 }) : null;
   const translation = language === "en" ? 0 : language === "zh" ? 1 : 2;
   // Cull anchors before sorting: only the visible subset needs collision layout.
-  const visible = labels.filter(label => view.zoom >= label.minZoom && Math.abs(label.x - view.x) <= 500 / view.zoom && Math.abs(label.y - view.y) <= 270 / view.zoom);
+  const visible = labels.filter(label => view.zoom >= label.minZoom && Math.abs(nearestWorldX(label.x, view.x) - view.x) <= 500 / view.zoom && Math.abs(label.y - view.y) <= 270 / view.zoom);
   for (const label of visible.sort((a, b) => b.priority - a.priority)) {
     if (view.zoom < label.minZoom || placed.length >= (size.width < 500 ? 16 : 30)) continue;
     if (limits && counts[label.kind] >= limits[label.kind]) continue;
     const text = label.names[translation] || label.names[0];
     const name = `${label.kind}-${text}`;
     if (!text || names.has(name)) continue;
-    const x = ((label.x - view.x) * view.zoom + 500) / 1000 * size.width;
+    const x = ((nearestWorldX(label.x, view.x) - view.x) * view.zoom + 500) / 1000 * size.width;
     const y = ((label.y - view.y) * view.zoom + 270) / 540 * size.height;
     if (x < 0 || x > size.width || y < 0 || y > size.height) continue;
     const width = [...text].reduce((sum, character) => sum + (/[^\u0000-\u00ff]/.test(character) ? 12 : 6.4), label.kind === "airport" || label.kind === "station" ? 18 : 6);
