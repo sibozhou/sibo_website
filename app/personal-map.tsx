@@ -8,10 +8,10 @@ import geography from "./map/world-land.json";
 
 const places = [
   { id: "haikou", country: "CHN", division: "CN-HI", longitude: 110.1999, latitude: 20.044, offset: [12, -26], city: ["Haikou", "海口", "海口"], region: ["Hainan, China", "中国 · 海南省", "中國 · 海南省"], chapter: ["home", "家乡", "家鄉"] },
-  { id: "elmhurst", country: "USA", division: "US-IL", longitude: -87.9403, latitude: 41.8995, offset: [0, -26], city: ["Elmhurst", "埃尔姆赫斯特", "埃爾姆赫斯特"], region: ["Illinois, USA", "美国 · 伊利诺伊州", "美國 · 伊利諾州"], chapter: ["high school", "高中", "高中"] },
-  { id: "los-angeles", country: "USA", division: "US-CA", longitude: -118.2437, latitude: 34.0522, offset: [-34, 28], city: ["Los Angeles", "洛杉矶", "洛杉磯"], region: ["California, USA", "美国 · 加利福尼亚州", "美國 · 加州"], chapter: ["undergraduate", "本科", "大學"] },
-  { id: "providence", country: "USA", division: "US-RI", longitude: -71.4128, latitude: 41.824, offset: [32, 24], city: ["Providence", "普罗维登斯", "普羅維登斯"], region: ["Rhode Island, USA", "美国 · 罗得岛州", "美國 · 羅德島州"], chapter: ["master’s", "硕士", "碩士"] },
-  { id: "berkeley", country: "USA", division: "US-CA", longitude: -122.273, latitude: 37.8715, offset: [-32, -22], city: ["Berkeley", "伯克利", "柏克萊"], region: ["California, USA", "美国 · 加利福尼亚州", "美國 · 加州"], chapter: ["current work", "现在的工作", "現在的工作"] },
+  { id: "elmhurst", country: "USA", division: "US-IL", longitude: -87.942, latitude: 41.8953, offset: [0, -26], city: ["Elmhurst", "埃尔姆赫斯特", "埃爾姆赫斯特"], region: ["Illinois, USA", "美国 · 伊利诺伊州", "美國 · 伊利諾州"], chapter: ["high school", "高中", "高中"] },
+  { id: "los-angeles", country: "USA", division: "US-CA", longitude: -118.2859, latitude: 34.0219, offset: [-34, 28], city: ["Los Angeles", "洛杉矶", "洛杉磯"], region: ["California, USA", "美国 · 加利福尼亚州", "美國 · 加州"], chapter: ["undergraduate", "本科", "大學"] },
+  { id: "providence", country: "USA", division: "US-RI", longitude: -71.4038, latitude: 41.8261, offset: [32, 24], city: ["Providence", "普罗维登斯", "普羅維登斯"], region: ["Rhode Island, USA", "美国 · 罗得岛州", "美國 · 羅德島州"], chapter: ["master’s", "硕士", "碩士"] },
+  { id: "berkeley", country: "USA", division: "US-CA", longitude: -122.2578, latitude: 37.8721, offset: [-32, -22], city: ["Berkeley", "伯克利", "柏克萊"], region: ["California, USA", "美国 · 加利福尼亚州", "美國 · 加州"], chapter: ["current work", "现在的工作", "現在的工作"] },
 ] as const;
 
 const copy = {

@@ -817,7 +817,8 @@ test("map selection reveals real country, state/province and municipal boundarie
       assert.equal(nodes.find(node => node.props?.className === "map-land" && node.props["data-country"] === id)?.props.d, data.countries[id].path, `${id}: world and country layers must reuse the identical path`);
     }
   };
-  const coordinates = [[110.1999, 20.044], [-87.9403, 41.8995], [-118.2437, 34.0522], [-71.4128, 41.824], [-122.273, 37.8715]];
+  // Haikou stays at its city center; academic pins use the verified main campuses.
+  const coordinates = [[110.1999, 20.044], [-87.942, 41.8953], [-118.2859, 34.0219], [-71.4038, 41.8261], [-122.2578, 37.8721]];
   const countries = ["CHN", "USA", "USA", "USA", "USA"];
   const regions = ["CN-HI", "US-IL", "US-CA", "US-RI", "US-CA"];
   const cities = ["haikou", "elmhurst", "los-angeles", "providence", "berkeley"];
@@ -826,6 +827,14 @@ test("map selection reveals real country, state/province and municipal boundarie
   assert.equal(find(render(), "map-reset").props.disabled, true);
   assert.equal(find(render(), "map-land").props.d, geography.land);
   checkWorldOutlines(render(), geography);
+  for (const language of ["en", "zh", "zh-hant"]) {
+    const points = render(language).filter(node => node.props?.className === "map-point");
+    coordinates.forEach(([longitude, latitude], index) => {
+      const point = projection.projectLocation(longitude, latitude);
+      assert.equal(points[index].props.style.left, `${point.x / 10}%`);
+      assert.equal(points[index].props.style.top, `${point.y / 5.4}%`);
+    });
+  }
   const detail = geography.closeup;
   coordinates.forEach(([longitude, latitude], index) => {
     render().filter(node => node.props?.className === "map-place")[index].props.onClick();
@@ -931,7 +940,7 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   render();
   assert.ok(listeners.has("wheel"), "Wheel zoom must have a canvas-local listener");
   assert.equal(listeners.get("wheel").options.passive, false, "The native wheel listener must be able to prevent page scrolling");
-  const overview = projection.projectLocation(-87.9403, 41.8995);
+  const overview = projection.projectLocation(-87.942, 41.8953);
   const wheel = (deltaY, deltaMode = 0) => {
     let prevented = false;
     listeners.get("wheel").handler({ clientX: 100 + overview.x * .8, clientY: 50 + overview.y * .8, deltaY, deltaMode, ctrlKey: false, preventDefault: () => { prevented = true; } });
