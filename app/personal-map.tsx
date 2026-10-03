@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { Language } from "./languages";
-import { projectOverviewLocation, projectDetailLocation, detailFromOverview, detailWorldWidth, nearestWorldX, mapWorldOffsets, overviewLongitude } from "./map/projection";
+import { projectOverviewLocation, projectDetailLocation, detailFromOverview, detailWorldWidth, nearestWorldX, mapWorldOffsets } from "./map/projection";
 import { MapDetails } from "./map/map-details";
 import geography from "./map/overview.json";
 import { loadMapAsset } from "./map/load-asset";
@@ -23,10 +23,10 @@ const copy = {
 
 const worldView = { x: 500, y: 270, zoom: 1, detail: false };
 type BoundaryView = "country" | "region" | "city";
-const fitBoundary = ([left, top, right, bottom]: number[]) => ({
+const fitBoundary = ([left, top, right, bottom]: number[], width = 1000) => ({
   x: (left + right) / 2,
   y: (top + bottom) / 2,
-  zoom: Math.min(800 / (right - left), 400 / (bottom - top)),
+  zoom: Math.min(width * .8 / (right - left), 400 / (bottom - top)),
   detail: true,
 });
 const zoomAt = (view: typeof worldView, amount: number, maxZoom: number, anchor = { x: 500, y: 270 }) => {
@@ -47,8 +47,10 @@ export function PersonalMap({ language }: { language: Language }) {
   const [scale, setScale] = useState<BoundaryView | null>(null);
   const [interaction, setInteraction] = useState<"preset" | "direct" | "dragging">("preset");
   const [closeup, setCloseup] = useState<Omit<typeof geography.preview, "tropics"> | null>(null);
+  const [extent, setExtent] = useState({ left: 0, right: 1000, overviewShift: 0, overviewZoom: 1 });
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
+  const drawing = useRef<HTMLDivElement>(null);
   const drag = useRef(new Map<number, { x: number; y: number }>());
   const text = copy[language];
   const translation = language === "en" ? 0 : language === "zh" ? 1 : 2;
@@ -60,26 +62,47 @@ export function PersonalMap({ language }: { language: Language }) {
   const city = data.cities[place.id];
   const maxZoom = Math.max(2400, fitBoundary(geography.closeupBounds.cities[place.id]).zoom * 2);
   const atWorld = !view.detail && view.zoom === 1 && view.x === 500 && view.y === 270;
+  const overviewFrame = (current: typeof worldView) => current.detail ? current : { ...current, x: current.x + extent.overviewShift, zoom: current.zoom * extent.overviewZoom };
+  const frame = { ...overviewFrame(view), left: extent.left, right: extent.right };
   const tropics = view.detail ? geography.preview.tropics : geography.tropics;
   // Screen-sized coordinates sit at the edges, never scale up over the places.
-  const coordinates = [
-    ...[-180, -120, -60, 0, 60, 120].map((longitude, i) => {
-      const point = project(longitude, -60);
-      const x = ((view.detail ? nearestWorldX(point.x, view.x) : point.x) - view.x) * view.zoom + 500;
-      return { axis: "longitude", value: longitude, x, y: view.detail ? 522 : point.y + 14, secondary: i % 2 === 1 };
+  const coordinates = view.detail && view.zoom > 1 ? [
+    ...[-180, -120, -60, 0, 60, 120].flatMap(longitude => {
+      const point = projectDetailLocation(longitude, 0);
+      return mapWorldOffsets(view).map(copy => {
+        const x = (point.x + copy - frame.x) * frame.zoom + 500;
+        return { axis: "longitude", value: longitude, x, y: 522, copy, anchor: x < extent.left + 60 ? "start" : x > extent.right - 60 ? "end" : "center" };
+      });
     }),
-    ...[-60, -30, 0, 30, 60].map(latitude => {
-      const point = project(overviewLongitude - 180 + .01, latitude);
-      return { axis: "latitude", value: latitude, x: view.detail ? 18 : point.x + 14, y: (point.y - view.y) * view.zoom + 270, secondary: false };
+    ...[-60, -30, -23.5, 0, 23.5, 30, 60].map(latitude => {
+      const point = projectDetailLocation(0, latitude);
+      return { axis: "latitude", value: latitude, x: extent.left + 18, y: (point.y - frame.y) * frame.zoom + 270, copy: 0, anchor: "start" };
     }),
-  ].filter(point => view.detail && view.zoom > 1 && view.zoom <= 4 && (point.axis === "latitude" || point.x > 50 && point.x < 950) && point.y > 12 && point.y < 530);
+  ].filter(point => point.x > extent.left && point.x < extent.right && point.y > 0 && point.y < 540)
+    .map(point => ({ ...point, x: Math.max(extent.left + 15, Math.min(extent.right - 15, point.x)), y: Math.max(14, Math.min(526, point.y)) })) : [];
   const pins = places.flatMap((item, index) => {
     const point = project(item.longitude, item.latitude);
-    const nearestX = ((view.detail ? nearestWorldX(point.x, view.x) : point.x) - view.x) * view.zoom + 500;
-    const y = (point.y - view.y) * view.zoom + 270;
-    const xs = view.detail ? [nearestX, nearestX - detailWorldWidth * view.zoom, nearestX + detailWorldWidth * view.zoom].filter((x, copy) => copy === 0 || x >= 0 && x <= 1000) : [nearestX];
+    const nearestX = ((view.detail ? nearestWorldX(point.x, frame.x) : point.x) - frame.x) * frame.zoom + 500;
+    const y = (point.y - frame.y) * frame.zoom + 270;
+    const xs = view.detail ? [nearestX, nearestX - detailWorldWidth * frame.zoom, nearestX + detailWorldWidth * frame.zoom].filter((x, copy) => copy === 0 || x >= extent.left && x <= extent.right) : [nearestX];
     return xs.map((x, copy) => ({ item, index, x, y, copy }));
   });
+  useEffect(() => {
+    const element = canvas.current, surface = drawing.current;
+    if (!element || !surface) return;
+    let pending = 0;
+    const measure = () => {
+      cancelAnimationFrame(pending);
+      pending = requestAnimationFrame(() => {
+        const width = Math.min(1000, element.getBoundingClientRect().width / surface.getBoundingClientRect().width * 1000);
+        setExtent({ left: (1000 - width) / 2, right: (1000 + width) / 2, overviewShift: width < 600 ? 105 : 0, overviewZoom: width < 600 ? Math.min(1, width / 460) : 1 });
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => { observer.disconnect(); cancelAnimationFrame(pending); };
+  }, []);
   useEffect(() => {
     if (!view.detail || closeup) return;
     const controller = new AbortController();
@@ -94,17 +117,17 @@ export function PersonalMap({ language }: { language: Language }) {
       if (!event.deltaY) return;
       event.preventDefault();
       if (drag.current.size) return;
-      const box = element.getBoundingClientRect();
+      const box = drawing.current!.getBoundingClientRect();
       const anchor = { x: (event.clientX - box.left) / box.width * 1000, y: (event.clientY - box.top) / box.height * 540 };
       const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? box.height : 1);
       const amount = Math.exp(-Math.max(-240, Math.min(240, pixels)) * (event.ctrlKey ? .02 : .002));
       setInteraction("direct");
       setScale(null);
-      setView(current => zoomAt(current, amount, maxZoom, anchor));
+      setView(current => zoomAt(current.detail ? current : { ...current, x: current.x + extent.overviewShift, zoom: current.zoom * extent.overviewZoom }, amount, maxZoom, anchor));
     };
     element.addEventListener("wheel", wheel, { passive: false });
     return () => element.removeEventListener("wheel", wheel);
-  }, [maxZoom]);
+  }, [maxZoom, extent.overviewShift, extent.overviewZoom]);
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || drag.current.size >= 2 || (event.target as Element).closest("button")) return;
     drag.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -116,7 +139,7 @@ export function PersonalMap({ language }: { language: Language }) {
     const [a, b = a] = Array.from(drag.current.values());
     drag.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     const [c, d = c] = Array.from(drag.current.values());
-    const box = event.currentTarget.getBoundingClientRect();
+    const box = drawing.current!.getBoundingClientRect();
     const anchor = { x: ((a.x + b.x) / 2 - box.left) / box.width * 1000, y: ((a.y + b.y) / 2 - box.top) / box.height * 540 };
     const dx = (c.x + d.x - a.x - b.x) / 2 / box.width * 1000;
     const dy = (c.y + d.y - a.y - b.y) / 2 / box.height * 540;
@@ -127,7 +150,7 @@ export function PersonalMap({ language }: { language: Language }) {
     // Incremental updates preserve every movement, even before React renders.
     // Zoom around the old midpoint, then carry that location to the new midpoint.
     setView(current => {
-      const next = amount === 1 && current.detail ? current : zoomAt(current, amount, maxZoom, anchor);
+      const next = amount === 1 && current.detail ? current : zoomAt(overviewFrame(current), amount, maxZoom, anchor);
       if (amount !== 1 && next.zoom === 1) return next;
       return { ...next, x: nearestWorldX(next.x - dx / next.zoom, 500), y: next.y - dy / next.zoom };
     });
@@ -140,7 +163,7 @@ export function PersonalMap({ language }: { language: Language }) {
   const showBoundary = (index: number, boundary: BoundaryView) => {
     setInteraction("preset");
     setScale(boundary);
-    setView(fitBoundary(boundaryFor(index, boundary)));
+    setView(fitBoundary(boundaryFor(index, boundary), extent.right - extent.left));
     if (window.matchMedia("(max-width: 700px)").matches && stage.current && stage.current.getBoundingClientRect().top < 64) {
       stage.current.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
     }
@@ -153,7 +176,7 @@ export function PersonalMap({ language }: { language: Language }) {
     const target = scale ? { ...view, ...projectDetailLocation(place.longitude, place.latitude) } : view;
     setInteraction("preset");
     setScale(null);
-    setView(zoomAt(target, amount, maxZoom));
+    setView(zoomAt(overviewFrame(target), amount, maxZoom));
   };
 
   return (
@@ -177,6 +200,7 @@ export function PersonalMap({ language }: { language: Language }) {
               <button type="button" aria-label={text.zoomIn} disabled={view.zoom === maxZoom} onClick={() => zoom(1.5)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4v12" /></svg></button>
             </div>
             <div className="map-canvas" ref={canvas} data-direct={interaction !== "preset"} data-dragging={interaction === "dragging"} onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag}>
+              <div className="map-drawing" ref={drawing}>
               <svg className="map-world" viewBox="0 0 1000 540" aria-hidden="true">
                 <defs><g id="map-base-geography">
                   <path className="map-graticule" d={view.detail ? geography.preview.graticule : data.graticule} />
@@ -191,17 +215,17 @@ export function PersonalMap({ language }: { language: Language }) {
                   <path className="map-maritime" d={country.maritime} />
                   {tropics.map(({ latitude, path }) => <path key={latitude} className="map-tropic" data-latitude={latitude} aria-label={latitude > 0 ? ["Tropic of Cancer", "北回归线", "北回歸線"][translation] : ["Tropic of Capricorn", "南回归线", "南回歸線"][translation]} d={path} />)}
                 </g></defs>
-                <g className="map-geography" style={{ transform: `translate(${500 - view.x * view.zoom}px, ${270 - view.y * view.zoom}px) scale(${view.zoom})` }}>
+                <g className="map-geography" style={{ transform: `translate(${500 - frame.x * frame.zoom}px, ${270 - frame.y * frame.zoom}px) scale(${frame.zoom})` }}>
                   {mapWorldOffsets(view).map(offset => <use key={offset} href="#map-base-geography" x={offset} />)}
                 </g>
               </svg>
-              <MapDetails language={language} placeId={place.id} view={view} locations={places} />
-              {coordinates.map(({ axis, value, x, y, secondary }) => <span key={`${axis}-${value}`} className="map-coordinate" data-axis={axis} data-secondary={secondary} aria-hidden="true" style={{ left: `${x / 10}%`, top: `${y / 5.4}%` }}>{Math.abs(value)}°{value ? axis === "longitude" ? value > 0 ? "E" : "W" : value > 0 ? "N" : "S" : ""}</span>)}
+              <MapDetails language={language} view={frame} locations={places} />
+              {coordinates.map(({ axis, value, x, y, copy, anchor }) => <span key={`${axis}-${value}-${copy}`} className="map-coordinate" data-axis={axis} data-value={value} data-anchor={anchor} aria-hidden="true" style={{ left: `${x / 10}%`, top: `${y / 5.4}%` }}>{Math.abs(value)}°{value ? axis === "longitude" ? value > 0 ? "E" : "W" : value > 0 ? "N" : "S" : ""}</span>)}
               {pins.map(({ item, index, x, y, copy }) => {
-                const offsetX = x < 150 ? Math.abs(item.offset[0]) : x > 850 ? -Math.abs(item.offset[0]) : item.offset[0];
+                const offsetX = x < extent.left + 150 ? Math.abs(item.offset[0]) : x > extent.right - 150 ? -Math.abs(item.offset[0]) : item.offset[0];
                 const offsetY = y < 100 ? Math.abs(item.offset[1]) : y > 440 ? -Math.abs(item.offset[1]) : item.offset[1];
                 return (
-                  <div key={`${item.id}-${copy}`} className="map-point" data-selected={selected === index} hidden={x < 0 || x > 1000 || y < 0 || y > 540} style={{ left: `${x / 10}%`, top: `${y / 5.4}%` }}>
+                  <div key={`${item.id}-${copy}`} className="map-point" data-selected={selected === index} hidden={x < extent.left || x > extent.right || y < 0 || y > 540} style={{ left: `${x / 10}%`, top: `${y / 5.4}%` }}>
                     <svg className="map-leader" viewBox="-44 -44 88 88" aria-hidden="true"><path d={`M0 0L${offsetX} ${offsetY}`} /><circle r="2.5" /></svg>
                     <button type="button" className="map-pin" style={{ transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))` }} aria-label={`${item.city[translation]}, ${item.region[translation]} · ${item.chapter[translation]}`} aria-pressed={selected === index} onClick={() => choosePlace(index)}>
                       <span aria-hidden="true">{index + 1}</span>
@@ -209,6 +233,7 @@ export function PersonalMap({ language }: { language: Language }) {
                   </div>
                 );
               })}
+              </div>
             </div>
           </div>
           <div className="map-caption" aria-live="polite" aria-atomic="true">

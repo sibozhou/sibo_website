@@ -158,6 +158,12 @@ test("detail labels reveal progressively, stay readable, and avoid pins and one 
   assert.ok(mixed.some(label => label.kind === "station"), "City names must leave room for station detail");
   assert.ok(mixed.some(label => label.kind === "road"), "Dense cities must leave room for key street names");
   assert.ok(mixed.filter(label => label.kind === "city").length <= 12);
+  const croppedView = { ...view, zoom: 1000, left: 250, right: 750 };
+  const cropped = details.layoutMapLabels([...dense, { ...labels[2], x: 500, y: 270.18 }], croppedView, size, "en", []);
+  assert.ok(cropped.length > 0);
+  assert.ok(cropped.every(label => label.left >= 204 && label.left + label.width <= 596), "Labels must fit within the taller frame's visible horizontal crop");
+  assert.equal(details.routeInView({ bounds: [500.3, 269.9, 500.4, 270.1], minZoom: 700 }, croppedView), false, "Do not download detail tiles hidden outside the taller frame");
+  assert.equal(details.routeInView({ bounds: [500.2, 269.9, 500.3, 270.1], minZoom: 700 }, croppedView), true, "A tile crossing the visible edge must still load");
   for (const [language, route] of [["en", "map/"], ["zh", "zh/map/"], ["zh-hant", "zh-hant/map/"]]) {
     const path = details.mapDetailPath(language, "berkeley");
     for (const base of ["https://sibozhou.com/", "https://sibozhou.github.io/sibo_website/"]) {
@@ -166,7 +172,7 @@ test("detail labels reveal progressively, stay readable, and avoid pins and one 
   }
 });
 
-test("map details load only on zoom, reuse downloads, and ignore stale city responses", async () => {
+test("map details follow the viewport without city selection, reuse downloads, and ignore stale responses", async () => {
   const projection = {}, details = {}, exports = {}, hooks = [], requests = new Map();
   const downloads = new Map(), frames = new Map(), signals = new Map();
   let frameId = 0;
@@ -202,7 +208,7 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
   });
   const flatten = node => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(flatten) : [node, ...flatten(node.props?.children)];
   const view = { x: 500, y: 270, zoom: 100, detail: true };
-  const props = { language: "en", placeId: "haikou", view, locations: [] };
+  const props = { language: "en", view, locations: [] };
   const render = overrides => {
     Object.assign(props, overrides); cursor = 0;
     const nodes = flatten(exports.MapDetails(props));
@@ -211,7 +217,9 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
     return nodes;
   };
   const flush = () => { for (const [id, callback] of [...frames]) { frames.delete(id); callback(); } };
-  const data = text => ({ coverage: [499, 269, 503, 271], tiles: [{ id: "near", bounds: [499.8, 269.8, 500.2, 270.2], minZoom: 700 }, { id: "far", bounds: [501.8, 269.8, 502.2, 270.2], minZoom: 700 }, { id: "overlap", bounds: [499, 269, 503, 271], minZoom: 700 }], routes: [{ kind: "road", level: 0, minZoom: 60, bounds: [499, 269, 501, 271], path: "M499,269l2,2" }], labels: [{ id: text, names: [text, text, text], kind: "city", x: 500, y: 270, minZoom: 60, priority: 100 }] });
+  const data = (text, x = 500) => ({ coverage: [x - 1, 269, x + 3, 271], tiles: [{ id: "near", bounds: [x - .2, 269.8, x + .2, 270.2], minZoom: 700 }, { id: "far", bounds: [x + 1.8, 269.8, x + 2.2, 270.2], minZoom: 700 }, { id: "overlap", bounds: [x - 1, 269, x + 3, 271], minZoom: 700 }], routes: [{ kind: "road", level: 0, minZoom: 60, bounds: [x - 1, 269, x + 1, 271], path: `M${x - 1},269l2,2` }], labels: [{ id: text, names: [text, text, text], kind: "city", x, y: 270, minZoom: 60, priority: 100 }] });
+  const context = { ...data("context"), areas: [{ id: "haikou", bounds: data("Haikou").coverage, minZoom: 60 }, { id: "berkeley", bounds: data("Berkeley", 510).coverage, minZoom: 60 }] };
+  const berkeleyView = { ...view, x: 510 };
   const resolve = async (path, value) => {
     requests.get(path)({ ok: true, json: async () => value });
     await new Promise(done => setImmediate(done));
@@ -221,28 +229,27 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
   assert.equal(requests.size, 0);
   render({ view: { ...view, zoom: 10 } });
   assert.deepEqual([...requests.keys()], ["../map-details/context.json"]);
-  await resolve("../map-details/context.json", data("context"));
+  await resolve("../map-details/context.json", context);
   render({ view });
   assert.equal(requests.has("../map-details/haikou.json"), true);
-  render({ placeId: "berkeley" });
-  await resolve("../map-details/berkeley.json", data("Berkeley"));
+  render({ view: berkeleyView });
+  await resolve("../map-details/berkeley.json", data("Berkeley", 510));
   await resolve("../map-details/haikou.json", data("Haikou"));
   const nodes = render();
   const words = nodes.filter(node => node.props?.className === "map-detail-label").map(node => node.props.children.at(-1));
   assert.ok(words.includes("Berkeley"));
-  assert.equal(words.includes("Haikou"), false, "Late old-city data cannot replace the selected place");
-  assert.equal(nodes.find(node => node.props?.className === "map-geography").props.style.transform, "translate(-49500px, -26730px) scale(100)");
+  assert.equal(words.includes("Haikou"), false, "Late offscreen data cannot replace the area being explored");
+  assert.equal(nodes.find(node => node.props?.className === "map-geography").props.style.transform, "translate(-50500px, -26730px) scale(100)");
   assert.ok(nodes.some(node => node.props?.mask === "url(#map-context-coverage)"));
   assert.ok(nodes.some(node => node.props?.clipPath === "url(#map-local-coverage)"));
   const downloadsBeforeWrap = requests.size;
-  const wrapped = render({ view: { ...view, x: view.x + 3 * projection.detailWorldWidth } });
+  const wrapped = render({ view: { ...berkeleyView, x: berkeleyView.x + 3 * projection.detailWorldWidth } });
   assert.deepEqual(wrapped.filter(node => node.props?.className === "map-detail-label").map(node => node.props.style), nodes.filter(node => node.props?.className === "map-detail-label").map(node => node.props.style));
   assert.equal(requests.size, downloadsBeforeWrap, "Returning around the world must reuse the same detail downloads");
   assert.ok(wrapped.some(node => node.type === "use" && node.props.href === "#map-base-details" && node.props.x === 3 * projection.detailWorldWidth), "The existing road and coverage layers must travel with the wrapped world");
   render({ view: { ...view, detail: false, zoom: 1 } });
   const before = requests.size;
   render({ view });
-  render({ placeId: "haikou" });
   await new Promise(done => setImmediate(done));
   flush();
   assert.equal(requests.size, before);
@@ -259,18 +266,28 @@ test("map details load only on zoom, reuse downloads, and ignore stale city resp
   assert.equal(signals.get("../map-details/haikou/overlap.json"), overlapSignal, "Panning must not restart a download that is still visible");
   assert.equal(overlapSignal.aborted, false);
   assert.equal(requests.has("../map-details/haikou/far.json"), true, "Panning should reveal detail across the rest of the city");
-  render({ placeId: "berkeley" });
+  render({ view: { ...berkeleyView, zoom: 1000 } });
   await resolve("../map-details/haikou/far.json", { routes: [{ ...street, bounds: [501.8, 269.8, 502.2, 270.2], path: "M501.8,269.8l.4,.4" }], labels: [] });
-  assert.equal(render().some(node => node.props?.d === "M501.8,269.8l.4,.4"), false, "Late street downloads cannot leak into another city");
+  assert.equal(render().some(node => node.props?.d === "M501.8,269.8l.4,.4"), false, "Late street downloads cannot leak into another viewport");
   const downloaded = requests.size;
-  render({ placeId: "haikou", view: { ...view, zoom: 1000 } });
+  render({ view: { ...view, zoom: 1000 } });
   await new Promise(done => setImmediate(done));
   render(); // React rerenders after the cached manifest restores localData.
   await new Promise(done => setImmediate(done));
   flush();
   assert.equal(requests.size, downloaded, "Returning to an already visited tile must reuse its download");
   assert.ok(render().some(node => node.props?.d === street.path));
+  render({ view: { ...view, x: 505, zoom: 60 } });
+  await new Promise(done => setImmediate(done));
+  const both = render();
+  const clip = both.find(node => node.type === "clipPath" && node.props.id === "map-local-coverage");
+  assert.equal(clip.props.children.length, 2, "If two detail areas are visible, load and clip both instead of choosing one");
+  assert.ok(both.some(node => node.props?.className === "map-detail-label" && node.props.children.at(-1) === "Berkeley"));
+  render({ view: { ...view, x: 550, zoom: 1000 } });
+  assert.equal(render().some(node => node.props?.d === street.path), false, "Panning beyond the extracts must remove offscreen local details");
+  assert.equal(render().some(node => node.type === "clipPath"), false);
   assert.equal(disconnects, 0, "Zooming should not reset the resize observer or page");
+  hooks.forEach(hook => hook?.cleanup?.());
 });
 
 for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "zh/notes/", "zh/map/", "zh-hant/", "zh-hant/research/", "zh-hant/notes/", "zh-hant/map/"]) {
@@ -809,6 +826,9 @@ test("the overview is Pacific-centered, with an Atlantic seam and subdued geogra
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.map-tropic \{[^}]*stroke-dasharray:/);
   assert.match(css, /\.map-coordinate \{[^}]*pointer-events: none/);
+  const gridColor = css.match(/\.map-graticule \{[^}]*stroke: ([^;]+)/)[1];
+  assert.equal(css.match(/\.map-tropic \{[^}]*stroke: ([^;]+)/)[1], gridColor, "Dashed Tropics must use the same color as the other grid lines");
+  assert.doesNotMatch(css, /\.map-coordinate[^}]*display: none/, "Mobile must not hide alternate grid-line numbers");
 });
 
 test("China-POV extent includes Taiwan, Hong Kong, Macau and open maritime claim indicators", async () => {
@@ -938,6 +958,29 @@ test("map selection reveals boundaries and zoom buttons center on the selected m
   assert.equal(render().filter(node => node.props?.className === "map-coordinate").length, 0);
   render().find(node => node.props?.["aria-label"] === "Zoom in").props.onClick();
   assert.ok(render().some(node => node.props?.className === "map-coordinate"), "Coordinate numbers should appear only after zooming in");
+  // Every visible existing line is labelled, including wrapped meridians,
+  // both Tropics and lines still visible at close zooms. No finer grid is added.
+  for (const [longitude, latitude, zoom] of [[0, 0, 1.1], [180, 23.5, 80], [-120, 30, 900], [60, -23.5, 80]]) {
+    const center = projection.projectDetailLocation(longitude, latitude);
+    states[1] = { ...center, zoom, detail: true };
+    const expected = [];
+    for (const value of [-180, -120, -60, 0, 60, 120]) {
+      const point = projection.projectDetailLocation(value, 0);
+      for (const offset of projection.mapWorldOffsets(states[1])) {
+        const x = (point.x + offset - center.x) * zoom + 500;
+        if (x > 0 && x < 1000) expected.push(`longitude:${value}`);
+      }
+    }
+    for (const value of [-60, -30, -23.5, 0, 23.5, 30, 60]) {
+      const y = (projection.projectDetailLocation(0, value).y - center.y) * zoom + 270;
+      if (y > 0 && y < 540) expected.push(`latitude:${value}`);
+    }
+    for (const language of ["en", "zh", "zh-hant"]) {
+      const labels = render(language).filter(node => node.props?.className === "map-coordinate");
+      assert.deepEqual(labels.map(node => `${node.props["data-axis"]}:${node.props["data-value"]}`).sort(), expected.sort());
+      assert.ok(labels.every(node => node.props.children[0] === Math.abs(node.props["data-value"])), "Labels must display the line's actual degree value");
+    }
+  }
   find(render(), "map-reset").props.onClick();
   for (const language of ["en", "zh", "zh-hant"]) {
     const points = render(language).filter(node => node.props?.className === "map-point");
@@ -1026,8 +1069,9 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   const projection = {};
   runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
   const source = await readFile(new URL("../app/personal-map.tsx", import.meta.url), "utf8");
-  const exports = {}, hooks = [], listeners = new Map(), captured = new Set();
+  const exports = {}, hooks = [], listeners = new Map(), captured = new Set(), frames = new Map();
   let cursor = 0, pending = [];
+  let resize, frameId = 0, drawingBox = null;
   const box = { left: 100, top: 50, width: 800, height: 432 };
   const canvas = {
     getBoundingClientRect: () => ({ ...box }),
@@ -1039,6 +1083,9 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   };
   runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
     exports, window: { matchMedia: () => ({ matches: false }) },
+    requestAnimationFrame: callback => { frames.set(++frameId, callback); return frameId; },
+    cancelAnimationFrame: id => frames.delete(id),
+    ResizeObserver: class { constructor(callback) { resize = callback; } observe() {} disconnect() {} },
     require: name => name === "react" ? {
       useState: initial => { const index = cursor++; hooks[index] ??= index === 4 ? geography.closeup : initial; return [hooks[index], value => { hooks[index] = typeof value === "function" ? value(hooks[index]) : value; }]; },
       useRef: initial => { const index = cursor++; return hooks[index] ??= { current: initial }; },
@@ -1058,6 +1105,7 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
     const nodes = flatten(exports.PersonalMap({ language: "en" }));
     const canvasNode = nodes.find(node => node.props?.className === "map-canvas");
     if (canvasNode.props.ref) canvasNode.props.ref.current = canvas;
+    nodes.find(node => node.props?.className === "map-drawing").props.ref.current = { getBoundingClientRect: () => drawingBox ?? { ...box } };
     pending.forEach(effect => effect()); pending = [];
     return nodes;
   };
@@ -1226,13 +1274,13 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
     const markerPositions = () => render().filter(node => node.props?.className === "map-point").map(node => [parseFloat(node.props.style.left), parseFloat(node.props.style.top)]);
     const markers = markerPositions();
     let repeatedPin = false;
-    assert.equal(render().find(node => node.props?.placeId)?.props.view.detail, true, "Panning the overview must enter the seamless north-up world");
+    assert.equal(render().find(node => node.props?.locations)?.props.view.detail, true, "Panning the overview must enter the seamless north-up world");
     for (const direction of [-1, 1]) {
       find("map-canvas").props.onPointerDown(pointer(start, box.top + box.height / 2, { pointerType: type }));
       for (let step = 1; step <= 48; step++) {
         const x = start + direction * 3 * projection.detailWorldWidth * width / 1000 * step / 48;
         find("map-canvas").props.onPointerMove(pointer(x, box.top + box.height / 2, { pointerType: type }));
-        const frame = render().find(node => node.props?.placeId)?.props.view;
+        const frame = render().find(node => node.props?.locations)?.props.view;
         assert.ok(frame.x >= 500 - projection.detailWorldWidth / 2 && frame.x <= 500 + projection.detailWorldWidth / 2);
         const copies = render().filter(node => node.type === "use" && node.props.href === "#map-base-geography");
         assert.ok(copies.length >= 2 && copies.length <= 3, "Every world-scale pan must keep adjoining geography in the viewport");
@@ -1249,6 +1297,48 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.map-canvas \{[^}]*touch-action: none;/, "Only the map canvas should take over browser touch gestures");
   assert.equal((css.match(/touch-action: none/g) ?? []).length, 1, "Native page gestures outside the map must remain unchanged");
+  for (const [width, height] of [[390, 405], [580, 720], [1250, 750]]) {
+    box.width = width; box.height = height;
+    const surfaceWidth = height * 1000 / 540;
+    drawingBox = { left: box.left + (width - surfaceWidth) / 2, top: box.top, width: surfaceWidth, height };
+    resize();
+    for (const [id, callback] of [...frames]) { frames.delete(id); callback(); }
+    find("map-reset").props.onClick();
+    const initial = render().filter(node => node.props?.className === "map-point");
+    assert.equal(initial.filter(node => !node.props.hidden).length, 5, "The taller opening frame must keep all five markers visible");
+    const visible = render().find(node => node.props?.locations).props.view;
+    close((visible.right - visible.left) / 1000 * surfaceWidth, width);
+    const marker = initial[1];
+    const anchor = { clientX: drawingBox.left + parseFloat(marker.props.style.left) / 100 * surfaceWidth, clientY: drawingBox.top + parseFloat(marker.props.style.top) / 100 * height };
+    listeners.get("wheel").handler({ ...anchor, deltaY: -120, deltaMode: 0, ctrlKey: false, preventDefault: () => {} });
+    const focused = render().filter(node => node.props?.className === "map-point")[1];
+    close(drawingBox.left + parseFloat(focused.props.style.left) / 100 * surfaceWidth, anchor.clientX);
+    close(drawingBox.top + parseFloat(focused.props.style.top) / 100 * height, anchor.clientY);
+    for (const label of render().filter(node => node.props?.className === "map-coordinate")) {
+      const x = parseFloat(label.props.style.left) / 100 * surfaceWidth + drawingBox.left;
+      assert.ok(x >= box.left && x <= box.left + width, "Grid numbers must remain on the visible frame, not clipped off its sides");
+    }
+    render().filter(node => node.props?.className === "map-place")[4].props.onClick();
+    const fitted = render().find(node => node.props?.locations).props.view;
+    const [left, , right] = geography.closeup.regions["US-CA"].bounds;
+    assert.ok((left - fitted.x) * fitted.zoom + 500 >= fitted.left && (right - fitted.x) * fitted.zoom + 500 <= fitted.right, "Boundary presets must fit the visible crop, not the wider drawing surface");
+    render().find(node => node.props?.["aria-label"] === "Zoom in").props.onClick();
+    const selected = render().find(node => node.props?.className === "map-point" && node.props["data-selected"]);
+    close(drawingBox.left + parseFloat(selected.props.style.left) / 100 * surfaceWidth, box.left + width / 2);
+    close(drawingBox.top + parseFloat(selected.props.style.top) / 100 * height, box.top + height / 2);
+    const centerX = box.left + width / 2, centerY = box.top + height / 2;
+    find("map-canvas").props.onPointerDown(touch(centerX - 20, centerY, 41));
+    find("map-canvas").props.onPointerDown(touch(centerX + 20, centerY, 42));
+    const beforePinch = gestureView().zoom;
+    find("map-canvas").props.onPointerMove(touch(centerX - 30, centerY, 41));
+    find("map-canvas").props.onPointerMove(touch(centerX + 30, centerY, 42));
+    close(gestureView().zoom, beforePinch * 1.5);
+    const pinched = render().find(node => node.props?.className === "map-point" && node.props["data-selected"]);
+    close(drawingBox.left + parseFloat(pinched.props.style.left) / 100 * surfaceWidth, centerX);
+    close(drawingBox.top + parseFloat(pinched.props.style.top) / 100 * height, centerY);
+    find("map-canvas").props.onPointerUp(touch(centerX - 30, centerY, 41));
+    find("map-canvas").props.onPointerUp(touch(centerX + 30, centerY, 42));
+  }
   hooks.forEach(hook => hook?.cleanup?.());
   assert.equal(listeners.size, 0, "Unmount must remove the wheel listener");
 });
@@ -1294,7 +1384,16 @@ test("the mobile map canvas reaches both screen edges without widening the rest 
   const mobile = css.match(/@media \(max-width: 540px\) \{([^]*?)\n\}/)?.[1] ?? "";
   assert.match(mobile, /\.site-shell \{ width: calc\(100% - 40px\); \}/);
   assert.match(mobile, /\.map-canvas \{ width: calc\(100% \+ 40px\); max-width: none; margin-inline: -20px; \}/);
-  assert.equal((css.match(/\.map-canvas \{/g) ?? []).length, 2, "Only the mobile breakpoint should override the existing canvas width");
+  assert.equal((css.match(/\.map-canvas \{/g) ?? []).length, 3, "Taller responsive framing and edge-to-edge mobile width need separate overrides");
+});
+
+test("the map has a larger responsive frame while its shared drawing stays undistorted", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(css, /\.map-canvas \{[^}]*aspect-ratio: 1000 \/ 600;[^}]*min-height: clamp\(480px, 64svh, 720px\)/);
+  assert.doesNotMatch(css.match(/\.map-canvas \{[^}]*\}/)[0], /max-width: 1000px/);
+  assert.match(css, /\.map-drawing \{[^}]*height: 100%;[^}]*aspect-ratio: 1000 \/ 540;[^}]*translateX\(-50%\)/);
+  const mobile = css.match(/@media \(max-width: 700px\) \{([^]*?)\n\}/)[1];
+  assert.match(mobile, /\.map-canvas \{ aspect-ratio: 1; min-height: clamp\(320px, 48svh, 420px\); \}/);
 });
 
 test("wave lifecycle has no reload, navigation, or iteration handler", async () => {

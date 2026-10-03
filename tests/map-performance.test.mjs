@@ -49,6 +49,18 @@ test("large road datasets are manifests with independently loadable, versioned t
   }
 });
 
+test("viewport detail coverage matches every city extract and defers local manifests until zoomed in", async () => {
+  const context = await read("../public/map-details/context.json");
+  const exported = await read("../dist/client/map-details/context.json");
+  assert.deepEqual(exported.areas, context.areas);
+  assert.deepEqual(context.areas.map(area => area.id).sort(), ["berkeley", "elmhurst", "haikou", "los-angeles", "providence"]);
+  for (const area of context.areas) {
+    const city = await read(`../public/map-details/${area.id}.json`);
+    assert.deepEqual(area.bounds, city.coverage, "Automatic loading must use the whole extract, not only the pin or city center");
+    assert.equal(area.minZoom, 60, "Keep the existing local-detail threshold");
+  }
+});
+
 test("map asset downloads are deduplicated, concurrency-limited, cancellable, and bounded", async () => {
   const source = await readFile(new URL("../app/map/load-asset.ts", import.meta.url), "utf8");
   const exports = {}, requests = [], waiting = new Map();

@@ -76,7 +76,8 @@ for (const { geometry } of (await read("ne-railroads.geojson")).features) {
 }
 const contextSource = "Natural Earth · public domain";
 const contextTiles = await writeTiles("context", routes, contextSource);
-await writeFile(join(output, "context.json"), JSON.stringify({ source: contextSource, labels, routes: [], tiles: contextTiles }) + "\n");
+const areas = Object.entries(detailAreas).map(([id, [south, west, north, east]]) => ({ id, bounds: [...point([west, north]), ...point([east, south])], minZoom: 60 }));
+await writeFile(join(output, "context.json"), JSON.stringify({ source: contextSource, labels, routes: [], tiles: contextTiles, areas }) + "\n");
 
 for (const [id, area] of Object.entries(detailAreas)) {
   const [south, west, north, east] = area;

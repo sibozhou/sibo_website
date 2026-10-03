@@ -7,14 +7,14 @@ import { layoutMapLabels, mapDetailPath, routeInView, type MapDetailData, type M
 import { loadMapAsset } from "./load-asset";
 type Location = { longitude: number; latitude: number; offset: readonly number[] };
 
-export function MapDetails({ language, placeId, view, locations }: { language: Language; placeId: string; view: MapView; locations: readonly Location[] }) {
+export function MapDetails({ language, view, locations }: { language: Language; view: MapView; locations: readonly Location[] }) {
   const root = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [context, setContext] = useState<MapDetailData | null>(null);
-  const [local, setLocal] = useState<{ id: string; data: MapDetailData } | null>(null);
+  const [local, setLocal] = useState<Record<string, MapDetailData>>({});
   const [tiles, setTiles] = useState<Record<string, MapDetailData>>({});
   const tileWork = useRef({ paths: new Set<string>(), loaded: new Set<string>(), requests: new Map<string, AbortController>(), updates: {} as Record<string, MapDetailData>, frame: 0 });
-  const localEnabled = view.detail && view.zoom >= 60;
+  const localIds = (context?.areas ?? []).filter(area => routeInView(area, view)).map(area => area.id).join("|");
   useEffect(() => {
     const element = root.current;
     if (!element) return;
@@ -31,13 +31,20 @@ export function MapDetails({ language, placeId, view, locations }: { language: L
   }, [language, view.detail]);
   useEffect(() => {
     const controller = new AbortController();
-    if (localEnabled) loadMapAsset<MapDetailData>(mapDetailPath(language, placeId), controller.signal).then(data => { if (!controller.signal.aborted) setLocal({ id: placeId, data }); }).catch(() => {});
-    return () => controller.abort();
-  }, [language, placeId, localEnabled]);
-  const localData = localEnabled && local?.id === placeId ? local.data : null;
+    const ids = localIds.split("|").filter(Boolean);
+    const frame = requestAnimationFrame(() => setLocal(previous => Object.fromEntries(ids.flatMap(id => previous[id] ? [[id, previous[id]]] : []))));
+    for (const id of ids) loadMapAsset<MapDetailData>(mapDetailPath(language, id), controller.signal).then(data => {
+      if (!controller.signal.aborted) setLocal(previous => ({ ...previous, [id]: data }));
+    }).catch(() => {});
+    return () => { controller.abort(); cancelAnimationFrame(frame); };
+  }, [language, localIds]);
+  const localData = localIds.split("|").flatMap(id => local[id] ? [{ id, data: local[id] }] : []);
   const contextPaths = (context?.tiles ?? []).filter(tile => routeInView(tile, view)).map(tile => mapDetailPath(language, `context/${tile.id}`, tile.version));
-  const localTiles = (localData?.tiles ?? []).filter(tile => routeInView(tile, view));
-  const localPaths = localTiles.map(tile => mapDetailPath(language, `${placeId}/${tile.id}`, tile.version));
+  const localAreas = localData.map(({ id, data }) => {
+    const visible = (data.tiles ?? []).filter(tile => routeInView(tile, view));
+    return { data, visible, paths: visible.map(tile => mapDetailPath(language, `${id}/${tile.id}`, tile.version)) };
+  });
+  const localPaths = localAreas.flatMap(area => area.paths);
   const tilePaths = [...localPaths, ...contextPaths].join("|");
   useEffect(() => {
     const work = tileWork.current;
@@ -77,32 +84,31 @@ export function MapDetails({ language, placeId, view, locations }: { language: L
     };
   }, []);
   const contextData = contextPaths.flatMap(path => tiles[path] ? [tiles[path]] : []);
-  const localReady = localTiles.every((tile, index) => tile.minZoom >= 700 || tiles[localPaths[index]]);
+  const readyAreas = localAreas.filter(area => area.visible.every((tile, index) => tile.minZoom >= 700 || tiles[area.paths[index]]));
   const localChunks = localPaths.flatMap(path => tiles[path] ? [tiles[path]] : []);
   const routes = [...(context?.routes ?? []), ...contextData.flatMap(tile => tile.routes)].filter(route => routeInView(route, view));
-  const localRoutes = localReady ? [...(localData?.routes ?? []), ...localChunks.flatMap(tile => tile.routes)].filter(route => routeInView(route, view)) : [];
-  const coverage = localReady ? localData?.coverage : undefined;
-  const area = coverage && { x: coverage[0], y: coverage[1], width: coverage[2] - coverage[0], height: coverage[3] - coverage[1] };
+  const localRoutes = readyAreas.flatMap(area => [...area.data.routes, ...area.paths.flatMap(path => tiles[path]?.routes ?? [])]).filter(route => routeInView(route, view));
+  const coverage = readyAreas.flatMap(area => area.data.coverage ? [area.data.coverage] : []).map(([left, top, right, bottom]) => ({ x: left, y: top, width: right - left, height: bottom - top }));
   const reserved = locations.map(item => {
     const point = projectDetailLocation(item.longitude, item.latitude);
     const x = (nearestWorldX(point.x, view.x) - view.x) * view.zoom + 500, y = (point.y - view.y) * view.zoom + 270;
-    const dx = x < 150 ? Math.abs(item.offset[0]) : x > 850 ? -Math.abs(item.offset[0]) : item.offset[0];
+    const dx = x < (view.left ?? 0) + 150 ? Math.abs(item.offset[0]) : x > (view.right ?? 1000) - 150 ? -Math.abs(item.offset[0]) : item.offset[0];
     const dy = y < 100 ? Math.abs(item.offset[1]) : y > 440 ? -Math.abs(item.offset[1]) : item.offset[1];
     return { left: x / 1000 * size.width + dx - 22, top: y / 540 * size.height + dy - 22, width: 44, height: 44 };
   });
-  const labels = layoutMapLabels([...(localData?.labels ?? []), ...localChunks.flatMap(tile => tile.labels), ...(context?.labels ?? [])], view, size, language, reserved);
+  const labels = layoutMapLabels([...localData.flatMap(area => area.data.labels), ...localChunks.flatMap(tile => tile.labels), ...(context?.labels ?? [])], view, size, language, reserved);
   return (
     <div className="map-details" ref={root} aria-hidden="true">
       <svg className="map-world" viewBox="0 0 1000 540">
-        {area && <defs>
-          <mask id="map-context-coverage" maskUnits="userSpaceOnUse" x="0" y="-500" width="1000" height="1540"><rect x="0" y="-500" width="1000" height="1540" fill="white" /><rect {...area} fill="black" /></mask>
-          <clipPath id="map-local-coverage"><rect {...area} /></clipPath>
+        {coverage.length > 0 && <defs>
+          <mask id="map-context-coverage" maskUnits="userSpaceOnUse" x="0" y="-500" width="1000" height="1540"><rect x="0" y="-500" width="1000" height="1540" fill="white" />{coverage.map((area, index) => <rect key={index} {...area} fill="black" />)}</mask>
+          <clipPath id="map-local-coverage">{coverage.map((area, index) => <rect key={index} {...area} />)}</clipPath>
         </defs>}
         <defs><g id="map-base-details">
-          <g mask={area ? "url(#map-context-coverage)" : undefined}>
+          <g mask={coverage.length ? "url(#map-context-coverage)" : undefined}>
             {routes.map((route, index) => <path key={`${route.kind}-${route.level}-${index}`} className={`map-detail-${route.kind}`} data-level={route.level} d={route.path} />)}
           </g>
-          <g clipPath={area ? "url(#map-local-coverage)" : undefined}>
+          <g clipPath={coverage.length ? "url(#map-local-coverage)" : undefined}>
             {localRoutes.map((route, index) => <path key={`${route.kind}-${route.level}-${index}`} className={`map-detail-${route.kind}`} data-level={route.level} d={route.path} />)}
           </g>
         </g></defs>
