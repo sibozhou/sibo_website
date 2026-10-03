@@ -1308,10 +1308,20 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
     assert.equal(initial.filter(node => !node.props.hidden).length, 5, "The taller opening frame must keep all five markers visible");
     const visible = render().find(node => node.props?.locations).props.view;
     close((visible.right - visible.left) / 1000 * surfaceWidth, width);
+    for (const x of [0, 1000]) {
+      const screenX = drawingBox.left + ((x - visible.x) * visible.zoom + 500) / 1000 * surfaceWidth;
+      assert.ok(screenX >= box.left - 1e-7 && screenX <= box.left + width + 1e-7, "The entire world drawing must fit the initial viewport and world reset, not just the five markers");
+    }
+    close(visible.x, 500);
+    for (const y of [0, 540]) {
+      const screenY = drawingBox.top + ((y - visible.y) * visible.zoom + 270) / 540 * height;
+      assert.ok(screenY >= box.top - 1e-7 && screenY <= box.top + height + 1e-7, "Both poles must fit the opening view as well");
+    }
     const marker = initial[1];
     const anchor = { clientX: drawingBox.left + parseFloat(marker.props.style.left) / 100 * surfaceWidth, clientY: drawingBox.top + parseFloat(marker.props.style.top) / 100 * height };
     listeners.get("wheel").handler({ ...anchor, deltaY: -120, deltaMode: 0, ctrlKey: false, preventDefault: () => {} });
     const focused = render().filter(node => node.props?.className === "map-point")[1];
+    close(render().find(node => node.props?.locations).props.view.zoom, visible.zoom * Math.exp(.24));
     close(drawingBox.left + parseFloat(focused.props.style.left) / 100 * surfaceWidth, anchor.clientX);
     close(drawingBox.top + parseFloat(focused.props.style.top) / 100 * height, anchor.clientY);
     for (const label of render().filter(node => node.props?.className === "map-coordinate")) {
@@ -1384,7 +1394,15 @@ test("the mobile map canvas reaches both screen edges without widening the rest 
   const mobile = css.match(/@media \(max-width: 540px\) \{([^]*?)\n\}/)?.[1] ?? "";
   assert.match(mobile, /\.site-shell \{ width: calc\(100% - 40px\); \}/);
   assert.match(mobile, /\.map-canvas \{ width: calc\(100% \+ 40px\); max-width: none; margin-inline: -20px; \}/);
-  assert.equal((css.match(/\.map-canvas \{/g) ?? []).length, 3, "Taller responsive framing and edge-to-edge mobile width need separate overrides");
+  assert.equal((css.match(/\.map-canvas \{/g) ?? []).length, 4, "Desktop height fitting, taller mobile framing and edge-to-edge width need separate overrides");
+});
+
+test("mobile map controls occupy their own row entirely above the map", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const mobile = css.match(/@media \(max-width: 700px\) \{([^]*?)\n\}/)?.[1] ?? "";
+  assert.match(mobile, /\.map-stage \{[^}]*padding-top: 0;[^}]*row-gap: 12px;/);
+  assert.match(mobile, /\.map-controls \{ position: static; justify-self: end; \}/, "Reserve the controls' actual height rather than overlapping the drawing with absolute positioning");
+  assert.match(css, /\.map-controls button \{[^}]*width: 44px; height: 44px;/, "Keep the existing button size and styling");
 });
 
 test("the map has a larger responsive frame while its shared drawing stays undistorted", async () => {
@@ -1392,8 +1410,17 @@ test("the map has a larger responsive frame while its shared drawing stays undis
   assert.match(css, /\.map-canvas \{[^}]*aspect-ratio: 1000 \/ 600;[^}]*min-height: clamp\(480px, 64svh, 720px\)/);
   assert.doesNotMatch(css.match(/\.map-canvas \{[^}]*\}/)[0], /max-width: 1000px/);
   assert.match(css, /\.map-drawing \{[^}]*height: 100%;[^}]*aspect-ratio: 1000 \/ 540;[^}]*translateX\(-50%\)/);
+  assert.match(css, /\.map-canvas\[data-overview="true"\]\[data-measured="false"\] \.map-drawing \{[^}]*width: 100%;[^}]*height: auto;/, "The prerendered overview must already fit before its dimensions are measured");
   const mobile = css.match(/@media \(max-width: 700px\) \{([^]*?)\n\}/)[1];
   assert.match(mobile, /\.map-canvas \{ aspect-ratio: 1; min-height: clamp\(320px, 48svh, 420px\); \}/);
+});
+
+test("desktop map framing reserves room for the place details and attribution", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const desktop = css.match(/@media screen and \(min-width: 1100px\) and \(hover: hover\) and \(pointer: fine\) \{([^]*?)\n\}/)?.[1] ?? "";
+  assert.match(desktop, /--map-height: max\(280px, calc\(100svh - 336px\)\)/, "Reserve space for the header, map controls, caption and attribution, not just the drawing");
+  assert.match(desktop, /max-width: calc\(var\(--map-height\) \* 1000 \/ 540\)/, "Keep the fitted globe inside the shorter frame, including before hydration");
+  assert.match(desktop, /aspect-ratio: auto; height: var\(--map-height\); min-height: 0;/);
 });
 
 test("wave lifecycle has no reload, navigation, or iteration handler", async () => {

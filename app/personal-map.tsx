@@ -29,9 +29,9 @@ const fitBoundary = ([left, top, right, bottom]: number[], width = 1000) => ({
   zoom: Math.min(width * .8 / (right - left), 400 / (bottom - top)),
   detail: true,
 });
-const zoomAt = (view: typeof worldView, amount: number, maxZoom: number, anchor = { x: 500, y: 270 }) => {
-  const level = Math.min(maxZoom, Math.max(1, view.zoom * amount));
-  if (level === 1 && amount < 1) return worldView;
+const zoomAt = (view: typeof worldView, amount: number, maxZoom: number, anchor = { x: 500, y: 270 }, minZoom = 1) => {
+  const level = Math.min(maxZoom, Math.max(minZoom, view.zoom * amount));
+  if (level === minZoom && amount < 1) return worldView;
   const point = { x: view.x + (anchor.x - 500) / view.zoom, y: view.y + (anchor.y - 270) / view.zoom };
   const detail = view.detail ? point : detailFromOverview(point);
   return { x: nearestWorldX(detail.x - (anchor.x - 500) / level, 500), y: detail.y - (anchor.y - 270) / level, zoom: level, detail: true };
@@ -47,7 +47,7 @@ export function PersonalMap({ language }: { language: Language }) {
   const [scale, setScale] = useState<BoundaryView | null>(null);
   const [interaction, setInteraction] = useState<"preset" | "direct" | "dragging">("preset");
   const [closeup, setCloseup] = useState<Omit<typeof geography.preview, "tropics"> | null>(null);
-  const [extent, setExtent] = useState({ left: 0, right: 1000, overviewShift: 0, overviewZoom: 1 });
+  const [extent, setExtent] = useState({ left: 0, right: 1000, overviewZoom: 1, measured: false });
   const stage = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const drawing = useRef<HTMLDivElement>(null);
@@ -62,11 +62,11 @@ export function PersonalMap({ language }: { language: Language }) {
   const city = data.cities[place.id];
   const maxZoom = Math.max(2400, fitBoundary(geography.closeupBounds.cities[place.id]).zoom * 2);
   const atWorld = !view.detail && view.zoom === 1 && view.x === 500 && view.y === 270;
-  const overviewFrame = (current: typeof worldView) => current.detail ? current : { ...current, x: current.x + extent.overviewShift, zoom: current.zoom * extent.overviewZoom };
+  const overviewFrame = (current: typeof worldView) => current.detail ? current : { ...current, zoom: current.zoom * extent.overviewZoom };
   const frame = { ...overviewFrame(view), left: extent.left, right: extent.right };
   const tropics = view.detail ? geography.preview.tropics : geography.tropics;
   // Screen-sized coordinates sit at the edges, never scale up over the places.
-  const coordinates = view.detail && view.zoom > 1 ? [
+  const coordinates = view.detail && view.zoom > extent.overviewZoom ? [
     ...[-180, -120, -60, 0, 60, 120].flatMap(longitude => {
       const point = projectDetailLocation(longitude, 0);
       return mapWorldOffsets(view).map(copy => {
@@ -94,8 +94,9 @@ export function PersonalMap({ language }: { language: Language }) {
     const measure = () => {
       cancelAnimationFrame(pending);
       pending = requestAnimationFrame(() => {
-        const width = Math.min(1000, element.getBoundingClientRect().width / surface.getBoundingClientRect().width * 1000);
-        setExtent({ left: (1000 - width) / 2, right: (1000 + width) / 2, overviewShift: width < 600 ? 105 : 0, overviewZoom: width < 600 ? Math.min(1, width / 460) : 1 });
+        const box = element.getBoundingClientRect();
+        const width = Math.min(1000, box.width / (box.height * 1000 / 540) * 1000);
+        setExtent({ left: (1000 - width) / 2, right: (1000 + width) / 2, overviewZoom: width / 1000, measured: true });
       });
     };
     measure();
@@ -123,11 +124,11 @@ export function PersonalMap({ language }: { language: Language }) {
       const amount = Math.exp(-Math.max(-240, Math.min(240, pixels)) * (event.ctrlKey ? .02 : .002));
       setInteraction("direct");
       setScale(null);
-      setView(current => zoomAt(current.detail ? current : { ...current, x: current.x + extent.overviewShift, zoom: current.zoom * extent.overviewZoom }, amount, maxZoom, anchor));
+      setView(current => zoomAt(current.detail ? current : { ...current, zoom: current.zoom * extent.overviewZoom }, amount, maxZoom, anchor, extent.overviewZoom));
     };
     element.addEventListener("wheel", wheel, { passive: false });
     return () => element.removeEventListener("wheel", wheel);
-  }, [maxZoom, extent.overviewShift, extent.overviewZoom]);
+  }, [maxZoom, extent.overviewZoom]);
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || drag.current.size >= 2 || (event.target as Element).closest("button")) return;
     drag.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -150,8 +151,8 @@ export function PersonalMap({ language }: { language: Language }) {
     // Incremental updates preserve every movement, even before React renders.
     // Zoom around the old midpoint, then carry that location to the new midpoint.
     setView(current => {
-      const next = amount === 1 && current.detail ? current : zoomAt(overviewFrame(current), amount, maxZoom, anchor);
-      if (amount !== 1 && next.zoom === 1) return next;
+      const next = amount === 1 && current.detail ? current : zoomAt(overviewFrame(current), amount, maxZoom, anchor, extent.overviewZoom);
+      if (amount !== 1 && !next.detail) return next;
       return { ...next, x: nearestWorldX(next.x - dx / next.zoom, 500), y: next.y - dy / next.zoom };
     });
   };
@@ -176,7 +177,7 @@ export function PersonalMap({ language }: { language: Language }) {
     const target = scale ? { ...view, ...projectDetailLocation(place.longitude, place.latitude) } : view;
     setInteraction("preset");
     setScale(null);
-    setView(zoomAt(overviewFrame(target), amount, maxZoom));
+    setView(zoomAt(overviewFrame(target), amount, maxZoom, undefined, extent.overviewZoom));
   };
 
   return (
@@ -196,10 +197,10 @@ export function PersonalMap({ language }: { language: Language }) {
           <div className="map-stage" ref={stage} role="group" aria-label={text.map}>
             <div className="map-controls">
               <button type="button" className="map-reset" disabled={atWorld} onClick={() => { setInteraction("preset"); setView(worldView); setScale(null); }}>{text.world}</button>
-              <button type="button" aria-label={text.zoomOut} disabled={view.zoom === 1} onClick={() => zoom(1 / 1.5)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" /></svg></button>
+              <button type="button" aria-label={text.zoomOut} disabled={atWorld} onClick={() => zoom(1 / 1.5)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" /></svg></button>
               <button type="button" aria-label={text.zoomIn} disabled={view.zoom === maxZoom} onClick={() => zoom(1.5)}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M10 4v12" /></svg></button>
             </div>
-            <div className="map-canvas" ref={canvas} data-direct={interaction !== "preset"} data-dragging={interaction === "dragging"} onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag}>
+            <div className="map-canvas" ref={canvas} data-overview={!view.detail} data-measured={extent.measured} data-direct={interaction !== "preset"} data-dragging={interaction === "dragging"} onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={endDrag}>
               <div className="map-drawing" ref={drawing}>
               <svg className="map-world" viewBox="0 0 1000 540" aria-hidden="true">
                 <defs><g id="map-base-geography">

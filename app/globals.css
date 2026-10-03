@@ -435,6 +435,7 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
 .map-stage { position: relative; display: grid; place-items: center; min-height: 320px; padding-top: 48px; scroll-margin-top: calc(var(--header-height) + 16px); }
 .map-canvas { position: relative; width: 100%; aspect-ratio: 1000 / 600; min-height: clamp(480px, 64svh, 720px); overflow: hidden; cursor: grab; user-select: none; touch-action: none; }
 .map-drawing { position: absolute; top: 0; left: 50%; height: 100%; aspect-ratio: 1000 / 540; transform: translateX(-50%); }
+.map-canvas[data-overview="true"][data-measured="false"] .map-drawing { top: 50%; width: 100%; height: auto; transform: translate(-50%, -50%); }
 .map-canvas[data-dragging="true"] { cursor: grabbing; }
 .map-canvas[data-direct="true"] :is(.map-geography, .map-point, .map-pin, .map-detail-label, .map-coordinate) { transition: none; }
 .map-world { display: block; width: 100%; height: 100%; }
@@ -575,12 +576,17 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
 @media (max-width: 1099px) {
   .map-layout { grid-template-columns: 152px minmax(0, 1fr); gap: 24px; }
 }
+@media screen and (min-width: 1100px) and (hover: hover) and (pointer: fine) {
+  /* Leave the caption and attribution visible beneath the map on desktop. */
+  .map-canvas { --map-height: max(280px, calc(100svh - 336px)); max-width: calc(var(--map-height) * 1000 / 540); aspect-ratio: auto; height: var(--map-height); min-height: 0; }
+}
 @media (max-width: 700px) {
   .site-nav { gap: 16px; }
   .personal-map { padding-top: 20px; padding-bottom: 40px; }
   .map-layout { display: flex; flex-direction: column; gap: 24px; }
   .map-viewport { order: -1; }
-  .map-stage { min-height: 280px; padding-top: 36px; }
+  .map-stage { min-height: 280px; padding-top: 0; row-gap: 12px; }
+  .map-controls { position: static; justify-self: end; }
   .map-canvas { aspect-ratio: 1; min-height: clamp(320px, 48svh, 420px); }
   .map-places { margin-top: 0; }
   .map-places li + li { border-top: 1px solid var(--rule); }
