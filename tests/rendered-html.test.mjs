@@ -569,17 +569,18 @@ test("wordmark language labels retain the small top-aligned treatment and footer
   assert.match(css, /\.wordmark:not\(\.wordmark-english\) \.link-label \{ letter-spacing: 0; \}/);
 });
 
-test("USC headline and contact links share the Chinese serif styling without changing arrows", async () => {
+test("USC headline, paper titles and contact links share the Chinese serif styling without changing arrows", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const systemFont = css.match(/:root \{[^}]*--sans: ([^;]+);/)[1];
   const arrowRule = css.match(/html\[lang="en"\] \.contact-link \.link-arrow \{([^}]+)\}/)?.[1] ?? "";
   assert.equal(arrowRule.match(/font-family: ([^;]+);/)?.[1], systemFont);
   assert.match(css, /\.link-arrow \{[^}]*font-size: var\(--type-arrow\); font-weight: 400; line-height: 1;/);
   assert.match(css, /\.contact-link \.link-arrow \{ margin-left: \.25em; \}/);
-  assert.match(css, /html\[lang="en"\] :is\(h1, \.paper h3\) \{ font-family: var\(--sans\); \}/);
+  assert.match(css, /html\[lang="en"\] h1 \{ font-family: var\(--sans\); \}/);
   assert.match(css, /\.news-story h3 \{[^}]*font-family: var\(--serif\);/);
+  assert.match(css, /\.paper h3 \{[^}]*font-family: var\(--serif\);/);
   assert.match(css, /\.contact-link \{[^}]*font-family: var\(--serif\);/);
-  assert.doesNotMatch(css, /html\[lang="en"\] :is\([^)]*(?:\.news-story h3|\.contact-link)[^)]*\) \{ font-family:/);
+  assert.doesNotMatch(css, /html\[lang="en"\] :is\([^)]*(?:\.news-story h3|\.paper h3|\.contact-link)[^)]*\) \{ font-family:/);
 });
 
 test("tablet introduction uses a compact portrait and measured reading width", async () => {
