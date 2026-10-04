@@ -429,7 +429,7 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
       for (const layer of ["country", "region", "city", "lakes"]) assert.match(markup, new RegExp(`class="map-${layer}"`));
       assert.match(markup, /class="map-maritime"/);
       assert.equal(/China-POV boundaries;|中国边界采用 Natural Earth 中国视角|中國邊界採用 Natural Earth 中國視角|maritime lines indicate disputed claims|海上虚线表示有争议的主张|海上虛線表示有爭議的主張/.test(markup), false, "Remove the boundary convention note in every language");
-      assert.match(markup, traditional ? /行政邊界包含水域。/ : chinese ? /行政边界包含水域。/ : /Administrative boundaries, including water areas\./);
+      assert.doesNotMatch(markup, /Administrative boundaries, including water areas\.|行政边界包含水域。|行政邊界包含水域。/);
       assert.equal((markup.match(/class="map-scale"/g) ?? []).length, 3);
       assert.doesNotMatch(markup, /map-coordinates|° [NSEW]/);
       assert.match(markup, chinese ? /海南省/ : /Hainan, China/);
@@ -594,11 +594,15 @@ test("portrait iPad fade adjustment changes only the mask", async () => {
   assert.match(css, /@media screen and \(min-width: 760px\) and \(max-width: 900px\) and \(orientation: portrait\) and \(hover: none\) and \(pointer: coarse\) \{\s*\.hero-photo \{ mask-size: calc\(100% \+ 20px\) 100%; mask-position: -20px bottom; \}\s*\}/);
 });
 
-test("square favicon uses the site palette and the name's serif S", async () => {
+test("square favicon uses a soft charcoal contour in the site palette", async () => {
   const icon = await readFile(new URL("favicon.svg", output), "utf8");
-  assert.match(icon, /<rect width="32" height="32" fill="#242622"/);
-  assert.match(icon, /<text[^>]*fill="#f7f6f2"[^>]*font-family="'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"[^>]*font-size="24"[^>]*text-anchor="middle">S<\/text>/);
-  assert.doesNotMatch(icon, /linearGradient|<circle|\brx=/);
+  assert.match(icon, /viewBox="0 0 32 32"/);
+  assert.match(icon, /<rect width="32" height="32" fill="url\(#soft-contour\)"/);
+  assert.match(icon, /<radialGradient[^>]*id="soft-contour"[^>]*color-interpolation="linearRGB"/);
+  assert.match(icon, /<stop offset="0\.3" stop-color="#242622"/);
+  assert.match(icon, /<stop offset="0\.98" stop-color="#f7f6f2"/);
+  assert.equal((icon.match(/<stop\b/g) ?? []).length, 17);
+  assert.doesNotMatch(icon, /<text|font-family|linearGradient|<circle|\brx=/);
 });
 
 test("animated footer fills the screen, with short secondary pages aligned to the bottom", async () => {

@@ -17,9 +17,9 @@ const places = [
 ] as const;
 
 const copy = {
-  en: { places: "Places along the way", map: "Interactive world map", world: "world view", zoomIn: "Zoom in", zoomOut: "Zoom out", country: "country", region: { CHN: "province", USA: "state" }, city: "city", scales: "Boundary views", note: "Administrative boundaries, including water areas." },
-  zh: { places: "走过的地方", map: "互动世界地图", world: "世界全景", zoomIn: "放大", zoomOut: "缩小", country: "国家", region: { CHN: "省", USA: "州" }, city: "城市", scales: "边界视图", note: "行政边界包含水域。" },
-  "zh-hant": { places: "走過的地方", map: "互動世界地圖", world: "世界全景", zoomIn: "放大", zoomOut: "縮小", country: "國家", region: { CHN: "省", USA: "州" }, city: "城市", scales: "邊界檢視", note: "行政邊界包含水域。" },
+  en: { places: "Places along the way", map: "Interactive world map", world: "world view", zoomIn: "Zoom in", zoomOut: "Zoom out", country: "country", region: { CHN: "province", USA: "state" }, city: "city", scales: "Boundary views" },
+  zh: { places: "走过的地方", map: "互动世界地图", world: "世界全景", zoomIn: "放大", zoomOut: "缩小", country: "国家", region: { CHN: "省", USA: "州" }, city: "城市", scales: "边界视图" },
+  "zh-hant": { places: "走過的地方", map: "互動世界地圖", world: "世界全景", zoomIn: "放大", zoomOut: "縮小", country: "國家", region: { CHN: "省", USA: "州" }, city: "城市", scales: "邊界檢視" },
 };
 
 const worldView = { x: 500, y: 270, zoom: 1, detail: false };
@@ -256,7 +256,7 @@ export function PersonalMap({ language }: { language: Language }) {
               ))}
             </div>
           </div>
-          <p className="map-source"><span>{text.note}</span><span>Natural Earth · U.S. Census Bureau · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></span></p>
+          <p className="map-source"><span>Natural Earth · U.S. Census Bureau · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></span></p>
         </div>
       </div>
     </section>

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { languages, type Language } from "./languages";
 import { SiteColorWave } from "./site-color-wave";
+import { ResearchColorContour } from "./research-color-contour";
 
 export function SiteFrame({ page, language = "en", children }: { page: "home" | "research" | "notes" | "map"; language?: Language; children: ReactNode }) {
   const root = page === "home" ? "./" : "../";
@@ -11,7 +12,7 @@ export function SiteFrame({ page, language = "en", children }: { page: "home" | 
   const alternate = siteRoot + (zh ? "" : "zh/") + pagePath;
   return (
     <>
-      <SiteColorWave pageKey={`${language}/${page}`} />
+      {page === "research" ? <ResearchColorContour pageKey={`${language}/${page}`} /> : <SiteColorWave pageKey={`${language}/${page}`} />}
       <a className="skip-link" href="#main-content">{zh ? "跳至正文" : "Skip to content"}</a>
       <div className={`site-shell site-shell-${page}`}>
         <header className="site-header">

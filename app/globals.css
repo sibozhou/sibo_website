@@ -106,7 +106,6 @@ p, h1, h2, h3 { margin: 0; }
 .skip-link { position: fixed; top: 12px; left: 12px; z-index: 10; padding: 8px 16px; background: var(--ink); color: var(--paper); transform: translateY(-160%); }
 .skip-link:focus { transform: translateY(0); color: var(--paper); }
 .site-shell { width: min(960px, calc(100% - 112px)); margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
-.site-shell-research { --accent-surface: #4c504b; }
 .site-header, #main-content { flex-shrink: 0; }
 /* Align the page edge with the photo's 96% crop boundary. */
 .site-header, .editorial-section, .site-footer { margin-right: calc(2.16% - 56px); }
@@ -310,6 +309,108 @@ p, h1, h2, h3 { margin: 0; }
       text-decoration: none;
     }
     :root[data-color-wave="ready"] .language-switch:is(:hover, :focus-visible)::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: 9px; height: 1px;
+      background-image: var(--inverse-paint); background-size: 100% 44px; background-position: 0 -34px;
+    }
+  }
+}
+
+/* Research: one breathing elliptical field, without a straight text overlay. */
+@property --contour-scale { syntax: "<number>"; inherits: true; initial-value: 1.04; }
+@property --contour-drift { syntax: "<number>"; inherits: true; initial-value: -.05; }
+@keyframes research-soft-contour {
+  0%, 100% { --contour-scale: 1.04; --contour-drift: -.05; }
+  50% { --contour-scale: 1.19; --contour-drift: .06; }
+}
+@media screen and (forced-colors: none) {
+  :root[data-research-contour="ready"] .site-shell-research {
+    --contour-x: calc((.95 + .06 * var(--contour-scale)) * var(--contour-width));
+    --contour-y: calc((.5 + .1923076923 * var(--contour-scale) + var(--contour-drift)) * var(--contour-height));
+    --contour-rx: calc(.9 * var(--contour-width) * var(--contour-scale));
+    --contour-ry: calc(.9615384615 * var(--contour-height) * var(--contour-scale));
+    animation: research-soft-contour 72s ease-in-out -18s infinite;
+  }
+  :root[data-research-contour="ready"] .site-shell-research :is(.disclosure-toggle, .site-footer)::before {
+    /* A broad, zero-slope feather at both ends; 64 samples avoid visible rims. */
+    background: radial-gradient(ellipse var(--contour-rx) var(--contour-ry) at calc(var(--contour-x) - var(--contour-left)) calc(var(--contour-y) - var(--contour-top)) in srgb-linear,
+      var(--ink) 30%,
+      color-mix(in srgb-linear, var(--paper) 0.000105%, var(--ink)) 31.0625%,
+      color-mix(in srgb-linear, var(--paper) 0.001684%, var(--ink)) 32.125%,
+      color-mix(in srgb-linear, var(--paper) 0.008422%, var(--ink)) 33.1875%,
+      color-mix(in srgb-linear, var(--paper) 0.026128%, var(--ink)) 34.25%,
+      color-mix(in srgb-linear, var(--paper) 0.062395%, var(--ink)) 35.3125%,
+      color-mix(in srgb-linear, var(--paper) 0.126246%, var(--ink)) 36.375%,
+      color-mix(in srgb-linear, var(--paper) 0.227806%, var(--ink)) 37.4375%,
+      color-mix(in srgb-linear, var(--paper) 0.377984%, var(--ink)) 38.5%,
+      color-mix(in srgb-linear, var(--paper) 0.588172%, var(--ink)) 39.5625%,
+      color-mix(in srgb-linear, var(--paper) 0.86997%, var(--ink)) 40.625%,
+      color-mix(in srgb-linear, var(--paper) 1.234929%, var(--ink)) 41.6875%,
+      color-mix(in srgb-linear, var(--paper) 1.694315%, var(--ink)) 42.75%,
+      color-mix(in srgb-linear, var(--paper) 2.258896%, var(--ink)) 43.8125%,
+      color-mix(in srgb-linear, var(--paper) 2.938749%, var(--ink)) 44.875%,
+      color-mix(in srgb-linear, var(--paper) 3.743092%, var(--ink)) 45.9375%,
+      color-mix(in srgb-linear, var(--paper) 4.680131%, var(--ink)) 47%,
+      color-mix(in srgb-linear, var(--paper) 5.756929%, var(--ink)) 48.0625%,
+      color-mix(in srgb-linear, var(--paper) 6.979305%, var(--ink)) 49.125%,
+      color-mix(in srgb-linear, var(--paper) 8.351734%, var(--ink)) 50.1875%,
+      color-mix(in srgb-linear, var(--paper) 9.877283%, var(--ink)) 51.25%,
+      color-mix(in srgb-linear, var(--paper) 11.55756%, var(--ink)) 52.3125%,
+      color-mix(in srgb-linear, var(--paper) 13.392673%, var(--ink)) 53.375%,
+      color-mix(in srgb-linear, var(--paper) 15.381223%, var(--ink)) 54.4375%,
+      color-mix(in srgb-linear, var(--paper) 17.520294%, var(--ink)) 55.5%,
+      color-mix(in srgb-linear, var(--paper) 19.805479%, var(--ink)) 56.5625%,
+      color-mix(in srgb-linear, var(--paper) 22.230901%, var(--ink)) 57.625%,
+      color-mix(in srgb-linear, var(--paper) 24.789268%, var(--ink)) 58.6875%,
+      color-mix(in srgb-linear, var(--paper) 27.471926%, var(--ink)) 59.75%,
+      color-mix(in srgb-linear, var(--paper) 30.268935%, var(--ink)) 60.8125%,
+      color-mix(in srgb-linear, var(--paper) 33.16915%, var(--ink)) 61.875%,
+      color-mix(in srgb-linear, var(--paper) 36.160324%, var(--ink)) 62.9375%,
+      color-mix(in srgb-linear, var(--paper) 39.229205%, var(--ink)) 64%,
+      color-mix(in srgb-linear, var(--paper) 42.36166%, var(--ink)) 65.0625%,
+      color-mix(in srgb-linear, var(--paper) 45.542798%, var(--ink)) 66.125%,
+      color-mix(in srgb-linear, var(--paper) 48.7571%, var(--ink)) 67.1875%,
+      color-mix(in srgb-linear, var(--paper) 51.988562%, var(--ink)) 68.25%,
+      color-mix(in srgb-linear, var(--paper) 55.220842%, var(--ink)) 69.3125%,
+      color-mix(in srgb-linear, var(--paper) 58.437407%, var(--ink)) 70.375%,
+      color-mix(in srgb-linear, var(--paper) 61.621693%, var(--ink)) 71.4375%,
+      color-mix(in srgb-linear, var(--paper) 64.75726%, var(--ink)) 72.5%,
+      color-mix(in srgb-linear, var(--paper) 67.827957%, var(--ink)) 73.5625%,
+      color-mix(in srgb-linear, var(--paper) 70.818079%, var(--ink)) 74.625%,
+      color-mix(in srgb-linear, var(--paper) 73.712532%, var(--ink)) 75.6875%,
+      color-mix(in srgb-linear, var(--paper) 76.496998%, var(--ink)) 76.75%,
+      color-mix(in srgb-linear, var(--paper) 79.158087%, var(--ink)) 77.8125%,
+      color-mix(in srgb-linear, var(--paper) 81.683502%, var(--ink)) 78.875%,
+      color-mix(in srgb-linear, var(--paper) 84.062187%, var(--ink)) 79.9375%,
+      color-mix(in srgb-linear, var(--paper) 86.284478%, var(--ink)) 81%,
+      color-mix(in srgb-linear, var(--paper) 88.342248%, var(--ink)) 82.0625%,
+      color-mix(in srgb-linear, var(--paper) 90.22904%, var(--ink)) 83.125%,
+      color-mix(in srgb-linear, var(--paper) 91.940195%, var(--ink)) 84.1875%,
+      color-mix(in srgb-linear, var(--paper) 93.472981%, var(--ink)) 85.25%,
+      color-mix(in srgb-linear, var(--paper) 94.826698%, var(--ink)) 86.3125%,
+      color-mix(in srgb-linear, var(--paper) 96.002783%, var(--ink)) 87.375%,
+      color-mix(in srgb-linear, var(--paper) 97.004907%, var(--ink)) 88.4375%,
+      color-mix(in srgb-linear, var(--paper) 97.839056%, var(--ink)) 89.5%,
+      color-mix(in srgb-linear, var(--paper) 98.513607%, var(--ink)) 90.5625%,
+      color-mix(in srgb-linear, var(--paper) 99.039396%, var(--ink)) 91.625%,
+      color-mix(in srgb-linear, var(--paper) 99.429772%, var(--ink)) 92.6875%,
+      color-mix(in srgb-linear, var(--paper) 99.700653%, var(--ink)) 93.75%,
+      color-mix(in srgb-linear, var(--paper) 99.870569%, var(--ink)) 94.8125%,
+      color-mix(in srgb-linear, var(--paper) 99.96071%, var(--ink)) 95.875%,
+      color-mix(in srgb-linear, var(--paper) 99.99497%, var(--ink)) 96.9375%,
+      var(--paper) 98%);
+  }
+  :root[data-research-contour="ready"] .site-shell-research .site-footer::before { width: var(--contour-width); left: calc((100% - var(--contour-width)) / 2); }
+  :root[data-research-contour="ready"] .site-shell-research :is(.section-label, .site-footer p) { color: var(--ink); }
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    :root[data-research-contour="ready"] .site-shell-research .language-switch {
+      --inverse-paint: radial-gradient(ellipse var(--contour-rx) var(--contour-ry) at calc(var(--contour-x) - var(--contour-left)) calc(var(--contour-y) - var(--contour-top)), var(--paper) 56%, var(--ink) 59%);
+      background-image: var(--inverse-paint);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    :root[data-research-contour="ready"] .site-shell-research .site-footer a.language-switch:is(:hover, :focus-visible) { text-decoration: none; }
+    :root[data-research-contour="ready"] .site-shell-research .language-switch:is(:hover, :focus-visible)::after {
       content: ""; position: absolute; left: 0; right: 0; bottom: 9px; height: 1px;
       background-image: var(--inverse-paint); background-size: 100% 44px; background-position: 0 -34px;
     }
