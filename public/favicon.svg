@@ -1,4 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#242622" />
-  <text x="16" y="24" fill="#f7f6f2" font-family="'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif" font-size="24" font-weight="400" text-anchor="middle">S</text>
+  <defs>
+    <radialGradient id="soft-contour" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="translate(2 -2) scale(42 36)" color-interpolation="linearRGB">
+      <stop offset="0.3" stop-color="#242622" />
+      <stop offset="0.3425" stop-color="#242622" />
+      <stop offset="0.385" stop-color="#282a26" />
+      <stop offset="0.4275" stop-color="#333431" />
+      <stop offset="0.47" stop-color="#454643" />
+      <stop offset="0.5125" stop-color="#5c5d5a" />
+      <stop offset="0.555" stop-color="#757572" />
+      <stop offset="0.5975" stop-color="#8d8d8a" />
+      <stop offset="0.64" stop-color="#a5a4a1" />
+      <stop offset="0.6825" stop-color="#babab6" />
+      <stop offset="0.725" stop-color="#cdccc8" />
+      <stop offset="0.7675" stop-color="#dcdbd7" />
+      <stop offset="0.81" stop-color="#e8e7e3" />
+      <stop offset="0.8525" stop-color="#f0efeb" />
+      <stop offset="0.895" stop-color="#f5f4f0" />
+      <stop offset="0.9375" stop-color="#f7f6f2" />
+      <stop offset="0.98" stop-color="#f7f6f2" />
+    </radialGradient>
+  </defs>
+  <rect width="32" height="32" fill="url(#soft-contour)" />
 </svg>

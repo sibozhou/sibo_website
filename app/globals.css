@@ -431,7 +431,7 @@ p, h1, h2, h3 { margin: 0; }
 .eyebrow, .section-label { font-family: var(--sans); font-size: var(--type-small); font-weight: 500; line-height: 1.6; letter-spacing: 0; }
 .eyebrow { color: var(--ink); margin-bottom: 24px; }
 h1 { font-family: var(--serif); font-size: var(--type-title); line-height: 1.2; letter-spacing: -.03em; font-weight: 400; }
-html[lang="en"] :is(h1, .news-story h3, .paper h3, .contact-link) { font-family: var(--sans); }
+html[lang="en"] :is(h1, .paper h3) { font-family: var(--sans); }
 .english-name strong { font-weight: 700; }
 .calligraphy-name { display: inline-flex; height: 1.2em; gap: .16em; align-items: center; vertical-align: top; }
 .calligraphy-name > span { display: block; width: 1em; height: 1em; background: currentColor; mask-repeat: no-repeat; mask-position: center; mask-mode: alpha; }
