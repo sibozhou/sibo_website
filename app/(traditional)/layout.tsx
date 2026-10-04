@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   creator: "Sibo Zhou",
   openGraph: {
     title: "認識周思博",
-    description: "以經濟學與資料，理解人的行為與健康。",
+    description: "周思博的個人網站。",
     url: "https://sibozhou.com/zh-hant/",
     locale: "zh_TW",
     type: "profile",

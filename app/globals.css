@@ -80,7 +80,6 @@
   /* Shared type scale: editorial headings, readable copy, and supporting UI. */
   --type-title: clamp(48px, 8vw, 72px);
   --type-heading: clamp(24px, 3vw, 28px);
-  --type-lead: clamp(20px, 2.5vw, 24px);
   --type-body: 16px;
   --type-small: 14px;
   --type-arrow: 12px;
@@ -96,7 +95,6 @@ html[lang="zh-Hant"] {
   --sans: "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
 }
 html:lang(zh) h1 { letter-spacing: 0; }
-html:lang(zh) .lead { letter-spacing: 0; }
 html { background: var(--paper); color: var(--ink); scroll-behavior: smooth; scroll-padding-top: var(--header-height); }
 body { margin: 0; font-family: var(--sans); font-size: var(--type-body); line-height: 1.7; -webkit-font-smoothing: antialiased; }
 ::selection { background: #deded8; }
@@ -348,7 +346,6 @@ html[lang="en"] :is(h1, .news-story h3, .paper h3, .contact-link) { font-family:
 .calligraphy-notes > span { display: block; width: 1.02em; height: 1.1em; background: currentColor; mask-repeat: no-repeat; mask-mode: alpha; }
 .calligraphy-notes > .calligraphy-sui { mask-image: url("./calligraphy/sui-v1.png"); mask-size: 1.16em auto; mask-position: -.08em -.04em; }
 .calligraphy-notes > .calligraphy-ji { mask-image: url("./calligraphy/ji-v1.png"); mask-size: 1.43em auto; mask-position: -.185em -.245em; }
-.lead { margin-top: 24px; font-size: var(--type-lead); line-height: 1.5; letter-spacing: -.015em; }
 .intro-copy, .research-description, .notes-description { color: var(--ink); font-family: var(--sans); font-size: var(--type-body); line-height: 1.7; }
 .intro-copy { max-width: 620px; margin-top: 32px; }
 .intro-copy p + p, .section-body p + p { margin-top: 16px; }
@@ -526,7 +523,6 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
   .home-intro { --hero-text-inset: clamp(0px, calc(38.4vw - 422.4px), 192px); padding: clamp(32px, calc(12.8vw - 108.8px), 96px) 0 clamp(40px, calc(8vw - 48px), 80px) var(--hero-text-inset); }
   .hero-heading, .hero-content { max-width: min(640px, calc((100vw - clamp(64px, 8vw, 144px) - 32px) * 1.15 / 2.15 - var(--hero-text-inset))); }
   .hero-heading h1 { font-size: clamp(48px, 5.5vw, 72px); }
-  .home-intro .lead { font-size: clamp(20px, calc(.8vw + 11.2px), 24px); }
   .home-intro .intro-copy, .home-intro .text-links { margin-top: clamp(24px, calc(1.6vw + 6.4px), 32px); }
 }
 /* Tablet widths, plus larger touch-first tablets in landscape. */
@@ -546,8 +542,6 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
   .home-intro .intro-copy { max-width: none; margin-top: 0; }
   .home-intro .intro-copy { max-width: 64ch; }
   .home-intro .text-links { margin-top: 24px; }
-  .lead { font-size: 20px; max-width: 32ch; }
-  .home-intro .lead { font-size: 20px; max-width: none; }
   .editorial-section { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 40px 0; }
   .editorial-section.home-disclosure { --disclosure-space: 38px; --disclosure-indent: 0px; --disclosure-bleed: clamp(32px, 4vw, 48px); }
   .site-shell-research .home-disclosure { --disclosure-space: 32px; }
@@ -565,7 +559,6 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
 @media screen and (min-width: 541px) and (max-width: 700px) {
   .home-intro { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 24px 20px; }
   .home-intro h1 { font-size: 40px; }
-  .home-intro .lead { font-size: 19px; }
 }
 @media (max-width: 1399px) {
   .research-contour { display: none; }

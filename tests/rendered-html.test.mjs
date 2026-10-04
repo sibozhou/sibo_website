@@ -458,6 +458,8 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
       }
       assert.match(markup, /Sibo Zhou/);
       const intro = markup.match(/<section[^>]*aria-labelledby="intro-title"[^]*?<\/section>/)?.[0] ?? "";
+      assert.equal(/以经济学与数据，理解人的行为与健康。|以經濟學與資料，理解人的行為與健康。|Understanding people and health through economics and data\./.test(html), false, "Remove the introductory tagline from the page and its link preview");
+      assert.doesNotMatch(intro, /class="lead"/);
       if (chinese) {
         assert.match(intro, /class="calligraphy-name"/);
       } else {
@@ -584,7 +586,6 @@ test("tablet introduction uses a compact portrait and measured reading width", a
   assert.match(tablet, /grid-row: 1 \/ 3; inset: 0 [^;]+ -40px 0; width: auto; height: auto/);
   assert.match(tablet, /\.hero-content \{ grid-column: 1; grid-row: 2/);
   assert.match(tablet, /\.home-intro \.intro-copy \{ max-width: 64ch/);
-  assert.match(tablet, /\.lead \{ font-size: 20px; max-width: 32ch/);
   assert.match(tablet, /min-width: 541px\) and \(max-width: 700px/);
 });
 

@@ -20,7 +20,6 @@ export function HomePage({ language = "en" }: { language?: Language }) {
       <section className="intro home-intro" aria-labelledby="intro-title">
         <div className="hero-heading">
           <h1 id="intro-title">{zh ? <><span className="sr-only">周思博</span><span className="calligraphy-name" aria-hidden="true"><span className="calligraphy-zhou" /><span className="calligraphy-si" /><span className="calligraphy-bo" /></span></> : <span className="english-name">sibo <strong>zhou</strong></span>}</h1>
-          <p className="lead">{zh ? t("以经济学与数据，理解人的行为与健康。") : "Understanding people and health through economics and data."}</p>
         </div>
         <div className="hero-art">
           {/* eslint-disable-next-line @next/next/no-img-element */}
