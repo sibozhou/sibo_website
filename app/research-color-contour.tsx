@@ -10,7 +10,7 @@ export function ResearchColorContour({ pageKey }: { pageKey: string }) {
     const footer = shell?.querySelector<HTMLElement>(".site-footer");
     if (!shell || !footer) return;
     const surfaces = shell.querySelectorAll<HTMLElement>(".disclosure-toggle, .site-footer");
-    const labels = shell.querySelectorAll<HTMLElement>(".site-footer .language-switch");
+    const labels = shell.querySelectorAll<HTMLElement>(".disclosure-toggle .section-label, .site-footer p, .language-switch");
     let viewportWidth = 0;
     const align = () => {
       root.style.setProperty("--contour-width", `${root.clientWidth}px`);
@@ -25,7 +25,7 @@ export function ResearchColorContour({ pageKey }: { pageKey: string }) {
       surfaces.forEach((surface) => {
         const rect = surface.getBoundingClientRect();
         surface.style.setProperty("--contour-left", `${surface === footer ? 0 : rect.left}px`);
-        surface.style.setProperty("--contour-top", `${paintedHeight - (surface === footer ? 1 : 0)}px`);
+        surface.style.setProperty("--contour-top", `${paintedHeight}px`);
         labels.forEach((label) => {
           if (!surface.contains(label)) return;
           const labelRect = label.getBoundingClientRect();

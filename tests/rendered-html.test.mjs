@@ -645,12 +645,12 @@ test("downloadable CV is a PDF", async () => {
   assert.equal(pdf.subarray(0, 5).toString(), "%PDF-");
 });
 
-test("one diagonal ink wave covers bars and footer while the header stays static", async () => {
+test("shared ink wave timing and its diagonal fallback keep the header static", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.equal((css.match(/animation: site-color-wave/g) ?? []).length, 1);
   assert.doesNotMatch(css, /:root\[data-color-wave="ready"\] \.site-header/);
   assert.match(css, /:is\(#main-content, \.site-footer\) \{ animation: site-color-wave/);
-  const inverse = css.match(/--inverse-paint: repeating-linear-gradient\([^]*?\);/)?.[0] ?? "";
+  const inverse = css.match(/--inverse-stops:[^]*?\+ 127\.5 \* var\(--wave-unit\)\);/)?.[0] ?? "";
   assert.doesNotMatch(inverse, /var\(--(?:paper|ink)\) 0/);
   assert.ok(inverse.includes("- 53.2 * var(--wave-unit)"));
   assert.ok(inverse.includes("- 47.2 * var(--wave-unit)"));
@@ -668,7 +668,7 @@ test("one diagonal ink wave covers bars and footer while the header stays static
   const profiles = [...css.matchAll(/--wave-unit: ([\d.]+)vw;\s*--wave-duration: ([\d.]+)s;/g)];
   assert.deepEqual(profiles.map(([, unit, duration]) => [+unit, +duration]), [[1,92],[.9,86],[.75,77]]);
   assert.equal((css.match(/--wave-paint: repeating-linear-gradient/g) ?? []).length, 1);
-  const curve = css.match(/--wave-paint: repeating-linear-gradient\([^]*?\n    \);/)?.[0] ?? "";
+  const curve = css.match(/--wave-stops:[^]*?\+ 127\.5 \* var\(--wave-unit\)\);/)?.[0] ?? "";
   assert.equal((curve.match(/calc\(var\(--wave-x\)/g) ?? []).length, 131);
   // Equal 51-unit plateaus and mirrored 51-unit fades. The loop moves exactly
   // one 204-unit repeat, so its final frame and first frame are identical.
@@ -687,7 +687,7 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
       rect: { left, top, bottom }, values: {},
       getBoundingClientRect() { return { ...this.rect, height: this.rect.bottom - this.rect.top }; },
       contains(label) { return this.label === label; },
-      style: { setProperty(name, value) { this.owner.values[name] = value; } },
+      style: { setProperty(name, value) { this.owner.values[name] = value; }, removeProperty(name) { delete this.owner.values[name]; } },
     });
     const bar = make(0,600,700), footer = make(20,900,1000), label = make(20,640), footerLabel = make(20,930);
     const photo = make(width / 2,200,500);
@@ -717,8 +717,15 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     assert.deepEqual(header.values, {});
     assert.deepEqual(headerLabel.values, {});
     assert.equal(parseFloat(bar.values["--wave-origin"]), 0);
-    assert.equal(parseFloat(label.values["--wave-origin"]), 20 * horizontal + 40 * vertical);
-    assert.equal(parseFloat(footer.values["--wave-origin"]), 99 * vertical);
+    assert.equal(parseFloat(label.values["--wave-origin"]), 0);
+    assert.equal(parseFloat(footer.values["--wave-origin"]), 0);
+    assert.equal(label.values["--wave-left"], "20px");
+    assert.equal(label.values["--wave-top"], "40px");
+    assert.equal(footerLabel.values["--wave-top"], "130px");
+    assert.equal(root.values["--wave-height"], "352px");
+    assert.equal(bar.values["--wave-top"], "0px");
+    assert.equal(footer.values["--wave-top"], "100px");
+    assert.equal(footer.values["--wave-left"], "0px");
     assert.equal(root.values["--wave-travel"], undefined);
     const delay = root.values["--wave-delay"];
     const distance = 204 * unit * width / 100;
@@ -739,6 +746,8 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
       resize(); // Mobile browser chrome also emits height-only resize events.
       assert.equal(root.values["--wave-travel"], undefined, "Toggling must not introduce a layout-dependent endpoint");
       assert.deepEqual(elements.map(el => el.values["--wave-origin"]), origins);
+      assert.equal(root.values["--wave-height"], "352px", "Expanding content must not stretch the curved field");
+      assert.equal(footer.values["--wave-top"], "100px", "The ribbon must stay continuous across the bars and footer");
       assert.equal(root.values["--wave-delay"], delay, "Toggling must not reset the animation phase");
     }
     for (const el of elements) { el.rect.top -= 300; el.rect.bottom -= 300; }
@@ -750,6 +759,13 @@ test("wave position stays stable during repeated toggles, scrolling, and mobile 
     assert.equal(root.values["--wave-delay"], delay, "A width change must not recalculate the running animation's starting phase");
     cleanup();
     assert.equal(root.dataset.colorWave, undefined);
+    assert.equal(root.values["--wave-height"], undefined);
+    assert.equal(footer.values["--wave-top"], undefined);
+    exports.SiteColorWave({ pageKey: "en/map" });
+    assert.equal(parseFloat(footer.values["--wave-origin"]), 99 * vertical, "Map must retain its original diagonal coordinates");
+    assert.equal(parseFloat(label.values["--wave-origin"]), 20 * horizontal + 40 * vertical);
+    assert.equal(root.values["--wave-height"], undefined, "The curved field belongs only to Home");
+    cleanup();
   }
 });
 

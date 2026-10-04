@@ -139,7 +139,7 @@ p, h1, h2, h3 { margin: 0; }
   :root[data-color-wave="ready"] .site-footer::before {
     /* One shared curve: a desktop 51vw center plus two 51vw fades, scaled on smaller screens.
        Each fade uses 64 intervals instead of coarse, rounded color stops. */
-    --wave-paint: repeating-linear-gradient(105deg in oklab,
+    --wave-stops:
       var(--wave-base) calc(var(--wave-x) - var(--wave-origin, 0px) - 76.5 * var(--wave-unit)),
       color-mix(in oklab, var(--accent-surface) 0.003726%, var(--wave-base)) calc(var(--wave-x) - var(--wave-origin, 0px) - 75.703125 * var(--wave-unit)),
       color-mix(in oklab, var(--accent-surface) 0.029105%, var(--wave-base)) calc(var(--wave-x) - var(--wave-origin, 0px) - 74.90625 * var(--wave-unit)),
@@ -270,8 +270,8 @@ p, h1, h2, h3 { margin: 0; }
       color-mix(in oklab, var(--accent-surface) 0.029105%, var(--wave-base)) calc(var(--wave-x) - var(--wave-origin, 0px) + 74.90625 * var(--wave-unit)),
       color-mix(in oklab, var(--accent-surface) 0.003726%, var(--wave-base)) calc(var(--wave-x) - var(--wave-origin, 0px) + 75.703125 * var(--wave-unit)),
       var(--wave-base) calc(var(--wave-x) - var(--wave-origin, 0px) + 76.5 * var(--wave-unit)),
-      var(--wave-base) calc(var(--wave-x) - var(--wave-origin, 0px) + 127.5 * var(--wave-unit))
-    );
+      var(--wave-base) calc(var(--wave-x) - var(--wave-origin, 0px) + 127.5 * var(--wave-unit));
+    --wave-paint: repeating-linear-gradient(105deg in oklab, var(--wave-stops));
   }
   :root[data-color-wave="ready"] .disclosure-toggle::before,
   :root[data-color-wave="ready"] .site-footer::before {
@@ -281,13 +281,14 @@ p, h1, h2, h3 { margin: 0; }
   @supports (background-clip: text) or (-webkit-background-clip: text) {
     :root[data-color-wave="ready"] :is(.disclosure-toggle .section-label, .site-footer p, .language-switch) {
       /* A short blend replaces the abrupt cutoff; keep the low-contrast interval brief. */
-      --inverse-paint: repeating-linear-gradient(105deg,
+      --inverse-stops:
         var(--ink) calc(var(--wave-x) - var(--wave-origin) - 76.5 * var(--wave-unit)),
         var(--ink) calc(var(--wave-x) - var(--wave-origin) - 53.2 * var(--wave-unit)),
         var(--paper) calc(var(--wave-x) - var(--wave-origin) - 47.2 * var(--wave-unit)),
         var(--paper) calc(var(--wave-x) - var(--wave-origin) + 47.2 * var(--wave-unit)),
         var(--ink) calc(var(--wave-x) - var(--wave-origin) + 53.2 * var(--wave-unit)),
-        var(--ink) calc(var(--wave-x) - var(--wave-origin) + 127.5 * var(--wave-unit)));
+        var(--ink) calc(var(--wave-x) - var(--wave-origin) + 127.5 * var(--wave-unit));
+      --inverse-paint: repeating-linear-gradient(105deg, var(--inverse-stops));
       background-image: var(--inverse-paint);
       background-origin: border-box;
       -webkit-background-clip: text;
@@ -311,6 +312,33 @@ p, h1, h2, h3 { margin: 0; }
     :root[data-color-wave="ready"] .language-switch:is(:hover, :focus-visible)::after {
       content: ""; position: absolute; left: 0; right: 0; bottom: 9px; height: 1px;
       background-image: var(--inverse-paint); background-size: 100% 44px; background-position: 0 -34px;
+    }
+  }
+}
+
+/* Home: a softly curved ribbon, drifting and opening like light over water.
+   Reuse the same feather and repeat length so the loop has no reset or hard rim. */
+@property --tide-bend { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --tide-drift { syntax: "<number>"; inherits: true; initial-value: 0; }
+@keyframes home-ink-tide {
+  0%, 100% { --tide-bend: 1; --tide-drift: 0; }
+  50% { --tide-bend: 1.12; --tide-drift: .08; }
+}
+@media screen and (forced-colors: none) {
+  :root[data-color-wave="ready"] .site-shell-home { animation: home-ink-tide var(--wave-duration) ease-in-out var(--wave-delay) infinite; }
+  :root[data-color-wave="ready"] .site-shell-home :is(.disclosure-toggle, .site-footer)::before,
+  :root[data-color-wave="ready"] .site-shell-home :is(.section-label, .site-footer p, .language-switch) {
+    --wave-origin: 0px;
+    --tide-geometry: ellipse calc(.95 * var(--wave-width)) calc(1.4 * var(--wave-height) * var(--tide-bend)) at calc((-.45 + var(--tide-drift)) * var(--wave-width) - var(--wave-left)) calc(-.75 * var(--wave-height) - var(--wave-top));
+  }
+  :root[data-color-wave="ready"] .site-shell-home :is(.disclosure-toggle, .site-footer)::before {
+    --wave-paint: repeating-radial-gradient(var(--tide-geometry) in oklab, var(--wave-stops));
+    background: var(--wave-paint);
+  }
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    :root[data-color-wave="ready"] .site-shell-home :is(.section-label, .site-footer p, .language-switch) {
+      --inverse-paint: repeating-radial-gradient(var(--tide-geometry) in oklab, var(--inverse-stops));
+      background-image: var(--inverse-paint);
     }
   }
 }
@@ -402,12 +430,23 @@ p, h1, h2, h3 { margin: 0; }
   :root[data-research-contour="ready"] .site-shell-research .site-footer::before { width: var(--contour-width); left: calc((100% - var(--contour-width)) / 2); }
   :root[data-research-contour="ready"] .site-shell-research :is(.section-label, .site-footer p) { color: var(--ink); }
   @supports (background-clip: text) or (-webkit-background-clip: text) {
-    :root[data-research-contour="ready"] .site-shell-research .language-switch {
-      --inverse-paint: radial-gradient(ellipse var(--contour-rx) var(--contour-ry) at calc(var(--contour-x) - var(--contour-left)) calc(var(--contour-y) - var(--contour-top)), var(--paper) 56%, var(--ink) 59%);
+    :root[data-research-contour="ready"] .site-shell-research :is(.section-label, .site-footer p, .language-switch) {
+      /* Switch lettering near the contrast crossover of the 70% ink wash. */
+      --inverse-paint: radial-gradient(ellipse var(--contour-rx) var(--contour-ry) at calc(var(--contour-x) - var(--contour-left)) calc(var(--contour-y) - var(--contour-top)), var(--paper) 46%, var(--ink) 48%);
       background-image: var(--inverse-paint);
+      background-origin: border-box;
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+    }
+    :root[data-research-contour="ready"] .site-shell-research .home-disclosure[data-open="true"] .section-label,
+    :root[data-research-contour="ready"] .site-shell-research .disclosure-toggle:focus-visible .section-label {
+      background-image: none; -webkit-text-fill-color: var(--ink);
+    }
+    @media (hover: hover) {
+      :root[data-research-contour="ready"] .site-shell-research .disclosure-toggle:hover .section-label {
+        background-image: none; -webkit-text-fill-color: var(--ink);
+      }
     }
     :root[data-research-contour="ready"] .site-shell-research .site-footer a.language-switch:is(:hover, :focus-visible) { text-decoration: none; }
     :root[data-research-contour="ready"] .site-shell-research .language-switch:is(:hover, :focus-visible)::after {
@@ -415,6 +454,17 @@ p, h1, h2, h3 { margin: 0; }
       background-image: var(--inverse-paint); background-size: 100% 44px; background-position: 0 -34px;
     }
   }
+}
+
+/* Pale ink wash: Research is dark enough for white lettering; Map stays the lightest. */
+@media screen and (forced-colors: none) {
+  .site-shell-research { --bar-strength: .70; }
+  .site-shell-map { --bar-strength: .24; }
+  :is(.site-shell-home, .site-shell-research, .site-shell-map) .site-footer::before { top: 0; opacity: var(--bar-strength); }
+  :root[data-color-wave="ready"] .site-shell-map :is(.site-footer p, .language-switch) {
+    color: var(--ink); background-image: none; -webkit-text-fill-color: var(--ink);
+  }
+  :root[data-color-wave="ready"] .site-shell-map .language-switch:is(:hover, :focus-visible)::after { background: var(--ink); }
 }
 
 .site-nav { display: flex; gap: 30px; }
