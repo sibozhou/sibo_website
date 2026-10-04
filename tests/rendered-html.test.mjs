@@ -1405,68 +1405,6 @@ test("desktop and tablet align the first place label with the map canvas", async
   assert.match(stacked, /\.map-places \{ margin-top: 0; \}/, "The mobile list must stay below the map with its original spacing");
 });
 
-test("mobile map marker taps reveal the complete place list without changing other scrolling", async () => {
-  const overview = JSON.parse(await readFile(new URL("../app/map/overview.json", import.meta.url), "utf8"));
-  const projection = {};
-  runInNewContext(ts.transpileModule(await readFile(new URL("../app/map/projection.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports: projection });
-  const source = await readFile(new URL("../app/personal-map.tsx", import.meta.url), "utf8");
-  const exports = {}, hooks = [], scrolls = [];
-  let cursor = 0, width = 390, reducedMotion = false, stageTop = 100;
-  runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText, {
-    exports,
-    window: { matchMedia: query => ({ matches: query === "(max-width: 700px)" ? width <= 700 : reducedMotion }) },
-    require: name => name === "react" ? {
-      useState: initial => { const index = cursor++; hooks[index] ??= initial; return [hooks[index], value => { hooks[index] = value; }]; },
-      useRef: initial => { const index = cursor++; return hooks[index] ??= { current: initial }; },
-      useEffect: () => {},
-    } : name.includes("projection") ? projection : name.includes("overview") ? { default: overview } : {
-      jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }),
-    },
-  });
-  const flatten = node => !node || typeof node !== "object" ? [] : Array.isArray(node) ? node.flatMap(flatten) : [node, ...flatten(node.props?.children)];
-  const render = language => {
-    cursor = 0;
-    const nodes = flatten(exports.PersonalMap({ language }));
-    nodes.find(node => node.props?.className === "map-stage").props.ref.current = {
-      getBoundingClientRect: () => ({ top: stageTop }),
-      scrollIntoView: options => scrolls.push({ target: "map", ...options }),
-    };
-    const list = nodes.find(node => node.props?.className === "map-places");
-    if (list.props.ref) list.props.ref.current = { scrollIntoView: options => scrolls.push({ target: "places", ...options }) };
-    return nodes;
-  };
-  for (const language of ["en", "zh", "zh-hant"]) {
-    for (const mobileWidth of [390, 700]) {
-      width = mobileWidth;
-      for (const top of [100, -100]) {
-        stageTop = top;
-        for (let index = 0; index < 5; index++) {
-          scrolls.length = 0;
-          render(language).filter(node => node.props?.className === "map-pin")[index].props.onClick();
-          assert.deepEqual(scrolls, [{ target: "places", block: "end", behavior: "smooth" }], "Only the place list should scroll, even when the map is above the viewport");
-          assert.equal(render(language).filter(node => node.props?.className === "map-place")[index].props["aria-pressed"], true);
-        }
-      }
-    }
-    for (width of [820, 1440]) {
-      scrolls.length = 0;
-      render(language).find(node => node.props?.className === "map-pin").props.onClick();
-      assert.equal(scrolls.length, 0, "Tablet and desktop marker taps must not scroll the page");
-    }
-    width = 390;
-    reducedMotion = true;
-    scrolls.length = 0;
-    render(language).find(node => node.props?.className === "map-pin").props.onClick();
-    assert.deepEqual(scrolls, [{ target: "places", block: "end", behavior: "instant" }]);
-    reducedMotion = false;
-    for (const className of ["map-place", "map-scale"]) {
-      scrolls.length = 0;
-      render(language).find(node => node.props?.className === className).props.onClick();
-      assert.deepEqual(scrolls, [{ target: "map", block: "start", behavior: "smooth" }], "Existing list and boundary actions must still reveal an offscreen map");
-    }
-  }
-});
-
 test("the mobile map canvas reaches both screen edges without widening the rest of the page", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const mobile = css.match(/@media \(max-width: 540px\) \{([^]*?)\n\}/)?.[1] ?? "";

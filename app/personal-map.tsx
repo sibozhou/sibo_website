@@ -50,7 +50,6 @@ export function PersonalMap({ language }: { language: Language }) {
   const [closeup, setCloseup] = useState<Omit<typeof geography.preview, "tropics"> | null>(null);
   const [extent, setExtent] = useState({ left: 0, right: 1000, overviewZoom: 1, measured: false });
   const stage = useRef<HTMLDivElement>(null);
-  const placesList = useRef<HTMLOListElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const drawing = useRef<HTMLDivElement>(null);
   const drag = useRef(new Map<number, { x: number; y: number }>());
@@ -170,21 +169,18 @@ export function PersonalMap({ language }: { language: Language }) {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     setInteraction(drag.current.size ? "dragging" : "direct");
   };
-  const showBoundary = (index: number, boundary: BoundaryView, scrollToMap = true) => {
+  const showBoundary = (index: number, boundary: BoundaryView) => {
     projectionZoom.current?.();
     setInteraction("preset");
     setScale(boundary);
     setView(fitBoundary(boundaryFor(index, boundary), extent.right - extent.left));
-    if (scrollToMap && window.matchMedia("(max-width: 700px)").matches && stage.current && stage.current.getBoundingClientRect().top < 64) {
+    if (window.matchMedia("(max-width: 700px)").matches && stage.current && stage.current.getBoundingClientRect().top < 64) {
       stage.current.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
     }
   };
-  const choosePlace = (index: number, fromMap = false) => {
+  const choosePlace = (index: number) => {
     setSelected(index);
-    showBoundary(index, "region", !fromMap);
-    if (fromMap && window.matchMedia("(max-width: 700px)").matches) {
-      placesList.current?.scrollIntoView({ block: "end", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-    }
+    showBoundary(index, "region");
   };
   const zoom = (amount: number) => {
     if (amount < 1) projectionZoom.current?.();
@@ -198,7 +194,7 @@ export function PersonalMap({ language }: { language: Language }) {
   return (
     <section className="personal-map" aria-label={text.places}>
       <div className="map-layout">
-        <ol className="map-places" ref={placesList}>
+        <ol className="map-places">
           {places.map((item, index) => (
             <li key={item.id}>
               <button type="button" className="map-place" aria-pressed={selected === index} onClick={() => choosePlace(index)}>
@@ -243,7 +239,7 @@ export function PersonalMap({ language }: { language: Language }) {
                 return (
                   <div key={`${item.id}-${copy}`} className="map-point" data-selected={selected === index} hidden={x < extent.left || x > extent.right || y < 0 || y > 540} style={{ left: `${x / 10}%`, top: `${y / 5.4}%` }}>
                     <svg className="map-leader" viewBox="-44 -44 88 88" aria-hidden="true"><path d={`M0 0L${offsetX} ${offsetY}`} /><circle r="2.5" /></svg>
-                    <button type="button" className="map-pin" style={{ transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))` }} aria-label={`${item.city[translation]}, ${item.region[translation]} · ${item.chapter[translation]}`} aria-pressed={selected === index} onClick={() => choosePlace(index, true)}>
+                    <button type="button" className="map-pin" style={{ transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))` }} aria-label={`${item.city[translation]}, ${item.region[translation]} · ${item.chapter[translation]}`} aria-pressed={selected === index} onClick={() => choosePlace(index)}>
                       <span aria-hidden="true">{index + 1}</span>
                     </button>
                   </div>
