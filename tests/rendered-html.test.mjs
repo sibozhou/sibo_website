@@ -164,6 +164,13 @@ test("detail labels reveal progressively, stay readable, and avoid pins and one 
   assert.ok(cropped.every(label => label.left >= 204 && label.left + label.width <= 596), "Labels must fit within the taller frame's visible horizontal crop");
   assert.equal(details.routeInView({ bounds: [500.3, 269.9, 500.4, 270.1], minZoom: 700 }, croppedView), false, "Do not download detail tiles hidden outside the taller frame");
   assert.equal(details.routeInView({ bounds: [500.2, 269.9, 500.3, 270.1], minZoom: 700 }, croppedView), true, "A tile crossing the visible edge must still load");
+  const wideView = { ...view, zoom: 1000, left: -125, right: 1125 };
+  const outerLabels = details.layoutMapLabels([
+    { ...labels[0], id: "west", names: ["West"], x: 499.4 },
+    { ...labels[0], id: "east", names: ["East"], x: 500.6 },
+  ], wideView, size, "en", []);
+  assert.equal(outerLabels.length, 2, "A wide desktop frame must label geography outside the centered drawing surface");
+  assert.ok(outerLabels.some(label => label.left < 0) && outerLabels.some(label => label.left > size.width));
   for (const [language, route] of [["en", "map/"], ["zh", "zh/map/"], ["zh-hant", "zh-hant/map/"]]) {
     const path = details.mapDetailPath(language, "berkeley");
     for (const base of ["https://sibozhou.com/", "https://sibozhou.github.io/sibo_website/"]) {
@@ -945,8 +952,8 @@ test("map selection reveals boundaries and zoom buttons center on the selected m
       assert.equal(nodes.find(node => node.props?.className === "map-land" && node.props["data-country"] === id)?.props.d, data.countries[id].path, `${id}: world and country layers must reuse the identical path`);
     }
   };
-  // Haikou stays at its city center; academic pins use the verified main campuses.
-  const coordinates = [[110.1999, 20.044], [-87.942, 41.8953], [-118.2859, 34.0219], [-71.4038, 41.8261], [-122.2578, 37.8721]];
+  // Haikou uses the user-marked Xiuying location; academic pins stay at their campuses.
+  const coordinates = [[110.289, 20.0025], [-87.942, 41.8953], [-118.2859, 34.0219], [-71.4038, 41.8261], [-122.2578, 37.8721]];
   const countries = ["CHN", "USA", "USA", "USA", "USA"];
   const regions = ["CN-HI", "US-IL", "US-CA", "US-RI", "US-CA"];
   const cities = ["haikou", "elmhurst", "los-angeles", "providence", "berkeley"];
@@ -1297,7 +1304,7 @@ test("map wheel, mouse and touch gestures preserve their anchors and selected ci
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(css, /\.map-canvas \{[^}]*touch-action: none;/, "Only the map canvas should take over browser touch gestures");
   assert.equal((css.match(/touch-action: none/g) ?? []).length, 1, "Native page gestures outside the map must remain unchanged");
-  for (const [width, height] of [[390, 405], [580, 720], [1250, 750]]) {
+  for (const [width, height] of [[390, 405], [580, 720], [1250, 750], [1133, 564], [1600, 564]]) {
     box.width = width; box.height = height;
     const surfaceWidth = height * 1000 / 540;
     drawingBox = { left: box.left + (width - surfaceWidth) / 2, top: box.top, width: surfaceWidth, height };
@@ -1430,7 +1437,9 @@ test("desktop map framing reserves room for the place details and attribution", 
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const desktop = css.match(/@media screen and \(min-width: 1100px\) and \(hover: hover\) and \(pointer: fine\) \{([^]*?)\n\}/)?.[1] ?? "";
   assert.match(desktop, /--map-height: max\(280px, calc\(100svh - 336px\)\)/, "Reserve space for the header, map controls, caption and attribution, not just the drawing");
-  assert.match(desktop, /max-width: calc\(var\(--map-height\) \* 1000 \/ 540\)/, "Keep the fitted globe inside the shorter frame, including before hydration");
+  assert.match(desktop, /\.map-canvas \{[^}]*max-width: none;/, "The desktop canvas must reach both ends of the caption divider");
+  assert.match(desktop, /\.map-world \{ overflow: visible; \}/, "Uniformly scaled geography must fill the wider canvas without stretching");
+  assert.match(desktop, /\.map-canvas\[data-overview="true"\]\[data-measured="false"\] \.map-drawing \{ width: min\(100%, calc\(var\(--map-height\) \* 1000 \/ 540\)\); \}/, "The prerendered globe must fit both height and width");
   assert.match(desktop, /aspect-ratio: auto; height: var\(--map-height\); min-height: 0;/);
 });
 

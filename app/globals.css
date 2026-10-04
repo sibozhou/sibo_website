@@ -579,7 +579,9 @@ html[lang="en"] .contact-link .link-arrow { font-family: -apple-system, BlinkMac
 }
 @media screen and (min-width: 1100px) and (hover: hover) and (pointer: fine) {
   /* Leave the caption and attribution visible beneath the map on desktop. */
-  .map-canvas { --map-height: max(280px, calc(100svh - 336px)); max-width: calc(var(--map-height) * 1000 / 540); aspect-ratio: auto; height: var(--map-height); min-height: 0; }
+  .map-canvas { --map-height: max(280px, calc(100svh - 336px)); max-width: none; aspect-ratio: auto; height: var(--map-height); min-height: 0; }
+  .map-world { overflow: visible; }
+  .map-canvas[data-overview="true"][data-measured="false"] .map-drawing { width: min(100%, calc(var(--map-height) * 1000 / 540)); }
 }
 @media (max-width: 700px) {
   .site-nav { gap: 16px; }

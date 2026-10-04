@@ -38,7 +38,7 @@ export function layoutMapLabels(labels: MapLabel[], view: MapView, size: { width
     if (!text || names.has(name)) continue;
     const x = ((nearestWorldX(label.x, view.x) - view.x) * view.zoom + 500) / 1000 * size.width;
     const y = ((label.y - view.y) * view.zoom + 270) / 540 * size.height;
-    if (x < 0 || x > size.width || y < 0 || y > size.height) continue;
+    if (x < leftEdge || x > rightEdge || y < 0 || y > size.height) continue;
     const width = [...text].reduce((sum, character) => sum + (/[^\u0000-\u00ff]/.test(character) ? 12 : 6.4), label.kind === "airport" || label.kind === "station" ? 18 : 6);
     const height = 18;
     for (const [left, top] of [[x + 8, y - 9], [x - width - 8, y - 9], [x - width / 2, y + 8], [x - width / 2, y - height - 8], [x + 32, y - 9], [x - width - 32, y - 9], [x - width / 2, y + 32], [x - width / 2, y - height - 32]]) {
