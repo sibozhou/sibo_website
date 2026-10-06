@@ -977,8 +977,8 @@ test("map selection reveals boundaries and zoom buttons center on the selected m
       assert.equal(nodes.find(node => node.props?.className === "map-land" && node.props["data-country"] === id)?.props.d, data.countries[id].path, `${id}: world and country layers must reuse the identical path`);
     }
   };
-  // Haikou uses the user-marked Xiuying location; academic pins stay at their campuses.
-  const coordinates = [[110.289, 20.0025], [-87.942, 41.8953], [-118.2859, 34.0219], [-71.4038, 41.8261], [-122.2578, 37.8721]];
+  // Haikou is an approximate city-level marker; academic pins stay at their campuses.
+  const coordinates = [[110.29, 20.03], [-87.942, 41.8953], [-118.2859, 34.0219], [-71.4038, 41.8261], [-122.2578, 37.8721]];
   const countries = ["CHN", "USA", "USA", "USA", "USA"];
   const regions = ["CN-HI", "US-IL", "US-CA", "US-RI", "US-CA"];
   const cities = ["haikou", "elmhurst", "los-angeles", "providence", "berkeley"];
