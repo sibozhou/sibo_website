@@ -4,14 +4,14 @@ import { languageAlternates } from "../site-metadata";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://sibozhou.com/"),
-  title: "认识周思博",
+  title: "周思博",
   icons: { icon: { url: "/favicon.svg", type: "image/svg+xml" } },
-  description: "周思博的个人网站。研究兴趣涵盖健康经济学、机器学习与统计学。",
+  description: "周思博的个人网站。",
   alternates: languageAlternates("home", "zh"),
   authors: [{ name: "Sibo Zhou" }],
   creator: "Sibo Zhou",
   openGraph: {
-    title: "认识周思博",
+    title: "周思博",
     description: "周思博的个人网站。",
     url: "https://sibozhou.com/zh/",
     locale: "zh_CN",

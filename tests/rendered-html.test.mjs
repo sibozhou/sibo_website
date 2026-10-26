@@ -320,15 +320,20 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
     const notes = route.endsWith("notes/");
     const map = route.endsWith("map/");
     const title = research
-      ? chinese ? "研究 — 周思博" : "research — sibo zhou"
+      ? chinese ? "研究 — 周思博" : "Research — Sibo Zhou"
       : notes
-      ? traditional ? "隨記 — 周思博" : chinese ? "随记 — 周思博" : "notes — sibo zhou"
+      ? traditional ? "隨記 — 周思博" : chinese ? "随记 — 周思博" : "Notes — Sibo Zhou"
       : map
-      ? traditional ? "地圖 — 周思博" : chinese ? "地图 — 周思博" : "map — sibo zhou"
-      : traditional ? "認識周思博" : chinese ? "认识周思博" : "Meet sibo zhou";
+      ? traditional ? "地圖 — 周思博" : chinese ? "地图 — 周思博" : "Map — Sibo Zhou"
+      : chinese ? "周思博" : "Sibo Zhou";
     assert.match(markup, new RegExp(`class="site-shell site-shell-${research ? "research" : notes ? "notes" : map ? "map" : "home"}"`));
     assert.ok(markup.includes(`<title>${title}</title>`));
     assert.ok(markup.includes(`property="og:title" content="${title}"`));
+    if (!research && !notes && !map) {
+      const description = traditional ? "周思博的個人網站。" : chinese ? "周思博的个人网站。" : "Sibo Zhou’s personal website.";
+      assert.ok(markup.includes(`name="description" content="${description}"`));
+      assert.ok(markup.includes(`property="og:description" content="${description}"`));
+    }
     const arrowLinks = [...markup.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>[^]*?<\/a>/g)]
       .filter(([link]) => /[↗↓→]/.test(link));
     assert.deepEqual(arrowLinks.map(([, href]) => href), research || notes || map ? [] : ["mailto:sibozhou@berkeley.edu", "https://www.linkedin.com/in/sibo-zhou88"]);
@@ -385,7 +390,7 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
         assert.ok(section.includes(`aria-controls="${id}-content"`));
         assert.match(section, /class="disclosure-panel"[^>]*inert=""[^>]*aria-hidden="true"/);
       }
-      assert.ok(markup.includes(chinese ? "研究 — 周思博" : "research — sibo zhou"));
+      assert.ok(markup.includes(chinese ? "研究 — 周思博" : "Research — Sibo Zhou"));
       assert.match(markup, traditional ? /我的研究興趣圍繞公共衛生以及健康經濟學/ : chinese ? /我的研究兴趣围绕公共卫生以及健康经济学/ : /My research interests center on public health and health economics/);
       assert.doesNotMatch(markup, /machine learning, and statistics|机器学习与统计学|機器學習與統計學/);
       assert.match(markup, /Education selectively improves TB and HIV knowledge/);
