@@ -1,0 +1,3 @@
+# Exclude this self-contained viewer from the parent site's Tailwind scan.
+*
+!.gitignore
