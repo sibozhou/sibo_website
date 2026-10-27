@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-1';
+import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -86,7 +86,7 @@ try {
   controls.enableDamping=!matchMedia('(prefers-reduced-motion:reduce)').matches;controls.dampingFactor=.12;
   controls.rotateSpeed=.65;controls.zoomSpeed=.8;controls.panSpeed=.8;controls.zoomToCursor=true;
   controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
-  controls.minDistance=6; controls.maxDistance=105;
+  controls.minDistance=6; controls.maxDistance=matchMedia('(max-width:740px)').matches?180:105;
   controls.maxPolarAngle=Math.PI*.485; controls.target.set(0,0,0);
   controls.addEventListener('change',requestFrame);
   const ambient = new THREE.HemisphereLight(0xffffff,0xbac4a6,1.5); scene.add(ambient);
