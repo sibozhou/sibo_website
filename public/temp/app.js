@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from './vendor/OrbitControls.js';
+import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -75,15 +75,18 @@ try {
   const [proposal,original] = await Promise.all(['./model.json','./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
-  renderer.setClearColor(0xeaece3); renderer.shadowMap.enabled=true;
+  renderer.setClearColor(0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95;
   host.append(renderer.domElement);
   scene = new THREE.Scene(); scene.background = new THREE.Color(0xeaece3);
   camera = new THREE.PerspectiveCamera(39,1,.1,300);
-  controls = new OrbitControls(camera,renderer.domElement);
-  controls.enableDamping=false; controls.minDistance=10; controls.maxDistance=105;
+  controls = new OrbitControls(camera,$('#model-surface'));
+  controls.enableDamping=!matchMedia('(prefers-reduced-motion:reduce)').matches;controls.dampingFactor=.12;
+  controls.rotateSpeed=.65;controls.zoomSpeed=.8;controls.panSpeed=.8;controls.zoomToCursor=true;
+  controls.touches.ONE=THREE.TOUCH.ROTATE;controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
+  controls.minDistance=6; controls.maxDistance=105;
   controls.maxPolarAngle=Math.PI*.485; controls.target.set(0,0,0);
   controls.addEventListener('change',requestFrame);
   const ambient = new THREE.HemisphereLight(0xffffff,0xbac4a6,1.5); scene.add(ambient);
@@ -250,7 +253,7 @@ function makeLabel(room,parent) {
   const el=document.createElement('button');el.className='room-label '+(room.kind==='elder'?'elder ':'')+(['service','stairs'].includes(room.kind)?'small':'');
   el.dataset.kind=room.kind;
   el.textContent=room.name;el.setAttribute('aria-label',room.name+'，查看说明');
-  el.addEventListener('click',()=>selectRoom(room));$('#labels').append(el);
+  el.addEventListener('click',e=>{if(e.detail===0)selectRoom(room);});$('#labels').append(el);
   const [x,y,w,d]=room.rect;
   labels.push({el,room,parent,point:worldPoint(x+w/2,y+d/2,.82)});
 }
@@ -441,6 +444,7 @@ function selectRoom(room) {
 
 function offsetFor(level) {return state.floor==='explode'?(level-1)*4.6:0;}
 function updateView(moveCamera=false) {
+  renderer.shadowMap.needsUpdate=true;
   const only=Number(state.floor);
   Object.entries(roots).forEach(([design,g])=>g.visible=design===state.design);
   floors.forEach(({g,level})=>{g.visible=!only||only===level;g.position.y=base[level-1]+offsetFor(level);});
@@ -472,11 +476,12 @@ function updateView(moveCamera=false) {
 }
 function setCamera(preset) {
   state.camera=preset;
+  const damping=controls.enableDamping;controls.enableDamping=false;controls.update();controls.enableDamping=damping;
   const width=host.clientWidth/host.clientHeight;
   const y=state.floor==='explode'?8.3:state.floor==='all'?3.7:base[Number(state.floor)-1]+.4;
   const cx=state.home==='both'?0:state.home==='A'?-7.5:7.5;
   const zoom=state.home==='both'?1:.78;
-  const distance=40*Math.max(1,1.2/width)*zoom;
+  const distance=40*Math.max(1,(matchMedia('(max-width:740px)').matches?1.35:1.2)/width)*zoom;
   controls.target.set(cx,y,-.2);
   if(preset==='top')camera.position.set(cx,y+distance,0.2);
   else if(preset==='entry')camera.position.set(cx+distance*.30,y+distance*.31,distance*.86);
@@ -503,18 +508,41 @@ function bindControls() {
   $$('[data-camera]').forEach(b=>b.addEventListener('click',()=>setCamera(b.dataset.camera)));
   ['cutaway','show-roof','show-labels'].forEach(id=>$('#'+id).addEventListener('change',()=>updateView()));
   $('#reset').addEventListener('click',()=>setCamera('bird'));
+  $$('[data-zoom]').forEach(b=>b.addEventListener('click',()=>{
+    const offset=camera.position.clone().sub(controls.target);
+    const distance=THREE.MathUtils.clamp(offset.length()*(b.dataset.zoom==='in'?.8:1.25),controls.minDistance,controls.maxDistance);
+    camera.position.copy(controls.target).add(offset.setLength(distance));controls.update();requestFrame();
+  }));
   $('#share').addEventListener('click',share);
-  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let down;
-  renderer.domElement.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
-  renderer.domElement.addEventListener('pointerup',e=>{
-    if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5)return;
+  bindModelGestures();
+  if(matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0||matchMedia('(max-width:740px)').matches)$('#gesture-hint').textContent='单指旋转 · 双指捏合缩放 / 拖动平移';
+}
+
+function bindModelGestures() {
+  const surface=$('#model-surface'),active=new Set();let tap;
+  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
+  surface.addEventListener('pointerdown',e=>{
+    if(e.button!==0){tap=null;return;}
+    active.add(e.pointerId);surface.setPointerCapture(e.pointerId);
+    const label=labels.find(l=>l.el===e.target.closest('.room-label'));
+    tap=active.size===1?{id:e.pointerId,x:e.clientX,y:e.clientY,time:e.timeStamp,room:label?.room}:null;
+  },true);
+  surface.addEventListener('pointermove',e=>{
+    if(tap&&Math.hypot(e.clientX-tap.x,e.clientY-tap.y)>8)tap=null;
+  },true);
+  surface.addEventListener('pointerup',e=>{
+    const candidate=tap;active.delete(e.pointerId);tap=null;
+    if(!candidate||candidate.id!==e.pointerId||active.size||e.timeStamp-candidate.time>500||Math.hypot(e.clientX-candidate.x,e.clientY-candidate.y)>8)return;
+    if(candidate.room){selectRoom(candidate.room);return;}
     const rect=renderer.domElement.getBoundingClientRect();
     pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);
     raycaster.setFromCamera(pointer,camera);
     const visible=roomMeshes.filter(m=>m.userData.room.design===state.design&&m.parent.visible&&m.parent.parent.visible);
     const hit=raycaster.intersectObjects(visible,false)[0];if(hit)selectRoom(hit.object.userData.room);
-  });
-  if('ontouchstart' in window)$('.gesture-hint').textContent='单指旋转 · 双指缩放 / 平移';
+  },true);
+  const cancel=e=>{active.delete(e.pointerId);tap=null;};
+  surface.addEventListener('pointercancel',cancel,true);
+  surface.addEventListener('lostpointercapture',cancel,true);
 }
 let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
@@ -530,7 +558,7 @@ function resize() {
   renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();requestFrame();
 }
 function render() {
-  nextFrame=false;scene.updateMatrixWorld();
+  nextFrame=false;controls.update();scene.updateMatrixWorld();
   renderer.render(scene,camera);
   const width=host.clientWidth,height=host.clientHeight;
   const occupied=[];

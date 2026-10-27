@@ -1329,8 +1329,10 @@ class OrbitControls extends Controls {
 
 		this._dollyStart.copy( this._dollyEnd );
 
-		const centerX = ( event.pageX + position.x ) * 0.5;
-		const centerY = ( event.pageY + position.y ) * 0.5;
+		// Stored touch positions are page coordinates; the zoom ray needs viewport coordinates.
+		const view = this.domElement.ownerDocument.defaultView;
+		const centerX = ( event.pageX + position.x ) * 0.5 - view.scrollX;
+		const centerY = ( event.pageY + position.y ) * 0.5 - view.scrollY;
 
 		this._updateZoomParameters( centerX, centerY );
 
