@@ -3,6 +3,10 @@ name: Deploy website to GitHub Pages
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'public/temp/**'
+      - '.github/workflows/deploy-temp.yml'
+      - '.github/scripts/prepare-temp.py'
   workflow_dispatch:
 
 permissions:
@@ -48,6 +52,7 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist/client
+          retention-days: 90
 
   deploy:
     environment:

@@ -1,0 +1,67 @@
+name: Deploy temporary viewer only
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/temp/**'
+      - '.github/workflows/deploy-temp.yml'
+      - '.github/scripts/prepare-temp.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  pages: write
+  id-token: write
+
+# Share the main site's lock so the two publishers cannot overwrite each other.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Restore the last successfully deployed site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run list --branch main --status success --limit 100 \
+            --json databaseId,workflowName,headSha,updatedAt > "$RUNNER_TEMP/runs.json"
+          jq -e '[.[] | select(.workflowName == "Deploy website to GitHub Pages" or .workflowName == "Deploy temporary viewer only")] | sort_by(.updatedAt) | last' \
+            "$RUNNER_TEMP/runs.json" > "$RUNNER_TEMP/baseline-run.json"
+          run_id=$(jq -r .databaseId "$RUNNER_TEMP/baseline-run.json")
+          base_sha=$(jq -r .headSha "$RUNNER_TEMP/baseline-run.json")
+          echo "BASE_SHA=$base_sha" >> "$GITHUB_ENV"
+          echo "BASE_RUN=$run_id" >> "$GITHUB_ENV"
+          gh run download "$run_id" --name github-pages --dir "$RUNNER_TEMP/previous-artifact"
+          mkdir "$RUNNER_TEMP/previous-site"
+          tar -xf "$RUNNER_TEMP/previous-artifact/artifact.tar" -C "$RUNNER_TEMP/previous-site"
+
+      - name: Replace only temp and verify every other file
+        run: |
+          python3 .github/scripts/prepare-temp.py \
+            "$RUNNER_TEMP/previous-site" public/temp "$RUNNER_TEMP/publish-site" "$BASE_SHA"
+
+      - name: Upload verified Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ runner.temp }}/publish-site
+          retention-days: 90
+          include-hidden-files: true
+
+      - name: Deploy unchanged main site with updated temp directory
+        id: deployment
+        uses: actions/deploy-pages@v5
