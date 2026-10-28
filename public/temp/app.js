@@ -104,7 +104,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=desks-1028-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=beds-baths-1028-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -529,7 +529,7 @@ function makeSiteContext(parent,context) {
 
 function makeRoom(room,parent) {
   if(room.kind==='stairs') {makeLabel(room,parent);return;}
-  if(facadeChanges&&room.design==='original'&&room.kind==='bath')room={...room,description:(room.access==='public'?'从公共走廊进入；':'从相邻卧室进入；')+'设淋浴区、坐便器和洗手盆。洁具尺寸、门扇开启、排水与防水仍须深化。'};
+  if(facadeChanges&&room.design==='original'&&room.kind==='bath')room={...room,description:(room.access==='switchable'?room.description:room.access==='public'?'从公共走廊进入。':'从相邻卧室进入。')+'设淋浴区、坐便器和洗手盆。洁具尺寸、门扇开启、排水与防水仍须深化。'};
   const [x,y,w,d]=room.rect;
   const material=new THREE.MeshStandardMaterial({color:colors[room.kind]||0xdedccc,roughness:1});
   const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w-.23,d-.23),material);
@@ -746,7 +746,7 @@ function makeFacadeBathroom(parent,room) {
     makeToilet(parent,mx(1.15,.46),y+.10,'rear');
     if(room.access==='suite')makeBasin(parent,mx(2.30,.40),y+1.05,.40,.60,room.home==='B'?'right':'left');
     else makeBasin(parent,mx(1.80,.60),y+.10,.60,.40,'rear');
-  } else if(room.access==='public') {
+  } else if(['public','switchable'].includes(room.access)) {
     makeShower(parent,mx(.12,w-.24),y+1.38,w-.24,.90,'front',room.home==='A');
     makeToilet(parent,mx(.10,.46),y+.10,'rear');
     makeBasin(parent,mx(.10,.40),y+.82,.40,.50,room.home==='A'?'right':'left');
@@ -997,7 +997,7 @@ let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'desks-1028-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'beds-baths-1028-1');}
   if(state.camera==='site')url.searchParams.set('view','site');
   try {
     if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案10/28 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
