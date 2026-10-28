@@ -47,7 +47,7 @@ if(facadeStudy) {
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
-  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=site-1';
+  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=site-2';
   $('#original-model')?.style.setProperty('display','flex');
   $$('[data-design="original"]').forEach(el=>el.textContent='原图外观草案');
 }
@@ -97,7 +97,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',facadeStudy?'./facade-model.json?v=site-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',facadeStudy?'./facade-model.json?v=site-2':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -855,7 +855,7 @@ let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v','layout-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v','site-2');}
   if(state.camera==='site')url.searchParams.set('view','site');
   try {
     if(navigator.share)await navigator.share({title:facadeStudy?'原图外观草案 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看新增采光窗与三层露台门。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
@@ -876,7 +876,7 @@ function render() {
   const priority=l=>l.room.id===state.selected?0:['bath','laundry'].includes(l.room.kind)?1:['service','stairs'].includes(l.room.kind)?3:2;
   for(const l of [...labels].sort((a,b)=>priority(a)-priority(b))) {
     const floorVisible=(state.floor==='all'?l.room.id==='court'||facadeStudy&&(l.room.id.endsWith('-terrace-door')||l.room.id.endsWith('-balcony-door')):state.floor==='explode'||Number(state.floor)===l.room.level);
-    const visible=l.room.design===state.design&&$('#show-labels').checked&&floorVisible&&(state.home==='both'||l.room.home===state.home||l.room.home==='both');
+    const visible=state.camera!=='site'&&l.room.design===state.design&&$('#show-labels').checked&&floorVisible&&(state.home==='both'||l.room.home===state.home||l.room.home==='both');
     if(!visible){l.el.hidden=true;continue;}
     const p=l.point.clone();l.parent.localToWorld(p);p.project(camera);
     const x=(p.x*.5+.5)*width,y=(-p.y*.5+.5)*height;
