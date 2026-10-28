@@ -13,7 +13,7 @@ const state = {
   floor: ['all','1','2','3','explode'].includes(params.get('floor')) ? params.get('floor') : facadeStudy?'all':'1',
   scene: params.get('scene') === 'festival' ? 'festival' : 'daily',
   home: ['A','B'].includes(params.get('home')) ? params.get('home') : 'both',
-  camera: facadeStudy?(params.get('view')==='site'?'site':'entry'):'bird', selected: null,
+  camera: facadeStudy?(params.get('view')==='site'?'site':facadeChanges&&params.get('scene')==='festival'?'top':'entry'):'bird', selected: null,
 };
 const base = [0, 3.3, 6.4];
 const heights = [3.3, 3.1, 3.0];
@@ -40,6 +40,8 @@ for(const [i,color] of [0x9da98a,0xb2b193,0x8d9f79,0xa5ac8b,0x959c7d].entries())
 mat('fieldEdge',0x71835d,{depthWrite:false});mat('villageRoad',0xb6b5a8,{depthWrite:false});mat('pond',0x4e6e62,{roughness:.32,depthWrite:false});
 mat('neighbourWall',0xd9d3c5);mat('neighbourRoof',0x956e61);
 mat('accessPaving',0xe1ddd2,{depthWrite:false});
+mat('seamRoof',0x505a57,{roughness:.62,metalness:.25,side:THREE.DoubleSide});
+mat('roofInfill',0xf2e9d9,{side:THREE.DoubleSide});
 if(facadeStudy) {
   document.body.classList.add('facade-study');
   document.title=(strictOriginal?'严格原图版':'原图外观草案')+' · 祁东双户住宅';
@@ -51,7 +53,7 @@ if(facadeStudy) {
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
-  $$('.brand strong').forEach(el=>el.textContent=strictOriginal?'严格原图版':'原图外观草案');$('.brand').href=strictOriginal?'./v2/':'./facade/?v=bed-north-1';
+  $$('.brand strong').forEach(el=>el.textContent=strictOriginal?'严格原图版':'原图外观草案');$('.brand').href=strictOriginal?'./v2/':'./facade/?v=roof-hall-1';
   $('#original-model')?.style.setProperty('display','flex');
   $$('[data-design="original"]').forEach(el=>el.textContent=strictOriginal?'严格原图版':'原图外观草案');
 }
@@ -94,7 +96,7 @@ let siteContextInfo,siteScenery,siteNotes;
 function siteAngle() {return siteContextInfo&&state.design==='original'?(180-siteContextInfo.frontBearing)*Math.PI/180:0;}
 const roots={};
 const floors = [], homes = [], roofGroups = [], wallSets = [], roomMeshes = [], labels = [];
-let dailyFurniture, festivalFurniture, highlighted;
+let dailyFurniture, festivalFurniture, hallDaily, hallFestival, highlighted;
 let nextFrame = false;
 function requestFrame() { if (!nextFrame) { nextFrame=true; requestAnimationFrame(render); } }
 function fail(error) {
@@ -102,7 +104,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=bed-north-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=roof-hall-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -254,18 +256,23 @@ function buildModel(design,modelData) {
         // Quiet outdoor tea setting; the rooftop remains open to the sky.
         if(!original)roundTable(g,mx(6.3),5.2,.95,3);
         const roof=group(g);roofGroups.push(roof);
-        footprint(data.upper,home,level,roof,3.08,.18,materials.roof);
-        if(facadeStudy&&original)makeFacadeRoof(roof,home);
+        if(facadeChanges&&original&&data.pitchedRoof)makePitchedRoof(roof,home);
+        else {
+          footprint(data.upper,home,level,roof,3.08,.18,materials.roof);
+          if(facadeStudy&&original)makeFacadeRoof(roof,home);
+        }
         makeLabel({id:home+'-terrace',name:(home==='A'?'甲':'乙')+(original&&!facadeStudy?' · 拟用露台':'户露台'),home,level,rect:[mx(4.8,3),4.5,3,2],kind:'terrace',description:strictOriginal?'沿原图边线及此前确认的露台用途示意，未增设露台门。竖向标高与构造未核实。':original&&!facadeStudy?'原图三层空白区按拟用露台示意；准确范围、围护及是否连通仍待确认。':'三层前部为露天屋面露台。防水、排水、保温及栏杆需与建筑施工图同步深化。'},g);
       }
     }
-    if(strictOriginal) {
+    if(strictOriginal||facadeChanges&&original) {
       const full=group(f),low=group(f);wallSets.push({full,low});
       for(const wall of data.walls.filter(w=>w.level===level&&w.home==='both')) {
         makeWall(wall,full,heights[level-1],false);makeWall(wall,low,1.08,true);
       }
-      makeStrictStructure('both',level,full,low);
-      if(level===3)footprint([[12.3,0],[17.3,0],[17.3,2.2],[12.3,2.2]],'A',level,f,0,.18,materials.slab);
+      if(strictOriginal) {
+        makeStrictStructure('both',level,full,low);
+        if(level===3)footprint([[12.3,0],[17.3,0],[17.3,2.2],[12.3,2.2]],'A',level,f,0,.18,materials.slab);
+      }
     }
   }
   const link=group(thisFloors[0]);
@@ -279,7 +286,8 @@ function buildModel(design,modelData) {
     if(!facadeStudy)makeWall(frontage,link,2.45,false);
     for(let i=0;i<3;i++)block(link,7.5,-.35*(i+1),14.6,.35,.12,-.12*(i+1),materials.slab);
   }
-  makeLabel({id:'court',name:'露天天井',level:1,home:'both',rect:[12.4,6.8,4.8,3],kind:'court',description:original?'依据已确认用途保持露天，未增设建议方案的后部雨棚连接。':'中间天井保持露天，不作为雨天年夜饭场地。两户后走廊之间拟设小面积轻雨棚连接，需核对许可与排水。'},thisFloors[0]);
+  if(facadeChanges&&original&&data.rearHall)makeRearHall(link);
+  makeLabel({id:'court',name:'露天天井',level:1,home:'both',rect:[12.4,6.8,4.8,3],kind:'court',description:facadeChanges&&original?'前部天井保持露天，取消院落围墙；后部一层连接为可分合餐厅。':original?'依据已确认用途保持露天，未增设建议方案的后部雨棚连接。':'中间天井保持露天，不作为雨天年夜饭场地。两户后走廊之间拟设小面积轻雨棚连接，需核对许可与排水。'},thisFloors[0]);
 }
 
 function makeStrictStructure(home,level,full,low) {
@@ -317,13 +325,29 @@ function makeWall(w,parent,height,cut) {
       const jambHeight=Math.min(head,height)-sill;
       if(jambHeight>.015)for(const end of [0,length-.05])block(parent,x+(horizontal?end:0),y+(horizontal?0:end),horizontal?.05:dx,horizontal?dy:.05,jambHeight,sill,materials.windowFrame);
     }
-    if(!cut&&length>1.7)block(parent,(x1+x2)/2-.025,(y1+y2)/2-.025,.05,.05,w.head===undefined&&w.sill===undefined?1.55:head-sill,sill,materials.windowFrame);
+    if(w.openingLeaf) {
+      const split=w.openingSide==='start'?w.openingLeaf:length-w.openingLeaf;
+      const sashStart=w.openingSide==='start'?0:split;
+      const visibleHeight=Math.min(head,height)-sill;
+      if(visibleHeight>.015) {
+        block(parent,x+(horizontal?split-.025:0),y+(horizontal?0:split-.025),horizontal?.05:dx,horizontal?dy:.05,visibleHeight,sill,materials.windowFrame);
+        const handle=sashStart+(w.openingSide==='start'?w.openingLeaf-.10:.10);
+        block(parent,x+(horizontal?handle-.012:dx+.015),y+(horizontal?-.035:handle-.012),horizontal?.024:.035,horizontal?.035:.024,.18,Math.min(sill+.63,height-.20),materials.windowFrame);
+      }
+    } else if(!cut&&length>1.7)block(parent,(x1+x2)/2-.025,(y1+y2)/2-.025,.05,.05,w.head===undefined&&w.sill===undefined?1.55:head-sill,sill,materials.windowFrame);
   } else {
+    if(w.overhead) {
+      if(!cut) {
+        const lintel=group(parent);roofGroups.push(lintel);
+        block(lintel,x,y,dx,dy,heights[w.level-1]-w.head,w.head,materials.wall);
+      }
+      return;
+    }
     part(w.head??2.35,heights[w.level-1]);
     // Recessed threshold marks openings while keeping circulation visible.
     if(w.kind!=='opening')block(parent,x,y,dx,dy,.015,.01,materials.lightWood);
     if(facadeStudy&&w.kind==='door'&&(!w.study||['门4','门5','门6'].includes(w.study))&&!(!strictOriginal&&w.level===1&&horizontal&&y1===1.5)) {
-      part(.025,Math.min(w.head??2.35,height)-.04,materials.wood,.32);
+      part(.025,Math.min(w.head??2.35,height)-.04,w.glazed?materials.glass:materials.wood,.32);
       const frameHeight=Math.min(w.head??2.35,height);
       for(const end of [0,length-.045])block(parent,x+(horizontal?end:0),y+(horizontal?0:end),horizontal?.045:dx,horizontal?dy:.045,frameHeight,0,materials.windowFrame);
       if(!cut)part(frameHeight-.045,frameHeight,materials.windowFrame);
@@ -362,6 +386,74 @@ function makeFacadeRoof(parent,home) {
     facadeBand(parent,home,a,b,.36,.16,2.98,materials.wallCap);
     facadeBand(parent,home,a,b,.14,.23,3.14,materials.wallCap);
     facadeBand(parent,home,a,b,.20,.045,3.37,materials.windowFrame);
+  }
+}
+
+function roofSurface(parent,points,material) {
+  const vertices=[];
+  for(let i=1;i<points.length-1;i++)for(const p of [points[0],points[i],points[i+1]])vertices.push(...worldPoint(...p).toArray());
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.computeVertexNormals();
+  const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);
+}
+
+function makePitchedRoof(parent,home) {
+  const r=data.pitchedRoof,mx=x=>mirror(home,x),front=11.1-r.overhang,back=16.7+r.overhang;
+  const top=y=>r.eave+(r.ridgeY-front-Math.abs(y-r.ridgeY))*Math.tan(r.pitch*Math.PI/180);
+  function panel(a,b,c,d,height=top) {
+    roofSurface(parent,[[mx(a),c,height(c)],[mx(b),c,height(c)],[mx(b),d,height(d)],[mx(a),d,height(d)]],materials.seamRoof);
+  }
+  panel(-r.overhang,13.8+r.overhang,front,r.ridgeY);
+  // Keep the existing bathroom light well open, including at roof level.
+  for(const [a,b,end] of [[-r.overhang,3.3,back],[3.3,6.9,data.recess],[6.9,13.8+r.overhang,back]])panel(a,b,r.ridgeY,end);
+  const porchTop=y=>3.12+(y-8.15)*(r.eave-3.12)/(front-8.15);
+  panel(2.95,10.55,8.15,front,porchTop);
+  for(const x of [0,13.8])roofSurface(parent,[[mx(x),11.1,3],[mx(x),16.7,3],[mx(x),16.7,top(16.7)],[mx(x),r.ridgeY,top(r.ridgeY)],[mx(x),11.1,top(11.1)]],materials.roofInfill);
+  for(const x of [3.3,6.9])roofSurface(parent,[[mx(x),data.recess,3],[mx(x),16.7,3],[mx(x),16.7,top(16.7)],[mx(x),data.recess,top(data.recess)]],materials.roofInfill);
+  for(const [a,b,y] of [[0,13.8,11.1],[0,3.3,16.7],[6.9,13.8,16.7],[3.3,6.9,data.recess]]) {
+    roofSurface(parent,[[mx(a),y,3],[mx(b),y,3],[mx(b),y,top(y)],[mx(a),y,top(y)]],materials.roofInfill);
+  }
+  for(const x of [3.3,10.2]) {
+    roofSurface(parent,[[mx(x),8.5,3],[mx(x),11.1,3],[mx(x),11.1,top(11.1)],[mx(x),front,r.eave],[mx(x),8.5,porchTop(8.5)]],materials.roofInfill);
+  }
+  roofSurface(parent,[[mx(3.3),8.5,3],[mx(10.2),8.5,3],[mx(10.2),8.5,porchTop(8.5)],[mx(3.3),8.5,porchTop(8.5)]],materials.roofInfill);
+  // Thin standing seams and external gutters follow the direction of drainage.
+  for(let x=-r.overhang+.28;x<13.8+r.overhang;x+=r.seamSpacing) {
+    const end=x>3.3&&x<6.9?data.recess:back;
+    roofSurface(parent,[[mx(x-.009),front,top(front)+.016],[mx(x+.009),front,top(front)+.016],[mx(x+.009),r.ridgeY,top(r.ridgeY)+.016],[mx(x-.009),r.ridgeY,top(r.ridgeY)+.016]],materials.windowFrame);
+    roofSurface(parent,[[mx(x-.009),r.ridgeY,top(r.ridgeY)+.016],[mx(x+.009),r.ridgeY,top(r.ridgeY)+.016],[mx(x+.009),end,top(end)+.016],[mx(x-.009),end,top(end)+.016]],materials.windowFrame);
+  }
+  for(let x=3.1;x<10.55;x+=r.seamSpacing)roofSurface(parent,[[mx(x-.009),8.15,3.136],[mx(x+.009),8.15,3.136],[mx(x+.009),front,r.eave+.016],[mx(x-.009),front,r.eave+.016]],materials.windowFrame);
+  for(const [a,b,y,z] of [[-r.overhang,13.8+r.overhang,front,r.eave],[2.95,10.55,8.15,3.12],[-r.overhang,3.3,back,top(back)],[6.9,13.8+r.overhang,back,top(back)],[3.3,6.9,data.recess,top(data.recess)]])facadeBand(parent,home,[a,y],[b,y],.16,.12,z-.10,materials.windowFrame);
+  facadeBand(parent,home,[-r.overhang,r.ridgeY],[13.8+r.overhang,r.ridgeY],.12,.035,top(r.ridgeY)+.012,materials.seamRoof);
+  for(const [x,y] of [[.12,16.85],[3.4,14.82],[13.67,11.02]])cylinder(parent,mx(x),y,.045,top(y)+6.30,-6.40,materials.windowFrame);
+}
+
+function makeRearHall(parent) {
+  const h=data.rearHall,[x,y,w,d]=h.rect;
+  block(parent,x,y,w,d,.18,-.18,materials.slab);
+  makeRoom(data.rooms.find(r=>r.id==='rear-link'),parent);
+  const roof=group(parent);roofGroups.push(roof);
+  roofSurface(roof,[[13.65,10.9,3.65],[15.95,10.9,3.65],[15.95,16.9,3.35],[13.65,16.9,3.35]],materials.seamRoof);
+  for(const [yy,zz] of [[11.1,3.64],[16.7,3.36]])block(roof,13.8,yy-.1,2,.20,zz-3.3,3.3,materials.wall);
+  block(roof,13.65,16.83,2.3,.14,.12,3.25,materials.windowFrame);
+  cylinder(roof,14.0,16.82,.04,3.23,0,materials.windowFrame);
+  block(roof,h.partitionX-.06,h.partitionStart,.12,h.partitionEnd-h.partitionStart,.61,2.69,materials.wall);
+  block(roof,h.partitionX-.055,h.partitionStart,.11,h.partitionEnd-h.partitionStart,.045,2.64,materials.windowFrame);
+  hallDaily=group(parent);hallFestival=group(parent);
+  for(let i=0;i<5;i++) {
+    const length=(h.partitionEnd-h.partitionStart)/5;
+    block(hallDaily,h.partitionX-.04,h.partitionStart+i*length,.08,length-.012,2.59,.04,materials.white);
+    block(hallDaily,h.partitionX-.045,h.partitionStart+i*length,.09,.025,2.59,.04,materials.windowFrame);
+    block(hallFestival,h.partitionX-length/2,16.23+i*.065,length,.05,2.59,.04,materials.white);
+    block(hallFestival,h.partitionX-length/2,16.23+i*.065,.025,.05,2.59,.04,materials.windowFrame);
+  }
+  for(const home of ['A','B']) {
+    const daily=group(hallDaily),festival=group(hallFestival);
+    homes.push({g:daily,home,level:1},{g:festival,home,level:1});
+    roundTable(daily,mirror(home,12.0),14.6,h.dailyDiameter,6);
+    roundTable(festival,mirror(home,12.2),14.6,h.festivalDiameter,10,home==='A'?0:10);
+    makeLabel({id:home+'-rear-exit',name:home==='A'?'西侧通道门':'东侧通道门',level:1,home,rect:[mirror(home,-.1,.2),11.25,.2,1.1],kind:'terrace',description:'一层后排公共走廊外端增设玻璃门，连接侧院；与卧室入口分开。参考洞口1.10米，门净宽、开启方向及门外高差须深化。'},parent);
   }
 }
 
@@ -494,7 +586,7 @@ function makeOriginalFixtures(parent,home,level) {
     block(parent,mx(7.05,.6),12.7,.6,3.7,.06,.83,materials.white);
     for(const y of [14.2,14.6])cylinder(parent,mx(7.35),y,.13,.02,.91,materials.dark);
     block(parent,mx(7.14,.42),15.6,.42,.6,.02,.9,materials.water);
-    roundTable(parent,mx(12),14.55,1.8,12);
+    if(!facadeChanges||!data.rearHall)roundTable(parent,mx(12),14.55,1.8,12);
     if(!facadeStudy) {
     block(parent,mx(6.3,.85),3.3,.85,2.5,.35,.1,materials.sofa);
     block(parent,mx(7,.15),3.3,.15,2.5,.4,.45,materials.sofa);
@@ -770,20 +862,22 @@ function updateView(moveCamera=false) {
   roofGroups.forEach(g=>{g.visible=state.floor==='all'&&$('#show-roof').checked;});
   if(dailyFurniture)dailyFurniture.visible=state.scene==='daily';
   if(festivalFurniture)festivalFurniture.visible=state.scene==='festival';
+  if(hallDaily)hallDaily.visible=state.scene==='daily';
+  if(hallFestival)hallFestival.visible=state.scene==='festival';
   $('#roof-option').style.display=state.floor==='all'?'flex':'none';
   $$('[data-floor]').forEach(b=>{b.classList.toggle('active',b.dataset.floor===state.floor);b.setAttribute('aria-pressed',b.dataset.floor===state.floor);});
   $$('[data-home]').forEach(b=>{b.classList.toggle('active',b.dataset.home===state.home);b.setAttribute('aria-pressed',b.dataset.home===state.home);});
   $$('[data-scene]').forEach(b=>{b.classList.toggle('active',b.dataset.scene===state.scene);b.setAttribute('aria-pressed',b.dataset.scene===state.scene);});
   $('#view-title').textContent=(strictOriginal?'严格原图 · ':facadeStudy?'外观草案 · ':state.design==='original'?'原设计 · ':'建议 · ')+(state.floor==='all'?'整体':state.floor==='explode'?'分层':floorNames[Number(state.floor)-1])+(state.home==='both'?'':state.home==='A'?' / 甲户':' / 乙户');
   $$('[data-design]').forEach(b=>{b.classList.toggle('active',b.dataset.design===state.design);b.setAttribute('aria-pressed',b.dataset.design===state.design);});
-  $('#scene-controls').hidden=state.design==='original';
+  $('#scene-controls').hidden=state.design==='original'&&!(facadeChanges&&hallDaily);
   const counted=roomMeshes.map(m=>m.userData.room).filter(r=>r.design===state.design&&(state.home==='both'||r.home===state.home));
   $('#bedroom-stat').textContent=counted.filter(r=>['elder','bedroom'].includes(r.kind)).length;
   $('#bath-stat').textContent=counted.filter(r=>r.kind==='bath').length;
   $('#kitchen-stat').textContent=counted.filter(r=>r.kind==='kitchen').length;
   $('#dining-stat').textContent=counted.filter(r=>r.kind==='dining').length;
   $('#stats-label').textContent=state.home==='both'?'全屋统计':state.home==='A'?'甲户统计':'乙户统计';
-  $('#model-note').textContent=strictOriginal?'墙柱及门窗平面按原始PDF矢量核对，未增窗、未补门。层高、门窗高和窗台高未核实，暂作外观示意。':facadeStudy?'入户约南偏东12°。周边以56.50米量线校准；路宽、界址、高程及邻房高度待测。门前衔接与光影为示意。':state.design==='original'?'按原平面重建；层高、立面及露台边界为示意。':'概念方案，非施工图。每户一层、三层各1间洗衣房。';
+  $('#model-note').textContent=strictOriginal?'墙柱及门窗平面按原始PDF矢量核对，未增窗、未补门。层高、门窗高和窗台高未核实，暂作外观示意。':facadeStudy?'概念方案，非施工图。连接结构、屋面节点与门窗尺寸待深化。':state.design==='original'?'按原平面重建；层高、立面及露台边界为示意。':'概念方案，非施工图。每户一层、三层各1间洗衣房。';
   $('#original-drawing').href='./downloads/original-floor-'+(only||1)+'.pdf';
   $('#original-drawing b').textContent=(only?floorNames[only-1]:'一层')+'原始图纸';
   $('#room-detail').hidden=!state.selected;
@@ -844,7 +938,7 @@ function bindControls() {
   $$('[data-home]').forEach(b=>b.addEventListener('click',()=>{state.home=b.dataset.home;state.selected=null;updateView(true);revealModel();}));
   $$('[data-scene]').forEach(b=>b.addEventListener('click',()=>{
     state.scene=b.dataset.scene;state.selected=null;
-    if(state.scene==='festival') {state.floor='1';state.home='both';}
+    if(state.scene==='festival') {state.floor='1';state.home='both';if(facadeChanges)state.camera='top';}
     updateView(true);revealModel();
   }));
   $$('[data-camera]').forEach(b=>b.addEventListener('click',()=>{
@@ -893,7 +987,7 @@ let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'bed-north-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'roof-hall-1');}
   if(state.camera==='site')url.searchParams.set('view','site');
   try {
     if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'原图外观草案 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看新增采光窗与三层露台门。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
