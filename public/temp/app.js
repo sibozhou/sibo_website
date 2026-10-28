@@ -31,6 +31,7 @@ mat('windowFrame',0x718e80); mat('sofa',0xc4bda4); mat('seat',0xafb9a1);
 mat('dark',0x394a40); mat('tile',0xd0ded6); mat('water',0xa0c4c2); mat('roof',0x6e7b6d);
 mat('ground',0xd6ddcc); mat('paving',0xe3e3d6); mat('court',0xd2d9c4); mat('red',0xaa6049);
 mat('frost',0xd9e3dd,{transparent:true,opacity:.78,roughness:.8});
+mat('guardGlass',0xc2d3d6,{transparent:true,opacity:.30,roughness:.08,depthWrite:false,side:THREE.DoubleSide});
 mat('plinth',0x96958e);mat('joint',0xc4c0b7);mat('leaf',0x526d36);mat('pot',0x777a6b);
 mat('woodLine',0x84623d);
 if(facadeStudy) {
@@ -71,7 +72,7 @@ function finalizeBatches() {
       dummy.position.set(...v.position); dummy.scale.set(...v.scale); dummy.rotation.set(0,v.rotation,0);
       dummy.updateMatrix(); mesh.setMatrixAt(i,dummy.matrix);
     });
-    mesh.castShadow = material !== materials.glass; mesh.receiveShadow = true; parent.add(mesh);
+    mesh.castShadow = material !== materials.glass&&material!==materials.guardGlass; mesh.receiveShadow = true; parent.add(mesh);
   }
   batches.clear();
 }
@@ -494,18 +495,24 @@ function makeStairs(parent,home,rise) {
   }
 }
 function rail(parent,x1,y1,x2,y2,h) {
+  if(facadeStudy)h=1.2;
   const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);if(len<.02)return;
   const angle=Math.atan2(dy,dx),cx=(x1+x2)/2,cy=(y1+y2)/2;
   solid(parent,unitBox,materials.metal,[cx-14.8,h,8.35-cy],[len,.05,.045],angle);
   solid(parent,unitBox,materials.metal,[cx-14.8,.16,8.35-cy],[len,.04,.035],angle);
-  const count=Math.ceil(len/.12);
-  for(let i=0;i<=count;i++)block(parent,x1+dx*i/count-.015,y1+dy*i/count-.015,.03,.03,h-.15,.15,materials.metal);
   if(facadeStudy) {
     const posts=Math.ceil(len/1.3);
     for(let i=0;i<=posts;i++)block(parent,x1+dx*i/posts-.035,y1+dy*i/posts-.035,.07,.07,h,.02,materials.metal);
+    for(let i=0;i<posts;i++) {
+      const t=(i+.5)/posts;
+      solid(parent,unitBox,materials.guardGlass,[x1+dx*t-14.8,(h+.16)/2,8.35-y1-dy*t],[len/posts-.07,h-.22,.02],angle);
+    }
     const horizontal=Math.abs(dy)<.001;
     block(parent,Math.min(x1,x2)-(horizontal?0:.11),Math.min(y1,y2)-(horizontal?.11:0),horizontal?len:.22,horizontal?.22:len,.10,0,materials.slab);
     block(parent,Math.min(x1,x2)-(horizontal?0:.12),Math.min(y1,y2)-(horizontal?.12:0),horizontal?len:.24,horizontal?.24:len,.18,-.18,materials.wall);
+  } else {
+    const count=Math.ceil(len/.12);
+    for(let i=0;i<=count;i++)block(parent,x1+dx*i/count-.015,y1+dy*i/count-.015,.03,.03,h-.15,.15,materials.metal);
   }
 }
 
