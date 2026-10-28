@@ -44,7 +44,7 @@ if(facadeStudy) {
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
-  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=glass-2';
+  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=access-1';
   $$('[data-design="original"]').forEach(el=>el.textContent='原图外观草案');
 }
 const unitBox = new THREE.BoxGeometry(1,1,1);
@@ -91,9 +91,8 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',facadeStudy?'./facade-model.json':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',facadeStudy?'./facade-model.json?v=access-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -157,6 +156,7 @@ function buildModel(design,modelData) {
   if(facadeStudy&&original) {
     for(let x=-1.2;x<30.8;x+=1.2)block(site,x,-1.9,.014,3.2,.008,-.215,materials.joint);
     for(let y=-1.9;y<1.3;y+=1.2)block(site,-1.2,y,32,.014,.008,-.215,materials.joint);
+    makeCourtyardTree(site);
   }
   for(let level=1;level<=3;level++) {
     const f=group(root);f.position.y=base[level-1];floors.push({g:f,level,design});thisFloors.push(f);
@@ -177,9 +177,15 @@ function buildModel(design,modelData) {
           block(g,mx(-.14,.09),11.05,.09,.09,heights[level-1],0,materials.windowFrame);
           if(level===1) {
             makeFacadeDoor(g,home,8.4,1.5,2.1,2.35,false);
+            makeFacadeDoor(g,home,12.3,3.1,1.1,2.3,true,true);
+            makeLabel({id:home+'-courtyard-door',name:(home==='A'?'甲':'乙')+'户天井门（窗改门）',home,level,rect:[mx(11.8,.6),3.1,.6,1.1],kind:'terrace',description:'一层公共起居厅原天井侧窗改玻璃门，保留固定侧窗，每户独立进入天井。前方围挡移除，门槛、开启方向和排水须深化。'},g);
             makePlanter(g,home,8.0,.5,.75);
           }
           if(level===2)makePlanter(g,home,7.95,.65,.7);
+          if(level===2) {
+            makeFacadeDoor(g,home,8.4,1.5,2.1,2.4,true);
+            makeLabel({id:home+'-balcony-door',name:(home==='A'?'甲':'乙')+'户阳台门（窗改门）',home,level,rect:[mx(8.4,2.1),.7,2.1,.6],kind:'terrace',description:'二层公共起居厅原正面窗改为玻璃推拉门，直接进入本户阳台；保留原窗洞宽度，降低窗台。门净宽、轨道和门槛防水须深化。'},g);
+          }
         }
         if(facadeStudy&&level===3) {
           makeFacadeDoor(g,home,7.75,8.5,1.1,2.3,true);
@@ -216,7 +222,7 @@ function buildModel(design,modelData) {
       if(level<3)makeStairs(g,home,heights[level-1]);
       if(level<3) {
         // The front entrance canopy/balcony is open, with supports only.
-        for(const x of [7.5,12.3])block(g,mx(x-.15,.3),-.15,.3,.3,heights[level-1],0,materials.wall);
+        if(!facadeStudy||level===1)for(const x of [7.5,12.3])block(g,mx(x-.15,.3),-.15,.3,.3,heights[level-1],0,materials.wall);
         if(level===2) {
           rail(g,mx(7.5),0,mx(12.3),0,1.15);
           for(const x of [7.5,12.3])rail(g,mx(x),0,mx(x),1.5,1.15);
@@ -247,7 +253,7 @@ function buildModel(design,modelData) {
   } else {
     // Original front courtyard enclosure and entrance steps shown on sheet 1.
     const frontage={points:[12.3,2.2,17.3,2.2],kind:'window',level:1,width:.2};
-    makeWall(frontage,link,2.45,false);
+    if(!facadeStudy)makeWall(frontage,link,2.45,false);
     for(let i=0;i<3;i++)block(link,7.5,-.35*(i+1),14.6,.35,.12,-.12*(i+1),materials.slab);
   }
   makeLabel({id:'court',name:'露天天井',level:1,home:'both',rect:[12.4,6.8,4.8,3],kind:'court',description:original?'依据已确认用途保持露天，未增设建议方案的后部雨棚连接。':'中间天井保持露天，不作为雨天年夜饭场地。两户后走廊之间拟设小面积轻雨棚连接，需核对许可与排水。'},thisFloors[0]);
@@ -282,17 +288,27 @@ function makeWall(w,parent,height,cut) {
     part(w.head??2.35,heights[w.level-1]);
     // Recessed threshold marks openings while keeping circulation visible.
     block(parent,x,y,dx,dy,.015,.01,materials.lightWood);
+    if(facadeStudy&&w.kind==='door'&&(!w.study||w.study==='门4')&&!(w.level===1&&horizontal&&y1===1.5)) {
+      part(.025,Math.min(w.head??2.35,height)-.04,materials.wood,.32);
+      const frameHeight=Math.min(w.head??2.35,height);
+      for(const end of [0,length-.045])block(parent,x+(horizontal?end:0),y+(horizontal?0:end),horizontal?.045:dx,horizontal?dy:.045,frameHeight,0,materials.windowFrame);
+      if(!cut)part(frameHeight-.045,frameHeight,materials.windowFrame);
+    }
     if(!cut&&w.kind==='slider')part(0,2.35,materials.glass,.12);
   }
 }
 
-function makeFacadeDoor(parent,home,x,y,w,h,glazed) {
-  const mx=(xx,ww=0)=>mirror(home,xx,ww);
-  for(const xx of [x,x+w-.055])block(parent,mx(xx,.055),y-.03,.055,.06,h,0,materials.windowFrame);
-  block(parent,mx(x,w),y-.03,w,.06,.055,h-.055,materials.windowFrame);
-  block(parent,mx(x+.055,w-.11),y-.015,w-.11,.03,h-.11,.055,glazed?materials.glass:materials.wood);
-  if(!glazed)for(let xx=x+.14;xx<x+w-.1;xx+=.16)block(parent,mx(xx,.008),y-.034,.008,.008,h-.14,.07,materials.woodLine);
-  block(parent,mx(x+w-.18,.025),y-.065,.025,.055,.25,.95,materials.metal);
+function makeFacadeDoor(parent,home,x,y,w,h,glazed,side=false) {
+  function part(along,depth,width,thickness,height,elev,material) {
+    if(side)block(parent,mirror(home,x+depth,thickness),y+along,thickness,width,height,elev,material);
+    else block(parent,mirror(home,x+along,width),y+depth,width,thickness,height,elev,material);
+  }
+  for(const a of [0,w-.055])part(a,-.03,.055,.06,h,0,materials.windowFrame);
+  part(0,-.03,w,.06,.055,h-.055,materials.windowFrame);
+  part(.055,-.015,w-.11,.03,h-.11,.055,glazed?materials.glass:materials.wood);
+  if(glazed&&w>1.5)part(w/2-.035,-.045,.07,.09,h-.11,.055,materials.windowFrame);
+  if(!glazed)for(let a=.14;a<w-.1;a+=.16)part(a,-.034,.008,.008,h-.14,.07,materials.woodLine);
+  part(glazed&&w>1.5?w/2-.16:w-.18,-.065,.025,.055,.25,.95,materials.metal);
 }
 
 function facadeBand(parent,home,a,b,width,h,elev,material) {
@@ -318,6 +334,12 @@ function makePlanter(parent,home,x,y,size) {
   x=mirror(home,x);cylinder(parent,x,y,.25*size,.42*size,.02,materials.pot);
   cylinder(parent,x,y,.025*size,.55*size,.4*size,materials.wood);
   for(let i=0;i<9;i++)solid(parent,unitSphere,materials.leaf,[x-14.8+Math.cos(i*2.4)*.22*size,(.65+i%3*.16)*size,8.35-y+Math.sin(i*2.4)*.22*size],[.23*size,.16*size,.13*size],i);
+}
+
+function makeCourtyardTree(parent) {
+  block(parent,14.15,7.35,1.3,1.3,.03,-.03,materials.woodLine);
+  cylinder(parent,14.8,8,.10,2.8,0,materials.wood);
+  for(let i=0;i<17;i++)solid(parent,unitSphere,materials.leaf,[Math.cos(i*2.4)*.7,2.6+i%3*.32,.35+Math.sin(i*2.4)*.7],[.65,.55,.62],i);
 }
 
 function makeRoom(room,parent) {
@@ -374,15 +396,50 @@ function makeOriginalFixtures(parent,home,level) {
     for(const y of [14.2,14.6])cylinder(parent,mx(7.35),y,.13,.02,.91,materials.dark);
     block(parent,mx(7.14,.42),15.6,.42,.6,.02,.9,materials.water);
     roundTable(parent,mx(12),14.55,1.8,12);
+    if(!facadeStudy) {
     block(parent,mx(6.3,.85),3.3,.85,2.5,.35,.1,materials.sofa);
     block(parent,mx(7,.15),3.3,.15,2.5,.4,.45,materials.sofa);
     makeSofa(parent,mx(4.6,1.8),2.45,1.8,.85);
     block(parent,mx(4.75,1.1),3.8,1.1,.65,.35,0,materials.lightWood);
     block(parent,mx(3.5,.08),3.4,.08,1.5,.8,.9,materials.dark);
+    }
   }
-  if(level===3&&home==='B') {
+  if(level===3&&home==='B'&&!facadeStudy) {
     makeSofa(parent,mx(8,4.2),15.5,4.2,.85);
     block(parent,mx(9,2.2),14.2,2.2,.7,.35,0,materials.lightWood);
+  }
+  if(facadeStudy)makeFacadeLiving(parent,home,level);
+}
+
+function makeFacadeLiving(parent,home,level) {
+  const mx=(x,w=0)=>mirror(home,x,w);
+  function sideSofa(x,y,length,faceRight) {
+    block(parent,mx(x,.85),y,.85,length,.23,.1,materials.wood);
+    block(parent,mx(x,.85),y,.85,length,.20,.33,materials.sofa);
+    block(parent,mx(faceRight?x:x+.69,.16),y,.16,length,.38,.44,materials.sofa);
+    for(const yy of [y,y+length-.13])block(parent,mx(x,.85),yy,.85,.13,.26,.42,materials.sofa);
+  }
+  if(level===1) {
+    sideSofa(3.75,2.8,2.4,true);
+    block(parent,mx(5.2,1.0),3.55,1.0,.8,.35,0,materials.lightWood);
+    block(parent,mx(7.365,.06),3.2,.06,1.6,.9,1.05,materials.dark);
+    block(parent,mx(6.98,.38),3.15,.38,1.7,.38,0,materials.lightWood);
+    makeSofa(parent,mx(9.0,2.1),3.6,2.1,.85);
+    block(parent,mx(9.3,1.2),4.9,1.2,.55,.35,0,materials.lightWood);
+    block(parent,mx(9.7,1.8),6.54,1.8,.06,.9,1.05,materials.dark);
+    block(parent,mx(9.65,1.9),6.2,1.9,.35,.38,0,materials.lightWood);
+  }
+  if(level===2) {
+    sideSofa(10.9,3.25,2.5,false);
+    block(parent,mx(9.2,.8),4.0,.8,1.2,.35,0,materials.lightWood);
+    block(parent,mx(7.575,.06),3.2,.06,1.6,.9,1.05,materials.dark);
+    block(parent,mx(7.63,.36),3.15,.36,1.7,.38,0,materials.lightWood);
+  }
+  if(level===3&&home==='B') {
+    makeSofa(parent,mx(8.4,3.2),15.35,3.2,.85,true);
+    block(parent,mx(9.3,1.2),14.1,1.2,.6,.35,0,materials.lightWood);
+    block(parent,mx(8.8,1.8),12.575,1.8,.06,.9,1.05,materials.dark);
+    block(parent,mx(8.75,1.9),12.64,1.9,.36,.38,0,materials.lightWood);
   }
 }
 
@@ -415,12 +472,12 @@ function roundTable(parent,x,y,diameter,seats,offset=null) {
   }
   if(offset!==null)cylinder(parent,x,y,.4,.015,.81,materials.glass);
 }
-function makeSofa(parent,x,y,w,d) {
+function makeSofa(parent,x,y,w,d,backAtRear=false) {
   block(parent,x,y,w,d,.23,.10,materials.wood);
   block(parent,x,y,w,d,.20,.33,materials.sofa);
-  block(parent,x,y,w,.16,.42,.44,materials.sofa);
+  block(parent,x,backAtRear?y+d-.16:y,w,.16,.42,.44,materials.sofa);
   for(const xx of [x,x+w-.12])block(parent,xx,y,.12,d,.26,.42,materials.sofa);
-  for(let i=0;i<3;i++)block(parent,x+.14+i*(w-.28)/3,y+.18,(w-.32)/3,d-.25,.035,.53,materials.linen);
+  for(let i=0;i<3;i++)block(parent,x+.14+i*(w-.28)/3,y+(backAtRear?.07:.18),(w-.32)/3,d-.25,.035,.53,materials.linen);
 }
 function makeLounge(parent,home,x,y,w,d,vertical) {
   const mx=(x,w=0)=>mirror(home,x,w);
@@ -559,7 +616,7 @@ function updateView(moveCamera=false) {
   $('#kitchen-stat').textContent=counted.filter(r=>r.kind==='kitchen').length;
   $('#dining-stat').textContent=counted.filter(r=>r.kind==='dining').length;
   $('#stats-label').textContent=state.home==='both'?'全屋统计':state.home==='A'?'甲户统计':'乙户统计';
-  $('#model-note').textContent=facadeStudy?'外观按效果图统一，基于原平面新增28处采光窗与每户三层露台门。洞口、结构、遮阳及防水须深化。':state.design==='original'?'按原平面重建；层高、立面及露台边界为示意。':'概念方案，非施工图。每户一层、三层各1间洗衣房。';
+  $('#model-note').textContent=facadeStudy?'原平面深化：补客厅与二、三层侧窗；两户独立通天井，二层通阳台、三层通露台。一、二层公卫门侧移。新增洞口、梁柱及防水须核定。':state.design==='original'?'按原平面重建；层高、立面及露台边界为示意。':'概念方案，非施工图。每户一层、三层各1间洗衣房。';
   $('#original-drawing').href='./downloads/original-floor-'+(only||1)+'.pdf';
   $('#original-drawing b').textContent=(only?floorNames[only-1]:'一层')+'原始图纸';
   $('#room-detail').hidden=!state.selected;
@@ -642,7 +699,7 @@ let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v','glass-2');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v','access-1');}
   try {
     if(navigator.share)await navigator.share({title:facadeStudy?'原图外观草案 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:facadeStudy?'看看新增采光窗与三层露台门。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
     else {await navigator.clipboard.writeText(url.href);toast('分享链接已复制，可以发给家人了');}
@@ -650,6 +707,8 @@ async function share() {
 }
 function resize() {
   const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;
+  const ratio=Math.min(Math.max(devicePixelRatio,2),3,Math.sqrt(4_000_000/(w*h)));
+  if(renderer.getPixelRatio()!==ratio)renderer.setPixelRatio(ratio);
   renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();requestFrame();
 }
 function render() {
@@ -659,7 +718,7 @@ function render() {
   const occupied=[];
   const priority=l=>l.room.id===state.selected?0:['bath','laundry'].includes(l.room.kind)?1:['service','stairs'].includes(l.room.kind)?3:2;
   for(const l of [...labels].sort((a,b)=>priority(a)-priority(b))) {
-    const floorVisible=(state.floor==='all'?l.room.id==='court'||facadeStudy&&l.room.id.endsWith('-terrace-door'):state.floor==='explode'||Number(state.floor)===l.room.level);
+    const floorVisible=(state.floor==='all'?l.room.id==='court'||facadeStudy&&(l.room.id.endsWith('-terrace-door')||l.room.id.endsWith('-balcony-door')):state.floor==='explode'||Number(state.floor)===l.room.level);
     const visible=l.room.design===state.design&&$('#show-labels').checked&&floorVisible&&(state.home==='both'||l.room.home===state.home||l.room.home==='both');
     if(!visible){l.el.hidden=true;continue;}
     const p=l.point.clone();l.parent.localToWorld(p);p.project(camera);
