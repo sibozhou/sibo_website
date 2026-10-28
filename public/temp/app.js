@@ -44,12 +44,13 @@ if(facadeStudy) {
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
-  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=access-1';
+  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=bath-1';
   $$('[data-design="original"]').forEach(el=>el.textContent='原图外观草案');
 }
 const unitBox = new THREE.BoxGeometry(1,1,1);
 const unitCylinder = new THREE.CylinderGeometry(1,1,1,24);
 const unitSphere = new THREE.SphereGeometry(1,12,8);
+const toiletSeat = new THREE.TorusGeometry(1,.13,8,24);toiletSeat.rotateX(-Math.PI/2);
 const batches = new Map();
 function solid(parent, geometry, material, position, scale, rotation = 0) {
   let list = batches.get(parent);
@@ -91,7 +92,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',facadeStudy?'./facade-model.json?v=access-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',facadeStudy?'./facade-model.json?v=bath-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -344,6 +345,7 @@ function makeCourtyardTree(parent) {
 
 function makeRoom(room,parent) {
   if(room.kind==='stairs') {makeLabel(room,parent);return;}
+  if(facadeStudy&&room.design==='original'&&room.kind==='bath')room={...room,description:'已布置淋浴区、坐便器和洗手盆，淋浴区设玻璃挡水。'+(room.id.endsWith('front-bath')?'门从短走廊进入，避开楼梯。':'从相邻卧室进入。')+'洁具尺寸、门扇开启、排水与防水仍须深化。'};
   const [x,y,w,d]=room.rect;
   const material=new THREE.MeshStandardMaterial({color:colors[room.kind]||0xdedccc,roughness:1});
   const mesh=new THREE.Mesh(new THREE.PlaneGeometry(w-.23,d-.23),material);
@@ -387,9 +389,13 @@ function makeOriginalBed(parent,bed) {
 
 function makeOriginalFixtures(parent,home,level) {
   const mx=(x,w=0)=>mirror(home,x,w);
+  if(facadeStudy) {
+    for(const room of data.rooms.filter(r=>r.home===home&&r.level===level&&r.kind==='bath'))makeFacadeBathroom(parent,room);
+  } else {
   makeBathroom(parent,mx(3.3,1.8),12.5,1.8,2.4,home,false,false);
   if(level>1)makeBathroom(parent,mx(5.1,1.8),12.5,1.8,2.4,home,false,false);
   if(level<3)makeBathroom(parent,mx(3.3,2.8),6.7,2.8,1.8,home,false,false);
+  }
   if(level===1) {
     block(parent,mx(7.05,.6),12.7,.6,3.7,.83,0,materials.lightWood);
     block(parent,mx(7.05,.6),12.7,.6,3.7,.06,.83,materials.white);
@@ -535,6 +541,63 @@ function makeBathroom(parent,x,y,w,d,home,elder=false,full=true) {
   block(parent,flip(w-.70,.52),y+.25,.52,.42,.72,0,materials.lightWood);
   block(parent,flip(w-.72,.56),y+.23,.56,.46,.08,.72,materials.white);
   if(elder)block(parent,flip(.13,.06),y+.65,.06,.8,.06,.75,materials.metal);
+}
+function makeFacadeBathroom(parent,room) {
+  const [x,y,w]=room.rect;
+  const mx=(u,width)=>room.home==='B'?x+w-u-width:x+u;
+  if(room.id.endsWith('front-bath')) {
+    makeShower(parent,mx(.12,.90),y+.12,.90,.90,'side',room.home==='B');
+    makeToilet(parent,mx(1.15,.46),y+.10,'rear');
+    makeBasin(parent,mx(1.80,.60),y+.10,.60,.40,'rear');
+  } else {
+    const reverse=(room.home==='B')!==room.id.endsWith('bath-right');
+    const sx=(u,width)=>reverse?x+w-u-width:x+u;
+    makeShower(parent,sx(.12,w-.24),y+1.38,w-.24,.90,'front',reverse);
+    makeToilet(parent,sx(1.02,.68),y+.10,reverse?'right':'left');
+    makeBasin(parent,sx(1.30,.40),y+.68,.40,.60,reverse?'right':'left');
+  }
+}
+function makeToilet(parent,x,y,direction) {
+  const side=direction!=='rear';
+  const point=(u,v)=>side?[x+(direction==='left'?.68-v:v),y+u]:[x+u,y+v];
+  function piece(u,v,w,d,h,elev,material) {
+    if(side)block(parent,x+(direction==='left'?.68-v-d:v),y+u,d,w,h,elev,material);
+    else block(parent,x+u,y+v,w,d,h,elev,material);
+  }
+  piece(.02,.02,.42,.18,.72,0,materials.white);
+  piece(.10,.22,.26,.35,.30,0,materials.white);
+  const [cx,cy]=point(.23,.42);
+  solid(parent,unitSphere,materials.white,[cx-14.8,.31,8.35-cy],side?[.26,.14,.22]:[.22,.14,.26]);
+  solid(parent,toiletSeat,materials.white,[cx-14.8,.46,8.35-cy],side?[.23,.12,.18]:[.18,.12,.23]);
+  solid(parent,unitSphere,materials.dark,[cx-14.8,.457,8.35-cy],side?[.17,.006,.115]:[.115,.006,.17]);
+  const [bx,by]=point(.23,.10);cylinder(parent,bx,by,.022,.008,.72,materials.metal);
+}
+function makeBasin(parent,x,y,w,d,direction) {
+  block(parent,x,y,w,d,.72,.02,materials.lightWood);
+  block(parent,x-.015,y-.015,w+.03,d+.03,.06,.74,materials.white);
+  solid(parent,unitSphere,materials.water,[x+w/2-14.8,.801,8.35-y-d/2],[(w-.15)/2,.012,(d-.15)/2]);
+  cylinder(parent,x+w/2,y+d/2,.016,.004,.813,materials.metal);
+  const side=direction!=='rear';
+  const fx=side?direction==='left'?x+w-.045:x+.045:x+w/2;
+  const fy=side?y+d/2:y+.045;
+  cylinder(parent,fx,fy,.014,.18,.79,materials.metal);
+  if(side)block(parent,fx-(direction==='left'?.13:0),fy-.012,.14,.024,.025,.95,materials.metal);
+  else block(parent,fx-.012,fy,.024,.14,.025,.95,materials.metal);
+}
+function makeShower(parent,x,y,w,d,screen,flip) {
+  block(parent,x,y,w,d,.018,.012,materials.tile);
+  for(const xx of [x,x+w-.012])block(parent,xx,y,.012,d,.006,.031,materials.windowFrame);
+  for(const yy of [y,y+d-.012])block(parent,x,yy,w,.012,.006,.031,materials.windowFrame);
+  if(screen==='front')block(parent,x+(flip?0:.80),y-.012,w-.80,.024,1.90,.03,materials.glass);
+  else block(parent,flip?x-.012:x+w-.012,y,.024,d,1.90,.03,materials.glass);
+  const px=screen==='front'?(flip?x-.025:x+w+.025):x+w/2;
+  const py=screen==='front'?y+d*.65:y-.025;
+  cylinder(parent,px,py,.012,1.22,.88,materials.metal);
+  if(screen==='front')block(parent,flip?px:px-.20,py-.012,.20,.024,.025,2.075,materials.metal);
+  else block(parent,px-.012,py,.024,.20,.025,2.075,materials.metal);
+  cylinder(parent,screen==='front'?px+(flip?.18:-.18):px,screen==='front'?py:py+.18,.095,.025,2.05,materials.metal);
+  block(parent,px-.045,py-.045,.09,.09,.06,.90,materials.metal);
+  block(parent,x+w/2-.045,y+d-.16,.09,.09,.006,.033,materials.metal);
 }
 function makeStairs(parent,home,rise) {
   const mx=(x,w=0)=>mirror(home,x,w);
@@ -699,7 +762,7 @@ let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v','access-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v','bath-1');}
   try {
     if(navigator.share)await navigator.share({title:facadeStudy?'原图外观草案 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:facadeStudy?'看看新增采光窗与三层露台门。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
     else {await navigator.clipboard.writeText(url.href);toast('分享链接已复制，可以发给家人了');}
