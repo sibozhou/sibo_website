@@ -44,7 +44,7 @@ if(facadeStudy) {
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
-  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/';
+  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=glass-2';
   $$('[data-design="original"]').forEach(el=>el.textContent='原图外观草案');
 }
 const unitBox = new THREE.BoxGeometry(1,1,1);
@@ -642,7 +642,7 @@ let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy)url.searchParams.set('facade','1');
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v','glass-2');}
   try {
     if(navigator.share)await navigator.share({title:facadeStudy?'原图外观草案 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:facadeStudy?'看看新增采光窗与三层露台门。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
     else {await navigator.clipboard.writeText(url.href);toast('分享链接已复制，可以发给家人了');}
