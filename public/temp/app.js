@@ -5,10 +5,10 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const host = $('#canvas-host');
 const params = new URLSearchParams(location.search);
-const facadeStudy = params.get('facade')==='1';
+const facadeStudy = params.get('facade')==='1'||(!params.has('design')&&params.get('facade')!=='0');
 const state = {
   design: !facadeStudy&&params.get('design')==='proposed'?'proposed':'original',
-  floor: ['all','1','2','3','explode'].includes(params.get('floor')) ? params.get('floor') : '1',
+  floor: ['all','1','2','3','explode'].includes(params.get('floor')) ? params.get('floor') : facadeStudy?'all':'1',
   scene: params.get('scene') === 'festival' ? 'festival' : 'daily',
   home: ['A','B'].includes(params.get('home')) ? params.get('home') : 'both',
   camera: facadeStudy?'entry':'bird', selected: null,
@@ -45,6 +45,7 @@ if(facadeStudy) {
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
   $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=layout-1';
+  $('#original-model')?.style.setProperty('display','flex');
   $$('[data-design="original"]').forEach(el=>el.textContent='原图外观草案');
 }
 const unitBox = new THREE.BoxGeometry(1,1,1);
