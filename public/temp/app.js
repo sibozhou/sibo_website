@@ -37,6 +37,7 @@ mat('woodLine',0x84623d);
 for(const [i,color] of [0x9da98a,0xb2b193,0x8d9f79,0xa5ac8b,0x959c7d].entries())mat('field'+i,color,{depthWrite:false});
 mat('fieldEdge',0x71835d,{depthWrite:false});mat('villageRoad',0xb6b5a8,{depthWrite:false});mat('pond',0x4e6e62,{roughness:.32,depthWrite:false});
 mat('neighbourWall',0xd9d3c5);mat('neighbourRoof',0x956e61);
+mat('accessPaving',0xe1ddd2,{depthWrite:false});
 if(facadeStudy) {
   document.body.classList.add('facade-study');
   document.title='原图外观草案 · 祁东双户住宅';
@@ -47,7 +48,7 @@ if(facadeStudy) {
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
-  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=site-2';
+  $$('.brand strong').forEach(el=>el.textContent='原图外观草案');$('.brand').href='./facade/?v=site-3';
   $('#original-model')?.style.setProperty('display','flex');
   $$('[data-design="original"]').forEach(el=>el.textContent='原图外观草案');
 }
@@ -87,6 +88,7 @@ const mirror = (home,x,w=0) => home === 'B' ? 29.6-x-w : x;
 
 let renderer, scene, camera, controls, data, currentDesign;
 let siteContextInfo,siteScenery,siteNotes;
+function siteAngle() {return siteContextInfo&&state.design==='original'?(180-siteContextInfo.frontBearing)*Math.PI/180:0;}
 const roots={};
 const floors = [], homes = [], roofGroups = [], wallSets = [], roomMeshes = [], labels = [];
 let dailyFurniture, festivalFurniture, highlighted;
@@ -97,7 +99,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',facadeStudy?'./facade-model.json?v=site-2':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',facadeStudy?'./facade-model.json?v=site-3':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -121,7 +123,7 @@ try {
   scene.add(sun.target);
   buildModel('original',original);buildModel('proposed',proposal);finalizeBatches();
   const focusMaterial=new THREE.MeshBasicMaterial({color:0x72926b,transparent:true,opacity:.28,depthWrite:false,side:THREE.DoubleSide});
-  highlighted=new THREE.Mesh(new THREE.PlaneGeometry(1,1),focusMaterial);highlighted.rotation.x=-Math.PI/2;highlighted.visible=false;scene.add(highlighted);
+  highlighted=new THREE.Mesh(new THREE.PlaneGeometry(1,1),focusMaterial);highlighted.rotation.set(-Math.PI/2,0,0,'YXZ');highlighted.visible=false;scene.add(highlighted);
   bindControls();
   $('#cutaway').checked=false;updateView(true);
   new ResizeObserver(resize).observe(host); resize();
@@ -155,18 +157,20 @@ function buildModel(design,modelData) {
   const site=group(root);
   if(facadeStudy&&original&&modelData.context)makeSiteContext(site,modelData.context);
   else block(site,-3,-3,35.6,22.7,.38,-.62,materials.ground);
-  block(site,-1.2,-1.9,32,20.2,.12,-.22,materials.paving);
-  footprint(data.court,'A',0,site,-.03,.10,materials.court);
+  const building=facadeStudy&&original?group(root):root,paving=group(building);
+  if(facadeStudy&&original)building.rotation.y=siteAngle();
+  block(paving,-1.2,-1.9,32,20.2,.12,-.22,materials.paving);
+  footprint(data.court,'A',0,paving,-.03,.10,materials.court);
   // Paving joints make the courtyard readable without inventing a surveyed landscape.
-  for(let y=-1.2;y<17.6;y+=1.5) block(site,12.4,y,4.8,.016,.015,-.025,materials.wallCap);
-  for(let x=12.4;x<=17.2;x+=1.2) block(site,x,-1.2,.016,18.8,.015,-.025,materials.wallCap);
+  for(let y=-1.2;y<17.6;y+=1.5) block(paving,12.4,y,4.8,.016,.015,-.025,materials.wallCap);
+  for(let x=12.4;x<=17.2;x+=1.2) block(paving,x,-1.2,.016,18.8,.015,-.025,materials.wallCap);
   if(facadeStudy&&original) {
-    for(let x=-1.2;x<30.8;x+=1.2)block(site,x,-1.9,.014,3.2,.008,-.215,materials.joint);
-    for(let y=-1.9;y<1.3;y+=1.2)block(site,-1.2,y,32,.014,.008,-.215,materials.joint);
-    makeCourtyardTree(site);
+    for(let x=-1.2;x<30.8;x+=1.2)block(paving,x,-1.9,.014,3.2,.008,-.215,materials.joint);
+    for(let y=-1.9;y<1.3;y+=1.2)block(paving,-1.2,y,32,.014,.008,-.215,materials.joint);
+    makeCourtyardTree(paving);
   }
   for(let level=1;level<=3;level++) {
-    const f=group(root);f.position.y=base[level-1];floors.push({g:f,level,design});thisFloors.push(f);
+    const f=group(building);f.position.y=base[level-1];floors.push({g:f,level,design});thisFloors.push(f);
     for(const home of ['A','B']) {
       const g=group(f);homes.push({g,home,level});
       const outline=original&&level===1?data.outline.map(([x,y])=>[x===10.2&&[6.7,11.1].includes(y)?9.4:x,y]):data.outline;
@@ -382,7 +386,10 @@ function makeSiteContext(parent,context) {
     siteRibbon(parent,[...field.points,field.points[0]],.25,materials.fieldEdge,-.242);
   }
   siteRibbon(parent,context.road.points,context.road.width,materials.villageRoad,-.235,4);
+  for(const path of context.accessPaths)siteRibbon(parent,path.points,path.width,materials.accessPaving,-.232,3.5);
+  siteRibbon(parent,context.frontRoad.points,context.frontRoad.width,materials.villageRoad,-.235,4);
   sitePatch(parent,context.pond,materials.pond,-.23,5);
+  sitePatch(parent,context.northPond,materials.pond,-.23,5);
   siteScenery=group(parent);siteNotes=group(parent);
   for(const n of context.neighbours) {
     const [x,y]=n.point,[w,d]=n.size;
@@ -719,6 +726,7 @@ function selectRoom(room) {
   labels.forEach(l=>l.el.classList.toggle('selected',l.room.id===room.id));
   if(!['stairs','court','terrace'].includes(room.kind)) {
     const [x,y,w,d]=room.rect;highlighted.position.copy(worldPoint(x+w/2,y+d/2,base[room.level-1]+offsetFor(room.level)+.025));
+    highlighted.position.applyAxisAngle(new THREE.Vector3(0,1,0),siteAngle());highlighted.rotation.y=siteAngle();
     highlighted.scale.set(w-.19,d-.19,1);highlighted.visible=true;
   }else highlighted.visible=false;
   requestFrame();
@@ -749,7 +757,7 @@ function updateView(moveCamera=false) {
   $('#kitchen-stat').textContent=counted.filter(r=>r.kind==='kitchen').length;
   $('#dining-stat').textContent=counted.filter(r=>r.kind==='dining').length;
   $('#stats-label').textContent=state.home==='both'?'全屋统计':state.home==='A'?'甲户统计':'乙户统计';
-  $('#model-note').textContent=facadeStudy?'门朝正南。周边按截图与10.85米量线估测，界址、高程及邻房高度待测。光影为示意，门墙须结构深化。':state.design==='original'?'按原平面重建；层高、立面及露台边界为示意。':'概念方案，非施工图。每户一层、三层各1间洗衣房。';
+  $('#model-note').textContent=facadeStudy?'入户约南偏东12°。周边以56.50米量线校准；路宽、界址、高程及邻房高度待测。门前衔接与光影为示意。':state.design==='original'?'按原平面重建；层高、立面及露台边界为示意。':'概念方案，非施工图。每户一层、三层各1间洗衣房。';
   $('#original-drawing').href='./downloads/original-floor-'+(only||1)+'.pdf';
   $('#original-drawing b').textContent=(only?floorNames[only-1]:'一层')+'原始图纸';
   $('#room-detail').hidden=!state.selected;
@@ -768,7 +776,7 @@ function setCamera(preset) {
     camera.near=1;
     const xs=siteContextInfo.bounds.map(p=>p[0]),ys=siteContextInfo.bounds.map(p=>p[1]);
     const x=(Math.min(...xs)+Math.max(...xs))/2-14.8,z=8.35-(Math.min(...ys)+Math.max(...ys))/2;
-    const direction=new THREE.Vector3(.12,.84,.53).normalize(),right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),direction).normalize();
+    const direction=new THREE.Vector3(0,.84,.53).normalize(),right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),direction).normalize();
     const up=new THREE.Vector3().crossVectors(direction,right),tan=Math.tan(camera.fov*Math.PI/360);
     let distance=0;
     for(const p of siteContextInfo.bounds)for(const h of [-.27,20]) {
@@ -789,6 +797,10 @@ function setCamera(preset) {
   else if(preset==='entry')camera.position.set(cx+distance*.30,y+distance*.31,distance*.86);
   else camera.position.set(cx+distance*.40,y+distance*.72,distance*.69);
   if(state.floor==='explode') {camera.position.y+=12;camera.position.z+=7;}
+  const axis=new THREE.Vector3(0,1,0),angle=siteAngle(),target=controls.target.clone();
+  controls.target.applyAxisAngle(axis,angle);
+  if(preset==='top')camera.position.add(controls.target.clone().sub(target));
+  else camera.position.applyAxisAngle(axis,angle);
   }
   camera.updateProjectionMatrix();
   $$('[data-camera]').forEach(b=>b.classList.toggle('active',b.dataset.camera===preset));
@@ -855,7 +867,7 @@ let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v','site-2');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v','site-3');}
   if(state.camera==='site')url.searchParams.set('view','site');
   try {
     if(navigator.share)await navigator.share({title:facadeStudy?'原图外观草案 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看新增采光窗与三层露台门。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
