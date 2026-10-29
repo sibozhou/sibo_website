@@ -387,6 +387,7 @@ function makeStudyColumn(column,full,low) {
   const mesh=new THREE.Mesh(geometry,materials.wall);mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.studyColumn=column;full.add(mesh);
   if(level<3&&!wing)block(full,x,y,w,d,.018,heights[level-1],materials.column);
   block(low,x,y,w,d,1.08-bottom,bottom,materials.wall);block(low,x,y,w,d,.018,1.08,materials.column);
+  if(level===1)for(const parent of [full,low])block(parent,x-.006,y-.006,w+.012,d+.012,.55-bottom,bottom,materials.plinth);
 }
 
 function makeWall(w,parent,height,cut) {
@@ -399,9 +400,11 @@ function makeWall(w,parent,height,cut) {
     block(parent,x+(horizontal?0:width*(1-thickness)/2),y+(horizontal?width*(1-thickness)/2:0),
       horizontal?dx:dx*thickness,horizontal?dy*thickness:dy,top-bottom,bottom,material);
   }
+  const joinedPlinth=facadeChanges&&currentDesign==='original'&&data.joinedLayout&&w.level===1&&width>.19&&['wall','window'].includes(w.kind);
+  if(joinedPlinth)part(data.vertical.outdoorLevel-.05,w.kind==='window'?Math.min(.55,w.sill??.85):.55,materials.plinth,1.04);
   if(w.kind==='wall') {
     part(0,height);
-    if(facadeStudy&&w.level===1&&width>.19)part(0,.55,materials.plinth,1.04);
+    if(!joinedPlinth&&facadeStudy&&w.level===1&&width>.19)part(0,.55,materials.plinth,1.04);
     if(cut)part(height-.025,height,materials.wallCap);return;
   }
   if(w.kind==='window') {
@@ -567,6 +570,9 @@ function makeCourtyardEnclosure(parent) {
   block(parent,a,y-e.width/2,left-a,e.width,e.height-w.sill,w.sill,materials.wall);
   block(parent,right,y-e.width/2,b-right,e.width,e.height-w.sill,w.sill,materials.wall);
   block(parent,left,y-e.width/2,w.width,e.width,e.height-w.head,w.head,materials.wall);
+  const plinthTop=.55-data.vertical.outdoorLevel,bottom=-.05;
+  block(parent,a,y-e.width*.52,b-a,e.width*1.04,Math.min(plinthTop,w.sill)-bottom,bottom,materials.plinth);
+  if(plinthTop>w.sill)for(const [x,width]of [[a,left-a],[right,b-right]])block(parent,x,y-e.width*.52,width,e.width*1.04,plinthTop-w.sill,w.sill,materials.plinth);
   block(parent,a-.04,y-.14,b-a+.08,.28,.07,e.height,materials.wallCap);
   for(const x of [left,right-.04])block(parent,x,y-.04,.04,.08,w.head-w.sill,w.sill,materials.windowFrame);
   for(const z of [w.sill,w.head-.04])block(parent,left,y-.04,w.width,.08,.04,z,materials.windowFrame);
@@ -1187,7 +1193,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-4');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-5');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(state.camera==='site')url.searchParams.set('view','site');
   try {
