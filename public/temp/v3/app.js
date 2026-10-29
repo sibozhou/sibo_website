@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { createOpening } from './opening-motion.js?v=1028-8';
+import { createOpening } from './opening-motion.js?v=1028-9';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -113,7 +113,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1028-8':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1028-9':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -550,36 +550,28 @@ function lowRoofHeight(x,y) {
   return r.eave+(2.1-Math.abs(x-r.ridgeX))*Math.tan(r.pitch*Math.PI/180)+(y-2.2)*Math.tan(r.southPitch*Math.PI/180);
 }
 function makeLowPitchedRoof(parent,home) {
-  const r=data.secondaryRoof,mx=x=>mirror(home,x),left=3.3-r.overhang,right=7.5+r.overhang,front=2.2-r.overhang,back=8.5;
+  const r=data.secondaryRoof,p=data.passageRoof,mx=x=>mirror(home,x),left=3.3-r.overhang,outer=7.5+r.overhang,inner=p.polygon[1][0],front=2.2-r.overhang,joint=p.polygon[0][1],back=p.polygon[2][1];
   const face=(points,material)=>roofSurface(parent,points.map(([x,y,z])=>[mx(x),y,lowRoofHeight(x,y)+z]),material);
-  for(const [a,b]of [[left,r.ridgeX],[r.ridgeX,right]]) {
-    for(const [z,material]of [[0,materials.seamRoof],[-.04,materials.windowFrame]])face([[a,front,z],[b,front,z],[b,back,z],[a,back,z]],material);
-    for(let y=front+.28;y<back;y+=data.pitchedRoof.seamSpacing)face([[a,y-.008,.012],[b,y-.008,.012],[b,y+.008,.012],[a,y+.008,.012]],materials.windowFrame);
-    for(const y of [front,back])face([[a,y,-.08],[b,y,-.08],[b,y,-.02],[a,y,-.02]],materials.windowFrame);
-    for(const y of [2.2,back])roofSurface(parent,[[mx(Math.max(3.3,a)),y,0],[mx(Math.min(7.5,b)),y,0],[mx(Math.min(7.5,b)),y,lowRoofHeight(Math.min(7.5,b),y)-.04],[mx(Math.max(3.3,a)),y,lowRoofHeight(Math.max(3.3,a),y)-.04]],materials.roofInfill);
+  // The two right-hand panels share one plane and edge; no internal gutter or overlapping patch.
+  for(const [a,b,c,d]of [[left,r.ridgeX,front,back],[r.ridgeX,outer,front,back],[outer,inner,joint,back]]) {
+    for(const [z,material]of [[0,materials.seamRoof],[-.04,materials.windowFrame]])face([[a,c,z],[b,c,z],[b,d,z],[a,d,z]],material);
   }
-  for(const x of [3.3,7.5])roofSurface(parent,[[mx(x),2.2,0],[mx(x),back,0],[mx(x),back,lowRoofHeight(x,back)-.04],[mx(x),2.2,lowRoofHeight(x,2.2)-.04]],materials.roofInfill);
+  for(let y=front+.28;y<back;y+=data.pitchedRoof.seamSpacing)for(const [a,b]of [[left,r.ridgeX],[r.ridgeX,y<joint?outer:inner]])face([[a,y-.008,.012],[b,y-.008,.012],[b,y+.008,.012],[a,y+.008,.012]],materials.windowFrame);
   face([[r.ridgeX-.035,front,.014],[r.ridgeX+.035,front,.014],[r.ridgeX+.035,back,.014],[r.ridgeX-.035,back,.014]],materials.seamRoof);
-  for(const x of [left,right]) {
-    face([[x-.06,front,-.05],[x+.06,front,-.05],[x+.06,back,-.05],[x-.06,back,-.05]],materials.windowFrame);
-    cylinder(parent,mx(x),front,.04,base[2]+lowRoofHeight(x,front)+.40,-base[2]-.45,materials.windowFrame);
+  const perimeter=[[left,front],[r.ridgeX,front],[outer,front],[outer,joint],[inner,joint],[inner,back],[r.ridgeX,back],[left,back]];
+  for(let i=0;i<perimeter.length;i++) {
+    const a=perimeter[i],b=perimeter[(i+1)%perimeter.length];
+    face([[...a,-.08],[...b,-.08],[...b,-.02],[...a,-.02]],materials.windowFrame);
   }
-  if(data.passageRoof)makePassageRoof(parent,home);
-}
-
-function passageRoofHeight(x,y) {
-  const r=data.passageRoof;
-  return lowRoofHeight(r.joinX,y)-(x-r.joinX)*Math.tan(r.pitch*Math.PI/180);
-}
-function makePassageRoof(parent,home) {
-  const r=data.passageRoof,mx=x=>mirror(home,x),left=r.polygon[0][0],right=r.polygon[1][0],front=r.polygon[0][1],back=r.polygon[2][1];
-  const face=(points,material)=>roofSurface(parent,points.map(([x,y,z])=>[mx(x),y,passageRoofHeight(x,y)+z]),material);
-  for(const [z,material]of [[0,materials.seamRoof],[-.04,materials.windowFrame]])face([[left,front,z],[right,front,z],[right,back,z],[left,back,z]],material);
-  for(let y=front+.28;y<back;y+=data.pitchedRoof.seamSpacing)face([[left,y-.008,.012],[right,y-.008,.012],[right,y+.008,.012],[left,y+.008,.012]],materials.windowFrame);
-  face([[left,front,-.08],[right,front,-.08],[right,front,-.02],[left,front,-.02]],materials.windowFrame);
-  face([[right-.06,front,-.05],[right+.06,front,-.05],[right+.06,back,-.05],[right-.06,back,-.05]],materials.windowFrame);
-  for(const [a,b]of [[[7.5,6.7],[10.2,6.7]],[[10.2,6.7],[10.2,8.5]]])roofSurface(parent,[[mx(a[0]),a[1],0],[mx(b[0]),b[1],0],[mx(b[0]),b[1],passageRoofHeight(...b)-.04],[mx(a[0]),a[1],passageRoofHeight(...a)-.04]],materials.roofInfill);
-  cylinder(parent,mx(right),front,.04,base[2]+passageRoofHeight(right,front)+.40,-base[2]-.45,materials.windowFrame);
+  for(const [x,a,b]of [[left,front,back],[outer,front,joint],[inner,joint,back]]) {
+    face([[x-.06,a,-.05],[x+.06,a,-.05],[x+.06,b,-.05],[x-.06,b,-.05]],materials.windowFrame);
+    cylinder(parent,mx(x),a,.04,base[2]+lowRoofHeight(x,a)+.40,-base[2]-.45,materials.windowFrame);
+  }
+  face([[outer,joint-.06,-.05],[inner,joint-.06,-.05],[inner,joint+.06,-.05],[outer,joint+.06,-.05]],materials.windowFrame);
+  const fill=(a,b)=>roofSurface(parent,[[mx(a[0]),a[1],0],[mx(b[0]),b[1],0],[mx(b[0]),b[1],lowRoofHeight(...b)-.04],[mx(a[0]),a[1],lowRoofHeight(...a)-.04]],materials.roofInfill);
+  for(const y of [2.2,8.5])for(const [a,b]of [[3.3,r.ridgeX],[r.ridgeX,7.5]])fill([a,y],[b,y]);
+  for(const x of [3.3,7.5])fill([x,2.2],[x,8.5]);
+  fill([7.5,6.7],[10.2,6.7]);fill([10.2,6.7],[10.2,8.5]);
 }
 
 function makeJoinedDining(parent) {
@@ -1233,7 +1225,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-8');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-9');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(state.camera==='site')url.searchParams.set('view','site');
   try {
