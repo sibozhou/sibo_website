@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { createOpening } from './opening-motion.js?v=1028-6';
+import { createOpening } from './opening-motion.js?v=1028-7';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -113,7 +113,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1028-6':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1028-7':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -242,6 +242,10 @@ function buildModel(design,modelData) {
         makeStudyColumn(column,full,low);
       }
       for(const room of data.rooms.filter(r=>r.level===level&&r.home===home)) makeRoom({...room,design},g);
+      if(joined&&level===2) {
+        const [x,y,w,d]=data.frontBedroomAccess.annexLocal;
+        footprint([[x,y],[x+w,y],[x+w,y+d],[x,y+d]],home,level,g,.008,.01,floorMaterials.wood);
+      }
       if(!strictOriginal)for(const bed of data.beds.filter(b=>b.level===level&&b.home===home)) original?makeOriginalBed(g,bed):makeBed(g,bed);
       if(facadeChanges&&original)for(const desk of data.bedroomDesks.filter(d=>d.level===level&&d.home===home))makeBedroomDesk(g,desk);
       const mx=(x,w=0)=>mirror(home,x,w);
@@ -260,7 +264,7 @@ function buildModel(design,modelData) {
           for(let i=1;i<access.risers;i++)block(g,mx(px+pw+(i-1)*access.tread,access.tread),py,access.tread,pd,-data.vertical.outdoorLevel-i*access.riserHeight,data.vertical.outdoorLevel,materials.slab);
           makeLabel({id:home+'-courtyard-access',home,level,rect:[mx(9.1,.6),9,.6,.7],kind:'service',name:'天井门',description:access.description},g);
         }
-        if(joined&&level===2)makeLabel({id:home+'-gallery-terrace',home,level,rect:[mx(8.25,1.1),8.1,1.1,.7],kind:'terrace',name:'露台门',description:'由有顶走廊向外开启，通向保留露天的前部过渡段和二层露台。'},g);
+        if(joined&&level===2)makeLabel({id:home+'-gallery-terrace',home,level,rect:[mx(8.9,1.1),6.35,1.1,.7],kind:'terrace',name:'露台门',description:'由无顶转折通道南端向外开至露台；卫浴旁侧门进入甲5或乙5，原卧室入口及短隔墙已拆，卫浴门墙保留。'},g);
         if(facadeChanges) {
           block(g,mx(-.14,.09),11.05,.09,.09,heights[level-1],0,materials.windowFrame);
           if(level===1) {
@@ -385,7 +389,7 @@ function makeStudyColumn(column,full,low) {
     const r=data.pitchedRoof,ridge=r.frontEave+(r.ridgeY-r.frontY)*Math.tan(r.pitch*Math.PI/180);
     return yy<=r.ridgeY?r.frontEave+(yy-r.frontY)*Math.tan(r.pitch*Math.PI/180):ridge-(yy-r.ridgeY)*(ridge-r.backEave)/(16.7+r.overhang-r.ridgeY);
   };
-  const top=(xx,yy)=>level===3?roofY(yy)-.04:wing?heights[1]+data.secondaryRoof.eave+(yy-2.2)*Math.tan(data.secondaryRoof.pitch*Math.PI/180)-.04:heights[level-1];
+  const top=(xx,yy)=>level===3?roofY(yy)-.04:wing?heights[1]+lowRoofHeight(column.home==='A'?xx:29.6-xx,yy)-.04:heights[level-1];
   const corners=[[x,y],[x+w,y],[x+w,y+d],[x,y+d]],points=[...corners.map(([a,b])=>worldPoint(a,b,bottom)),...corners.map(([a,b])=>worldPoint(a,b,top(a,b)))];
   const indices=[0,3,2,0,2,1,4,5,6,4,6,7,0,1,5,0,5,4,1,2,6,1,6,5,2,3,7,2,7,6,3,0,4,3,4,7],vertices=indices.flatMap(i=>points[i].toArray());
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.computeVertexNormals();
@@ -542,16 +546,25 @@ function makePitchedRoof(parent,home) {
   for(const [x,y]of [[.12,16.85],[3.4,14.82]])cylinder(parent,mx(x),y,.045,top(y)+base[2]+.35,-base[2]-.45,materials.windowFrame);
 }
 
+function lowRoofHeight(x,y) {
+  const r=data.secondaryRoof;
+  return r.eave+(2.1-Math.abs(x-r.ridgeX))*Math.tan(r.pitch*Math.PI/180)+(y-2.2)*Math.tan(r.southPitch*Math.PI/180);
+}
 function makeLowPitchedRoof(parent,home) {
-  const r=data.secondaryRoof,mx=x=>mirror(home,x),left=3.3-r.overhang,right=7.5,front=2.2-r.overhang,back=8.5;
-  const top=y=>r.eave+(y-2.2)*Math.tan(r.pitch*Math.PI/180);
-  roofSurface(parent,[[mx(left),front,top(front)],[mx(right),front,top(front)],[mx(right),back,top(back)],[mx(left),back,top(back)]],materials.seamRoof);
-  roofSurface(parent,[[mx(left),front,top(front)-.04],[mx(right),front,top(front)-.04],[mx(right),back,top(back)-.04],[mx(left),back,top(back)-.04]],materials.windowFrame);
-  for(const y of [2.2,back])roofSurface(parent,[[mx(3.3),y,0],[mx(right),y,0],[mx(right),y,top(y)-.04],[mx(3.3),y,top(y)-.04]],materials.roofInfill);
-  for(const x of [3.3,right])roofSurface(parent,[[mx(x),2.2,0],[mx(x),back,0],[mx(x),back,top(back)-.04],[mx(x),2.2,top(2.2)-.04]],materials.roofInfill);
-  for(let x=left+.28;x<right;x+=data.pitchedRoof.seamSpacing)roofSurface(parent,[[mx(x-.009),front,top(front)+.015],[mx(x+.009),front,top(front)+.015],[mx(x+.009),back,top(back)+.015],[mx(x-.009),back,top(back)+.015]],materials.windowFrame);
-  facadeBand(parent,home,[left,front],[right,front],.12,.10,top(front)-.07,materials.windowFrame);
-  cylinder(parent,mx(3.15),front,.04,base[2]+top(front)+.35,-base[2]-.45,materials.windowFrame);
+  const r=data.secondaryRoof,mx=x=>mirror(home,x),left=3.3-r.overhang,right=7.5+r.overhang,front=2.2-r.overhang,back=8.5;
+  const face=(points,material)=>roofSurface(parent,points.map(([x,y,z])=>[mx(x),y,lowRoofHeight(x,y)+z]),material);
+  for(const [a,b]of [[left,r.ridgeX],[r.ridgeX,right]]) {
+    for(const [z,material]of [[0,materials.seamRoof],[-.04,materials.windowFrame]])face([[a,front,z],[b,front,z],[b,back,z],[a,back,z]],material);
+    for(let y=front+.28;y<back;y+=data.pitchedRoof.seamSpacing)face([[a,y-.008,.012],[b,y-.008,.012],[b,y+.008,.012],[a,y+.008,.012]],materials.windowFrame);
+    for(const y of [front,back])face([[a,y,-.08],[b,y,-.08],[b,y,-.02],[a,y,-.02]],materials.windowFrame);
+    for(const y of [2.2,back])roofSurface(parent,[[mx(Math.max(3.3,a)),y,0],[mx(Math.min(7.5,b)),y,0],[mx(Math.min(7.5,b)),y,lowRoofHeight(Math.min(7.5,b),y)-.04],[mx(Math.max(3.3,a)),y,lowRoofHeight(Math.max(3.3,a),y)-.04]],materials.roofInfill);
+  }
+  for(const x of [3.3,7.5])roofSurface(parent,[[mx(x),2.2,0],[mx(x),back,0],[mx(x),back,lowRoofHeight(x,back)-.04],[mx(x),2.2,lowRoofHeight(x,2.2)-.04]],materials.roofInfill);
+  face([[r.ridgeX-.035,front,.014],[r.ridgeX+.035,front,.014],[r.ridgeX+.035,back,.014],[r.ridgeX-.035,back,.014]],materials.seamRoof);
+  for(const x of [left,right]) {
+    face([[x-.06,front,-.05],[x+.06,front,-.05],[x+.06,back,-.05],[x-.06,back,-.05]],materials.windowFrame);
+    cylinder(parent,mx(x),front,.04,base[2]+lowRoofHeight(x,front)+.40,-base[2]-.45,materials.windowFrame);
+  }
 }
 
 function makeJoinedDining(parent) {
@@ -1198,7 +1211,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-6');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-7');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(state.camera==='site')url.searchParams.set('view','site');
   try {

@@ -45,6 +45,14 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
     const leaf=new THREE.Group();sash.add(leaf);leaf.position.y=-(height-.05);
     panel(leaf,0,length-.05,height-.05,true,'bottom');
     moves.push(t=>{sash.rotation.x=inward*t*Math.PI/6;});
+  } else if(isWindow&&wall.operation==='fixed-casement') {
+    const width=wall.openingLeaf,start=wall.openingSide!=='end',split=start?width:length-width;
+    const fixedStart=start?width:0,fixedWidth=length-width;
+    box(root,fixedStart+.025,.025,-.014,fixedWidth-.05,height-.05,.028,materials.glass);
+    box(root,split-.02,0,-.035,.04,height,.07,materials.windowFrame);
+    const sash=new THREE.Group();root.add(sash);sash.position.set(start?.025:length-.025,.025,0);
+    panel(sash,start?0:-(width-.05),width-.05,height-.05,true,start?'end':'start');
+    moves.push(t=>{sash.rotation.y=(start?1:-1)*inward*t*Math.PI/2;});
   } else if(isWindow&&!wall.operation?.startsWith('casement')) {
     const width=wall.singleSash?length:(wall.openingLeaf??.45);
     const start=wall.openingSide==='end'?length-width:0;
