@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { createOpening } from './opening-motion.js?v=1028-9';
+import { createOpening } from './opening-motion.js?v=1028-eaves-1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -16,7 +16,7 @@ const state = {
   scene: params.get('scene') === 'festival' ? 'festival' : 'daily',
   home: ['A','B'].includes(params.get('home')) ? params.get('home') : 'both',
   camera: facadeStudy?(params.get('view')==='site'?'site':facadeChanges&&params.get('scene')==='festival'?'top':'entry'):'bird', selected: null,
-  roofColor:Object.hasOwn(roofColors,params.get('roof'))?params.get('roof'):'stone',
+  roofColor:Object.hasOwn(roofColors,params.get('roof'))?params.get('roof'):'clay',
 };
 const heights = facadeChanges?[3.9,3.3,3.3]:[3.3,3.1,3.0];
 const base = [0,heights[0],heights[0]+heights[1]];
@@ -44,7 +44,7 @@ for(const [i,color] of [0x9da98a,0xb2b193,0x8d9f79,0xa5ac8b,0x959c7d].entries())
 mat('fieldEdge',0x71835d,{depthWrite:false});mat('villageRoad',0xb6b5a8,{depthWrite:false});mat('pond',0x4e6e62,{roughness:.32,depthWrite:false});
 mat('neighbourWall',0xd9d3c5);mat('neighbourRoof',0x956e61);
 mat('accessPaving',0xe1ddd2,{depthWrite:false});
-mat('seamRoof',0x676962,{roughness:.62,metalness:.25,side:THREE.DoubleSide});
+mat('seamRoof',0x8a6256,{roughness:.62,metalness:.25,side:THREE.DoubleSide});
 mat('roofInfill',0xf2e9d9,{side:THREE.DoubleSide});
 mat('column',0x777971);
 mat('guardBase',0x555a55);mat('guardJoint',0x80857e);
@@ -113,7 +113,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1028-9':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1028-eaves-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -1225,7 +1225,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-9');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-eaves-1');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(state.camera==='site')url.searchParams.set('view','site');
   try {
