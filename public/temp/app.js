@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { createOpening } from './opening-motion.js?v=1028-4';
+import { createOpening } from './opening-motion.js?v=1028-6';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -113,7 +113,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1028-4':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1028-6':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -255,7 +255,12 @@ function buildModel(design,modelData) {
           for(let i=0;i<3;i++)block(g,mirror(home,5.2,1.6),14.9+.35*i,1.6,.35,.15,-.15*(i+1),materials.slab);
           makeLabel({id:home+'-back-entry',home,level,rect:[mirror(home,5.5,1),12.15,1,.7],kind:'terrace',name:'北侧后门',description:data.backAccess.description},g);
           makeLabel({id:home+'-foyer-stair-door',home,level,rect:[mirror(home,8,1.2),6.35,1.2,.7],kind:'service',name:'玄关通楼梯门',description:'玄关北侧现有约1.20米开口改细框玻璃门，向玄关内开启，连接公共楼梯走廊。'},g);
+          const access=data.courtyardAccess,[px,py,pw,pd]=access.landing;
+          block(g,mx(px,pw),py,pw,pd,-data.vertical.outdoorLevel,data.vertical.outdoorLevel,materials.slab);
+          for(let i=1;i<access.risers;i++)block(g,mx(px+pw+(i-1)*access.tread,access.tread),py,access.tread,pd,-data.vertical.outdoorLevel-i*access.riserHeight,data.vertical.outdoorLevel,materials.slab);
+          makeLabel({id:home+'-courtyard-access',home,level,rect:[mx(9.1,.6),9,.6,.7],kind:'service',name:'天井门',description:access.description},g);
         }
+        if(joined&&level===2)makeLabel({id:home+'-gallery-terrace',home,level,rect:[mx(8.25,1.1),8.1,1.1,.7],kind:'terrace',name:'露台门',description:'由有顶走廊向外开启，通向保留露天的前部过渡段和二层露台。'},g);
         if(facadeChanges) {
           block(g,mx(-.14,.09),11.05,.09,.09,heights[level-1],0,materials.windowFrame);
           if(level===1) {
@@ -464,7 +469,7 @@ function addModelOpening(w,parent,height) {
   const bathroom=adjacent.find(r=>r.kind==='bath');
   const room=w.opensTo==='private'?adjacent.find(r=>r.id===bathroom?.connectedRoom):bathroom||adjacent[0];
   const centre=room?[room.rect[0]+room.rect[2]/2,room.rect[1]+room.rect[3]/2]:[w.home==='B'?22.7:6.9,8.35];
-  const normal=horizontal?[0,Math.sign(centre[1]-middle[1])]:[Math.sign(centre[0]-middle[0]),0];
+  const normal=w.interiorNormal??(horizontal?[0,Math.sign(centre[1]-middle[1])]:[Math.sign(centre[0]-middle[0]),0]);
   const variant=createOpening(parent,w,height,normal,materials,solid);
   if(variant&&entry){variant.root.userData.opening=entry;entry.variants.push(variant);}
 }
@@ -1166,7 +1171,7 @@ function bindModelGestures() {
     if(!candidate||candidate.id!==e.pointerId||active.size||e.timeStamp-candidate.time>500||Math.hypot(e.clientX-candidate.x,e.clientY-candidate.y)>8)return;
     if(candidate.room){
       const room=candidate.room;
-      const entry=facadeChanges&&[...openingEntries.values()].find(e=>e.wall.home===room.home&&e.wall.level===room.level&&(room.id.endsWith('-balcony-door')&&e.wall.study==='门2'||room.id.endsWith('-terrace-door')&&e.wall.study==='门1'||room.id.endsWith('-rear-exit')&&e.wall.code==='rear-exit'||room.id.endsWith('-back-entry')&&e.wall.code==='back-entry'||room.id.endsWith('-foyer-stair-door')&&e.wall.code==='foyer-stair-door'));
+      const entry=facadeChanges&&[...openingEntries.values()].find(e=>e.wall.home===room.home&&e.wall.level===room.level&&(room.id.endsWith('-balcony-door')&&e.wall.study==='门2'||room.id.endsWith('-terrace-door')&&e.wall.study==='门1'||room.id.endsWith('-rear-exit')&&e.wall.code==='rear-exit'||room.id.endsWith('-back-entry')&&e.wall.code==='back-entry'||room.id.endsWith('-foyer-stair-door')&&e.wall.code==='foyer-stair-door'||room.id.endsWith('-courtyard-access')&&e.wall.code==='courtyard-access'||room.id.endsWith('-gallery-terrace')&&e.wall.code==='gallery-terrace'));
       if(entry){toggleOpening(entry);return;}
       selectRoom(room);return;
     }
@@ -1193,7 +1198,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-5');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1028-6');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(state.camera==='site')url.searchParams.set('view','site');
   try {

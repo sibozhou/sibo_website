@@ -30,9 +30,10 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
     }
     if(handle) {
       const handleX=handle==='bottom'?x+w/2:handle==='start'?x+.12:x+w-.12;
+      const handleY=handle==='bottom'?.10:Math.min(isWindow&&wall.handleHeight!==undefined?wall.handleHeight-bottom-.025-.035/2:.95,h-.08);
       for(const side of isWindow?[inward]:[-1,1]) {
         if(wall.study==='门7')box(g,handleX-.03,Math.min(.88,h-.18),side*.022-.004,.06,.16,.008,materials.metal);
-        else box(g,handleX-.06,handle==='bottom'?.10:Math.min(.95,h-.08),side*.04-.025,.12,.035,.05,materials.metal);
+        else box(g,handleX-.06,handleY,side*.04-.025,.12,.035,.05,materials.metal);
       }
     }
   }
