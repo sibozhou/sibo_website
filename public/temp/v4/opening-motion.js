@@ -73,7 +73,7 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
     const sash=new THREE.Group();root.add(sash);sash.position.set(start+.025,.025,0);
     panel(sash,0,width-.05,height-.05,true,wall.operation==='fixed'?null:'end');
     if(wall.operation!=='fixed')moves.push(t=>{sash.rotation.x=inward*t*Math.PI/15;});
-  } else if(wall.study==='门7') {
+  } else if(wall.study==='门7'||wall.singleSliding) {
     // Surface sliding private doors keep the bedroom entrance and desk aisle clear.
     const leaf=new THREE.Group();root.add(leaf);leaf.position.set(-.02,.025,inward*(wall.width/2+.035));
     panel(leaf,0,length+.04,height-.065,false,'start');
