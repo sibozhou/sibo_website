@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { createOpening } from './opening-motion.js?v=1029-v4-portals-1';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-service-sun-1';
+import { createOpening } from './opening-motion.js?v=1029-v4-service-sun-1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -10,12 +11,14 @@ const roofColors={stone:{name:'暖石板灰',hex:0x676962},charcoal:{name:'深�
 const strictOriginal = /\/v2(?:\/index\.html)?\/?$/.test(location.pathname);
 const facadeStudy = strictOriginal||params.get('facade')==='1'||(!params.has('design')&&params.get('facade')!=='0');
 const facadeChanges = facadeStudy&&!strictOriginal;
+const boundedParam=(key,min,max,fallback)=>params.has(key)&&Number.isFinite(Number(params.get(key)))?Math.max(min,Math.min(max,Number(params.get(key)))):fallback;
 const state = {
   design: !facadeStudy&&params.get('design')==='proposed'?'proposed':'original',
   floor: ['all','1','2','3','explode'].includes(params.get('floor')) ? params.get('floor') : facadeStudy?'all':'1',
   scene: params.get('scene') === 'festival' ? 'festival' : 'daily',
   home: ['A','B'].includes(params.get('home')) ? params.get('home') : 'both',
   camera: facadeStudy?(['site','north'].includes(params.get('view'))?params.get('view'):facadeChanges&&params.get('scene')==='festival'?'top':'entry'):'bird', selected: null,
+  sunSeason:boundedParam('season',0,4,2+36/89),sunHour:boundedParam('hour',0,24,14),
   roofColor:Object.hasOwn(roofColors,params.get('roof'))?params.get('roof'):'clay',
 };
 const heights = facadeChanges?[3.9,3.3,3.3]:[3.3,3.1,3.0];
@@ -99,7 +102,7 @@ function group(parent) { const g = new THREE.Group(); parent.add(g); return g; }
 const worldPoint = (x,y,z=0) => new THREE.Vector3(x-14.8,z,8.35-y);
 const mirror = (home,x,w=0) => home === 'B' ? 29.6-x-w : x;
 
-let renderer, scene, camera, controls, data, currentDesign;
+let renderer, scene, camera, controls, data, currentDesign, sunLight, skyLight, solarSite, solarDirty=false;
 let siteContextInfo,siteScenery,siteNotes,joinedLayout;
 function siteAngle() {return siteContextInfo&&state.design==='original'?(180-siteContextInfo.frontBearing)*Math.PI/180:0;}
 const roots={};
@@ -113,7 +116,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-portals-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-service-sun-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -129,16 +132,16 @@ try {
   controls.minDistance=6; controls.maxDistance=matchMedia('(max-width:740px)').matches?180:105;
   controls.maxPolarAngle=Math.PI*.485; controls.target.set(0,0,0);
   controls.addEventListener('change',requestFrame);
-  const ambient = new THREE.HemisphereLight(0xffffff,facadeStudy?0xc5bbb0:0xbac4a6,1.5); scene.add(ambient);
+  const ambient = new THREE.HemisphereLight(0xffffff,facadeStudy?0xc5bbb0:0xbac4a6,1.5); scene.add(ambient);skyLight=ambient;
   const sun = new THREE.DirectionalLight(0xffefd3,2.5); sun.position.set(-18,35,22);
-  sun.castShadow=true; sun.shadow.mapSize.set(2048,2048);
+  sunLight=sun;sun.castShadow=true; sun.shadow.mapSize.set(2048,2048);
   Object.assign(sun.shadow.camera,{left:-26,right:26,top:26,bottom:-26,near:1,far:100});
   sun.shadow.bias=-.0006; sun.shadow.normalBias=.035; scene.add(sun);
   scene.add(sun.target);
   buildModel('original',original);if(!strictOriginal)buildModel('proposed',proposal);finalizeBatches();
   const focusMaterial=new THREE.MeshBasicMaterial({color:0x72926b,transparent:true,opacity:.28,depthWrite:false,side:THREE.DoubleSide});
   highlighted=new THREE.Mesh(new THREE.PlaneGeometry(1,1),focusMaterial);highlighted.rotation.set(-Math.PI/2,0,0,'YXZ');highlighted.visible=false;scene.add(highlighted);
-  bindControls();
+  bindControls();if(facadeChanges)setupSolar(original.solarStudy);
   $('#cutaway').checked=false;updateView(true);
   new ResizeObserver(resize).observe(host); resize();
   $('#loading').hidden=true;
@@ -236,7 +239,7 @@ function buildModel(design,modelData) {
       if(joined)for(const balcony of data.northBalconies.filter(b=>b.home===home&&b.level===level)){const [x,y,w,d]=balcony.localRect;footprint([[x,y],[x+w,y],[x+w,y+d],[x,y+d]],home,level,g,0,.18,materials.slab);}
       const full=group(g),low=group(g);wallSets.push({full,low});
       for(const wall of data.walls.filter(w=>w.level===level&&w.home===home)) {
-        makeWall(wall,full,wall.heightLimit??heights[level-1],false);makeWall(wall,low,1.08,true);
+        makeWall(wall,full,heights[level-1],false);makeWall(wall,low,1.08,true);
       }
       if(strictOriginal)makeStrictStructure(home,level,full,low);
       if(joined)for(const column of data.columns.filter((v,i)=>v.home===home&&v.level===level&&!data.omittedColumns.includes(i)&&(!v.low||v.rect[1]>=8.15))) {
@@ -257,9 +260,9 @@ function buildModel(design,modelData) {
       if(original) {
         if(!strictOriginal)makeOriginalFixtures(g,home,level);
         if(joined&&level===1) {
-          makeUnderStairStorage(full,low,home);
-          for(let i=0;i<3;i++)block(g,mirror(home,5.2,1.6),14.9+.35*i,1.6,.35,.15,-.15*(i+1),materials.slab);
-          makeLabel({id:home+'-back-entry',home,level,rect:[mirror(home,5.5,1),12.15,1,.7],kind:'terrace',name:'北侧后门',description:data.backAccess.description},g);
+          makeUnderStairStorage(g,home);
+          makeGroundServices(g,home);
+          makeLabel({id:home+'-back-entry',home,level,rect:[mirror(home,5.5,1),14.55,1,.7],kind:'terrace',name:'北侧后门',description:data.backAccess.description},g);
           const access=data.courtyardAccess,[px,py,pw,pd]=access.landing;
           block(g,mx(px,pw),py,pw,pd,-data.vertical.outdoorLevel,data.vertical.outdoorLevel,materials.slab);
           for(let i=1;i<access.risers;i++)block(g,mx(px+pw+(i-1)*access.tread,access.tread),py,access.tread,pd,-data.vertical.outdoorLevel-i*access.riserHeight,data.vertical.outdoorLevel,materials.slab);
@@ -342,6 +345,7 @@ function buildModel(design,modelData) {
         if(!joined)makeLabel({id:home+'-terrace',name:(home==='A'?'甲':'乙')+(original&&!facadeStudy?' · 拟用露台':'户露台'),home,level,rect:[mx(4.8,3),4.5,3,2],kind:'terrace',description:strictOriginal?'沿原图边线及此前确认的露台用途示意，未增设露台门。竖向标高与构造未核实。':original&&!facadeStudy?'原图三层空白区按拟用露台示意；准确范围、围护及是否连通仍待确认。':'三层前部为露天屋面露台。防水、排水、保温及栏杆需与建筑施工图同步深化。'},g);
       }
       if(joined)for(const guard of data.guards.filter(v=>v.home===home&&v.level===level))rail(g,...guard.points,guard.height);
+      if(joined)for(const guard of data.stairGlassGuards.filter(v=>v.home===home&&v.level===level))makeStairGlassGuard(g,guard);
     }
     if(strictOriginal||facadeChanges&&original) {
       const full=group(f),low=group(f);wallSets.push({full,low});
@@ -821,9 +825,9 @@ function makeFacadeLiving(parent,home,level) {
   if(level===1) {
     if(facadeChanges&&data.joinedLayout) {
       makeSofa(parent,mx(3.65,3),2.65,3,.85);
-      block(parent,mx(4.6,1.1),4.2,1.1,.65,.35,0,materials.lightWood);
-      block(parent,mx(3.55,2),6.58,2,.06,.9,1.05,materials.dark);
-      block(parent,mx(3.5,2.1),6.26,2.1,.38,.38,0,materials.lightWood);
+      block(parent,mx(4.6,1.1),4.0,1.1,.60,.35,0,materials.lightWood);
+      block(parent,mx(4.1,1.4),5.08,1.4,.06,.8,1.0,materials.dark);
+      block(parent,mx(3.85,1.8),4.84,1.8,.30,.38,0,materials.lightWood);
     } else {
     sideSofa(3.65,3.0,3.0,true);
     block(parent,mx(5.2,1.1),4.0,1.1,.7,.35,0,materials.lightWood);
@@ -930,24 +934,56 @@ function makeTerraceLaundry(parent,home) {
   const [sx,sy,sw,sd]=item.sinkLocal;
   makeBasin(parent,mirror(home,sx,sw),sy,sw,sd,home==='A'?'left':'right');
 }
-function makeUnderStairStorage(full,low,home) {
-  const rise=heights[0],n=Math.ceil(rise/.18/2),run=2.9/n,mx=(x,w=0)=>mirror(home,x,w);
-  for(const [parent,limit]of [[full,Infinity],[low,1.08]]) {
-    const g=group(parent);g.userData.underStairStorage=home;
-    const wall=(x,y,w,d,top,bottom=0)=>{top=Math.min(top,limit);if(top>bottom){block(g,mx(x,w),y,w,d,top-bottom,bottom,materials.wall);if(bottom<.55)block(g,mx(x,w),y,w,d,Math.min(top,.55)-bottom,bottom,materials.plinth);}};
-    wall(3.4,8.65,.10,2.35,rise/2-.15);
-    wall(3.45,8.60,.95,.10,rise/2-.15);wall(3.45,10.95,.95,.10,rise/2-.15);
-    for(let i=0;i<n;i++) {
-      const x=4.4+i*run,top=rise/2+(i+1)*rise/(2*n)-.15,lower=(n-i)*rise/(2*n)-.15;
-      wall(x,8.60,run,.10,lower);
-      for(const [a,b]of [[x,Math.min(x+run,5.4)],[Math.max(x,6.3),x+run]])if(b>a)wall(a,10.95,b-a,.10,top);
-      const a=Math.max(x,5.4),b=Math.min(x+run,6.3);if(b>a)wall(a,10.95,b-a,.10,top,2.05);
-      // Close the soffit across the narrow space between the two flights.
-      if(limit===Infinity)block(g,mx(x,run),9.67,run,.31,.06,top-.06,materials.wall);
-      if(i){wall(x-.025,9.67,.05,1.33,top,top-rise/(2*n));wall(x-.025,8.65,.05,1.02,lower+rise/(2*n),lower);}
-    }
-    wall(7.25,8.65,.10,1.02,rise/(2*n)-.15);
-    wall(7.25,9.67,.10,1.33,rise-.15);
+function makeGroundServices(parent,home) {
+  const item=data.groundServices.find(v=>v.home===home),mx=(x,w=0)=>mirror(home,x,w);
+  const [px,py,pw,pd]=item.toolLandingLocal;block(parent,mx(px,pw),py,pw,pd,.45,-.45,materials.slab);
+  const [x,y,w,d]=item.rampLocal,z0=-.45,z1=0,bottom=-.55;
+  const points=[[x,y,z0],[x+w,y,z0],[x+w,y+d,z1],[x,y+d,z1],[x,y,bottom],[x+w,y,bottom],[x+w,y+d,bottom],[x,y+d,bottom]];
+  const indices=[0,1,2,0,2,3,4,7,6,4,6,5,0,4,5,0,5,1,1,5,6,1,6,2,2,6,7,2,7,3,3,7,4,3,4,0 ];if(home==='B')for(let i=0;i<indices.length;i+=3)[indices[i+1],indices[i+2]]=[indices[i+2],indices[i+1]];const vertices=indices.flatMap(i=>worldPoint(mx(points[i][0]),points[i][1],points[i][2]).toArray());
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(indices.flatMap(i=>[mx(points[i][0]),points[i][1]]),2));geometry.computeVertexNormals();
+  const ramp=new THREE.Mesh(geometry,floorMaterials.outdoor);ramp.userData.toolRamp=home;ramp.castShadow=true;ramp.receiveShadow=true;parent.add(ramp);
+  for(const xx of [x,x+w-.06]) {
+    const cp=[[xx,y,z0+.05],[xx+.06,y,z0+.05],[xx+.06,y+d,z1+.05],[xx,y+d,z1+.05],[xx,y,z0],[xx+.06,y,z0],[xx+.06,y+d,z1],[xx,y+d,z1]];
+    const cg=new THREE.BufferGeometry();cg.setAttribute('position',new THREE.Float32BufferAttribute(indices.flatMap(i=>worldPoint(mx(cp[i][0]),cp[i][1],cp[i][2]).toArray()),3));cg.computeVertexNormals();
+    const curb=new THREE.Mesh(cg,materials.plinth);curb.castShadow=true;curb.receiveShadow=true;parent.add(curb);
+  }
+  const [bx,by,bw,bd]=item.backLandingLocal;block(parent,mx(bx,bw),by,bw,bd,.45,-.45,materials.slab);
+  for(let i=1;i<3;i++)block(parent,mx(bx,bw),item.backStepStart+(i-1)*item.backTread,bw,item.backTread,.45-.15*i,-.45,materials.slab);
+  // Tool rack, a parked handcart and a wall-mounted ladder stay inside the dedicated room.
+  for(const z of [.3,1.05])block(parent,mx(3.6,2.2),6.35,2.2,.28,.04,z,materials.metal);
+  for(const xx of [3.7,4.1,4.5])cylinder(parent,mx(xx),6.55,.014,1.6,.1,materials.woodLine);
+  for(const z of [2.05,2.4])block(parent,mx(3.55,2.4),6.56,2.4,.04,.04,z,materials.metal);
+  for(let i=0;i<9;i++)block(parent,mx(3.68+i*.26,.035),6.56,.035,.04,.35,2.05,materials.metal);
+  block(parent,mx(4.45,1.25),5.45,1.25,.60,.12,.28,materials.metal);
+  block(parent,mx(5.75,.32),6.1,.32,.28,.6,0,materials.white);
+  // Shallow dry shelves leave a central route between the two back doors.
+  for(const [xx,ww]of [[5.1,.30],[6.6,.30]])for(const z of [.15,.65,1.15,1.65])block(parent,mx(xx,ww),12.75,ww,1.85,.035,z,materials.interiorDoor);
+}
+function makeStairGlassGuard(parent,item) {
+  const [a,b,c,d]=item.points,len=Math.hypot(c-a,d-b),angle=Math.atan2(d-b,c-a),g=group(parent);g.userData.stairGlassGuard=item.home;
+  solid(g,unitBox,materials.windowFrame,[(a+c)/2-14.8,.035,8.35-(b+d)/2],[len,.07,.06],angle);
+  solid(g,unitBox,materials.guardMetal,[(a+c)/2-14.8,item.height-.018,8.35-(b+d)/2],[len,.036,.045],angle);
+  const n=Math.ceil(len/1.25);
+  for(let i=0;i<n;i++){const t=(i+.5)/n;solid(g,unitBox,materials.guardGlass,[a+(c-a)*t-14.8,(item.height+.08)/2,8.35-b-(d-b)*t],[len/n-.02,item.height-.12,.016],angle);}
+}
+
+function makeUnderStairStorage(parent,home) {
+  const item=data.underStairStorage.find(v=>v.home===home),mx=(x,w=0)=>mirror(home,x,w),g=group(parent);
+  g.userData.underStairStorage=home;
+  for(const cabinet of item.cabinetsLocal) {
+    const [x,y,w,d]=cabinet.rect,h=cabinet.height,front=cabinet.front==='south'?y-.012:y+d-.012;
+    block(g,mx(x,w),y,w,d,h,0,materials.woodLine);
+    block(g,mx(x+.015,w-.03),front,w-.03,.025,h-.04,.02,materials.interiorDoor);
+    block(g,mx(x+w-.18,.12),front+(cabinet.front==='south'?-.014:.025),.12,.014,.012,h-.13,materials.windowFrame);
+  }
+  for(const [x,y,w,d]of item.shelfBaysLocal) {
+    for(const xx of [x,x+w-.025])block(g,mx(xx,.025),y,.025,d,1.02,.78,materials.interiorDoor);
+    block(g,mx(x,w),y,w,.025,1.02,.78,materials.interiorDoor);
+    for(const z of [1.12,1.62])block(g,mx(x,w),y,w,d,.04,z-.04,materials.interiorDoor);
+  }
+  for(const x of item.screenSidesLocal) {
+    for(let i=0;i<7;i++)block(g,mx(x-.011,.022),10.05+i*.14,.022,.035,1.8,0,materials.interiorDoor);
+    for(const z of [0,1.765])block(g,mx(x-.016,.032),10.05,.032,.875,.035,z,materials.interiorDoor);
   }
 }
 
@@ -1131,6 +1167,7 @@ function updateView(moveCamera=false) {
   $$('[data-home]').forEach(b=>{b.classList.toggle('active',b.dataset.home===state.home);b.setAttribute('aria-pressed',b.dataset.home===state.home);});
   $$('[data-scene]').forEach(b=>{b.classList.toggle('active',b.dataset.scene===state.scene);b.setAttribute('aria-pressed',b.dataset.scene===state.scene);});
   $('#view-title').textContent=(strictOriginal?'严格原图 · ':facadeStudy?'':state.design==='original'?'原设计 · ':'建议 · ')+(state.floor==='all'?'整体':state.floor==='explode'?'分层':floorNames[Number(state.floor)-1])+(state.home==='both'?'':state.home==='A'?' / 甲户':' / 乙户');
+  if(facadeChanges)$('#solar-note').textContent=state.floor==='all'&&!$('#cutaway').checked&&$('#show-roof').checked?'北京时间 · 晴天日照示意':'北京时间 · 剖切光影示意';
   $$('[data-design]').forEach(b=>{b.classList.toggle('active',b.dataset.design===state.design);b.setAttribute('aria-pressed',b.dataset.design===state.design);});
   $('#scene-controls').hidden=state.design==='original'&&!(facadeChanges&&hallDaily);
   const counted=roomMeshes.map(m=>m.userData.room).filter(r=>r.design===state.design&&(state.home==='both'||r.home===state.home));
@@ -1188,6 +1225,25 @@ function setCamera(preset) {
   camera.updateProjectionMatrix();
   $$('[data-camera]').forEach(b=>b.classList.toggle('active',b.dataset.camera===preset));
   controls.update();requestFrame();
+}
+
+function setupSolar(config) {
+  solarSite=config;$('#solar-controls').hidden=false;
+  Object.assign(sunLight.shadow.camera,{left:-42,right:42,top:42,bottom:-42,near:1,far:220});sunLight.shadow.camera.updateProjectionMatrix();sunLight.shadow.bias=-.00015;sunLight.shadow.normalBias=.025;
+  for(const [id,key]of [['sun-season','sunSeason'],['sun-hour','sunHour']]) {
+    const input=$('#'+id);input.value=state[key];input.addEventListener('input',()=>{state[key]=Number(input.value);solarDirty=true;requestFrame();});
+  }
+  solarDirty=true;requestFrame();
+}
+function updateSolarLight() {
+  const sun=solarPosition({...solarSite,dayOfYear:seasonDay(state.sunSeason),hour:state.sunHour});
+  const smooth=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);},day=smooth(-6,9,sun.altitude),direct=smooth(-.5,12,sun.altitude);
+  sunLight.target.position.set(0,4,0);sunLight.position.set(90*sun.east,4+90*sun.up,-90*sun.north);sunLight.intensity=2.5*direct;
+  sunLight.color.set(0xffc998).lerp(new THREE.Color(0xfff3df),smooth(0,30,sun.altitude));skyLight.intensity=.22+1.28*day;
+  skyLight.color.set(0x8fa6c1).lerp(new THREE.Color(0xffffff),day);
+  scene.background.set(0x1d2936).lerp(new THREE.Color(0xe8e9e5),day);
+  $('#sun-date').textContent=seasonDate(state.sunSeason);const minutes=Math.round(state.sunHour*60);$('#sun-time').textContent=String(Math.floor(minutes/60)).padStart(2,'0')+':'+String(minutes%60).padStart(2,'0');
+  renderer.shadowMap.needsUpdate=true;solarDirty=false;
 }
 
 function bindControls() {
@@ -1269,9 +1325,10 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-portals-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-service-sun-1');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
+  if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
   try {
     if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案10/29 · v4 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
     else {await navigator.clipboard.writeText(url.href);toast('分享链接已复制，可以发给家人了');}
@@ -1284,7 +1341,7 @@ function resize() {
   renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();requestFrame();
 }
 function render(time=performance.now()) {
-  nextFrame=false;controls.update();scene.updateMatrixWorld();
+  nextFrame=false;if(solarDirty)updateSolarLight();controls.update();scene.updateMatrixWorld();
   let moving=false;
   for(const entry of openingEntries.values())if(entry.value!==entry.target) {
     const progress=Math.min(1,Math.max(0,(time-entry.started)/360));
