@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { createOpening } from './opening-motion.js?v=interactive-1028-1';
+import { createOpening } from './opening-motion.js?v=hall-windows-1028-1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -106,7 +106,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=interactive-1028-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=hall-windows-1028-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -1029,7 +1029,7 @@ let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'interactive-1028-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'hall-windows-1028-1');}
   if(state.camera==='site')url.searchParams.set('view','site');
   try {
     if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案10/28 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
