@@ -70,7 +70,7 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
       const start=leaves===2?i===0:hingeAtStart,span=length/leaves-(leaves===2?.045:.09);
       const leaf=new THREE.Group();root.add(leaf);leaf.position.set(start?.045:length-.045,.025,0);
       panel(leaf,start?0:-span,span,height-.065,glazed,start?'end':'start');
-      moves.push(t=>{leaf.rotation.y=(start?-1:1)*inward*t*Math.PI/2;});
+      moves.push(t=>{leaf.rotation.y=(start?-1:1)*inward*(wall.opensTo==='outside'?-1:1)*t*Math.PI/2;});
     }
   }
   const target=new THREE.Mesh(new THREE.PlaneGeometry(length,height),pickMaterial);
