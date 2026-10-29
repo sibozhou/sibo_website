@@ -1,0 +1,79 @@
+import * as THREE from 'three';
+
+const boxGeometry=new THREE.BoxGeometry(1,1,1);
+const pickMaterial=new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide});
+
+// Local x follows the wall; local z points to its right in plan.
+export function createOpening(parent,wall,limit,normal,materials,solid) {
+  const [a,b,c,d]=wall.points,horizontal=Math.abs(b-d)<.001;
+  const length=Math.hypot(c-a,d-b),isWindow=wall.kind==='window';
+  const bottom=isWindow?(wall.sill??.85):0,head=wall.head??(isWindow?2.45:2.35);
+  const height=Math.min(head,limit)-bottom;if(height<=.015)return null;
+  const root=new THREE.Group();parent.add(root);
+  root.position.set(Math.min(a,c)-14.8,bottom,8.35-Math.min(b,d));
+  root.rotation.y=horizontal?0:Math.PI/2;
+  const inward=Math.sign(horizontal?-normal[1]:normal[0])||1;
+  const moves=[];
+  function box(g,x,y,z,w,h,t,material) {
+    if(w<=0||h<=0)return;
+    solid(g,boxGeometry,material,[x+w/2,y+h/2,z+t/2],[w,h,t]);
+  }
+  function panel(g,x,w,h,glazed,handle) {
+    if(glazed) {
+      box(g,x+.035,.035,-.014,w-.07,h-.07,.028,wall.frost?materials.frost:materials.glass);
+      for(const xx of [x,x+w-.035])box(g,xx,0,-.025,.035,h,.05,materials.windowFrame);
+      for(const yy of [0,h-.035])box(g,x,yy,-.025,w,.035,.05,materials.windowFrame);
+    } else {
+      box(g,x,0,-.02,w,h,.04,materials.wood);
+      if(wall.level===1&&horizontal&&Math.abs(b-1.5)<.001)for(let xx=x+.10;xx<x+w-.08;xx+=.16)box(g,xx,.06,-inward*.022-.004,.008,h-.12,.008,materials.woodLine);
+    }
+    if(handle) {
+      const handleX=handle==='start'?x+.12:x+w-.12;
+      for(const side of isWindow?[inward]:[-1,1]) {
+        if(wall.study==='门7')box(g,handleX-.03,Math.min(.88,h-.18),side*.022-.004,.06,.16,.008,materials.metal);
+        else box(g,handleX-.06,Math.min(.95,h-.08),side*.04-.025,.12,.035,.05,materials.metal);
+      }
+    }
+  }
+  for(const x of [0,length-.045])box(root,x,0,-wall.width/2,.045,height,wall.width,materials.windowFrame);
+  if(limit>=head)box(root,0,height-.045,-wall.width/2,length,.045,wall.width,materials.windowFrame);
+  if(isWindow) {
+    box(root,0,0,-wall.width/2,length,.045,wall.width,materials.windowFrame);
+    const width=wall.singleSash?length:(wall.openingLeaf??.45);
+    const start=wall.openingSide==='end'?length-width:0;
+    if(width<length-.01) {
+      const fixedStart=start===0?width:0,fixedWidth=length-width;
+      box(root,fixedStart+.025,.025,-.014,fixedWidth-.05,height-.05,.028,wall.frost?materials.frost:materials.glass);
+      box(root,start===0?width-.02:start-.02,0,-.035,.04,height,.07,materials.windowFrame);
+    }
+    const sash=new THREE.Group();root.add(sash);sash.position.set(start+.025,.025,0);
+    panel(sash,0,width-.05,height-.05,true,wall.operation==='fixed'?null:'end');
+    if(wall.operation!=='fixed')moves.push(t=>{sash.rotation.x=inward*t*Math.PI/15;});
+  } else if(wall.study==='门7') {
+    // Surface sliding private doors keep the bedroom entrance and desk aisle clear.
+    const leaf=new THREE.Group();root.add(leaf);leaf.position.set(-.02,.025,inward*(wall.width/2+.035));
+    panel(leaf,0,length+.04,height-.065,false,'start');
+    moves.push(t=>{leaf.position.x=-.02+t*(length+.04);});
+    if(limit>=head)box(root,-.05,height+.025,inward*(wall.width/2+.035)-.025,length*2+.10,.055,.05,materials.metal);
+  } else if(wall.operation==='slide') {
+    const half=length/2;
+    const fixed=new THREE.Group();root.add(fixed);fixed.position.set(.035,.025,-.035);
+    panel(fixed,0,half-.045,height-.065,true,null);
+    const leaf=new THREE.Group();root.add(leaf);leaf.position.set(half+.01,.025,.035);
+    panel(leaf,0,half-.045,height-.065,true,'start');
+    moves.push(t=>{leaf.position.x=half+.01-t*(half-.08);});
+  } else {
+    const glazed=wall.glazed||wall.study==='门1';
+    const hingeAtStart=(horizontal?c<a:d<b);
+    const leaves=length>1.6?2:1;
+    for(let i=0;i<leaves;i++) {
+      const start=leaves===2?i===0:hingeAtStart,span=length/leaves-(leaves===2?.045:.09);
+      const leaf=new THREE.Group();root.add(leaf);leaf.position.set(start?.045:length-.045,.025,0);
+      panel(leaf,start?0:-span,span,height-.065,glazed,start?'end':'start');
+      moves.push(t=>{leaf.rotation.y=(start?-1:1)*inward*(wall.opensTo==='outside'?-1:1)*t*Math.PI/2;});
+    }
+  }
+  const target=new THREE.Mesh(new THREE.PlaneGeometry(length,height),pickMaterial);
+  target.position.set(length/2,height/2,0);root.add(target);
+  return {root,setOpen:t=>moves.forEach(move=>move(t))};
+}
