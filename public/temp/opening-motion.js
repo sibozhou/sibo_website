@@ -45,6 +45,15 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
     const leaf=new THREE.Group();sash.add(leaf);leaf.position.y=-(height-.05);
     panel(leaf,0,length-.05,height-.05,true,'bottom');
     moves.push(t=>{sash.rotation.x=inward*t*Math.PI/6;});
+  } else if(isWindow&&wall.operation==='bifold') {
+    const span=(length-.12)/4;
+    for(const start of [true,false]) {
+      const outer=new THREE.Group();root.add(outer);outer.position.set(start?.045:length-.045,.025,0);
+      panel(outer,start?0:-span,span,height-.065,true,null);
+      const inner=new THREE.Group();outer.add(inner);inner.position.x=(start?1:-1)*(span+.01);
+      panel(inner,start?0:-span,span,height-.065,true,start?'end':'start');
+      moves.push(t=>{outer.rotation.y=(start?1:-1)*inward*t*(wall.openingAngle??85)*Math.PI/180;inner.rotation.y=-2*outer.rotation.y;});
+    }
   } else if(isWindow&&wall.operation==='fixed-casement') {
     const width=wall.openingLeaf,start=wall.openingSide!=='end',split=start?width:length-width;
     const fixedStart=start?width:0,fixedWidth=length-width;
