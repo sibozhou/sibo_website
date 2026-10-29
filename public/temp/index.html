@@ -8,7 +8,7 @@
   <meta name="description" content="祁东双户合院：先看原设计，再与建议方案同视角对照。14间卧室、分层三维模型、原始图纸及中文方案图册。">
   <title>方案10/28 · 祁东双户住宅</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%233d6154'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css?v=facade-site-3">
+  <link rel="stylesheet" href="./style.css?v=1028-4">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
 </head>
 <body>
@@ -22,10 +22,11 @@
     <aside class="sidebar" aria-label="方案与看房控制">
       <div class="version-switch desktop-versions" aria-label="方案对比"><button data-design="original" class="active">原设计</button><button data-design="proposed">建议方案</button></div>
       <section class="intro"><span class="stats-caption" id="stats-label">全屋统计</span><div class="stats"><div><b id="bedroom-stat">14</b><span>卧室</span></div><div><b id="bath-stat">14</b><span>卫浴</span></div><div><b id="kitchen-stat">2</b><span>厨房</span></div><div><b id="dining-stat">2</b><span>日常餐厅</span></div></div></section>
-      <section class="controls-section"><h2>楼层</h2><div class="floor-grid" id="floors"><button data-floor="all">整体外观</button><button data-floor="1" class="active">一层</button><button data-floor="2">二层</button><button data-floor="3">三层与露台</button><button data-floor="explode" class="wide">分层展开 <span aria-hidden="true">☷</span></button></div><div class="segmented home-filter" aria-label="选择家庭"><button data-home="both" class="active">两户</button><button data-home="A">甲户 · 8间</button><button data-home="B">乙户 · 6间</button></div></section>
+      <section class="controls-section"><h2>楼层</h2><div class="floor-grid" id="floors"><button data-floor="all">整体外观</button><button data-floor="1" class="active">一层</button><button data-floor="2">二层</button><button data-floor="3">三层与屋顶</button><button data-floor="explode" class="wide">分层展开 <span aria-hidden="true">☷</span></button></div><div class="segmented home-filter" aria-label="选择家庭"><button data-home="both" class="active">两户</button><button data-home="A">甲户 · 8间</button><button data-home="B">乙户 · 6间</button></div></section>
       <section class="controls-section" id="scene-controls" hidden><h2>场景</h2><div class="scene-options"><button data-scene="daily" class="active"><b>平日 · 分厅</b><i aria-hidden="true"></i></button><button data-scene="festival"><b>春节 · 20人</b><i aria-hidden="true"></i></button></div></section>
+      <section class="controls-section" id="roof-color-section" hidden><h2><label for="roof-color">屋顶颜色</label></h2><select id="roof-color"><option value="stone">暖石板灰 · 推荐</option><option value="charcoal">深炭灰</option><option value="olive">灰橄榄</option><option value="clay">烟陶红</option><option value="sand">砂岩褐</option></select></section>
       <section id="room-detail" class="room-detail" aria-live="polite" hidden></section>
-      <section class="downloads"><h2>图纸</h2><a href="./facade/?v=fixed-stairs-1028-1"><b>外观与布局</b><span aria-hidden="true">↗</span></a><a href="./downloads/opening-structure-review.pdf?v=fixed-stairs-1028-1" target="_blank" rel="noopener"><b>门窗与结构初核</b><span aria-hidden="true">↓</span></a><a id="original-model" href="./v2/" style="display:none"><b>严格原图版</b><span aria-hidden="true">↗</span></a><a id="original-drawing" href="./downloads/original-floor-1.pdf" target="_blank" rel="noopener"><b>本层原始图纸</b><span aria-hidden="true">↗</span></a><a class="layout-guide" href="./downloads/family-guide.pdf" target="_blank" rel="noopener"><b>建议方案 · 家人版</b><span aria-hidden="true">↓</span></a><a class="layout-guide" href="./downloads/professional-guide.pdf" target="_blank" rel="noopener"><b>建议方案 · 专业版</b><span aria-hidden="true">↓</span></a><p class="scope-note" id="model-note">按原平面重建；层高、立面及露台边界为示意。</p></section>
+      <section class="downloads"><h2>图纸</h2><a href="./facade/?v=1028-4"><b>外观与布局</b><span aria-hidden="true">↗</span></a><a href="./downloads/opening-structure-review.pdf?v=1028-4" target="_blank" rel="noopener"><b>门窗与结构初核</b><span aria-hidden="true">↓</span></a><a id="original-model" href="./v2/" style="display:none"><b>严格原图版</b><span aria-hidden="true">↗</span></a><a id="original-drawing" href="./downloads/original-floor-1.pdf" target="_blank" rel="noopener"><b>本层原始图纸</b><span aria-hidden="true">↗</span></a><a class="layout-guide" href="./downloads/family-guide.pdf" target="_blank" rel="noopener"><b>建议方案 · 家人版</b><span aria-hidden="true">↓</span></a><a class="layout-guide" href="./downloads/professional-guide.pdf" target="_blank" rel="noopener"><b>建议方案 · 专业版</b><span aria-hidden="true">↓</span></a><p class="scope-note" id="model-note">按原平面重建；层高、立面及露台边界为示意。</p></section>
     </aside>
     <section class="viewer" aria-label="可旋转的房屋三维模型">
       <div id="model-surface" aria-describedby="gesture-hint"><div id="canvas-host"></div><div id="labels" aria-label="房间标记"></div></div>
@@ -41,6 +42,6 @@
   </main>
   <div class="toast" id="toast" role="status"></div>
   <noscript><p class="no-script">请开启浏览器的JavaScript以查看三维模型。<a href="./downloads/family-guide.pdf">查看家人沟通版PDF</a></p></noscript>
-  <script type="module" src="./app.js?v=fixed-stairs-1028-1"></script>
+  <script type="module" src="./app.js?v=1028-4"></script>
 </body>
 </html>

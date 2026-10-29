@@ -20,3 +20,6 @@
 .facade-study [data-design="proposed"],.facade-study .layout-guide{display:none}
 
 @media(max-width:740px){.facade-study .mobile-versions{width:116px}}
+
+#roof-color{width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--line);border-radius:7px;background:var(--paper);font:inherit;color:var(--ink)}#roof-color:focus-visible{outline:3px solid #bc8b55;outline-offset:3px}
+@media(max-width:740px){#roof-color{font-size:16px}}

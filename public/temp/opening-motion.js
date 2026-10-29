@@ -24,21 +24,27 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
       for(const xx of [x,x+w-.035])box(g,xx,0,-.025,.035,h,.05,materials.windowFrame);
       for(const yy of [0,h-.035])box(g,x,yy,-.025,w,.035,.05,materials.windowFrame);
     } else {
-      box(g,x,0,-.02,w,h,.04,materials.wood);
-      if(wall.level===1&&horizontal&&Math.abs(b-1.5)<.001)for(let xx=x+.10;xx<x+w-.08;xx+=.16)box(g,xx,.06,-inward*.022-.004,.008,h-.12,.008,materials.woodLine);
+      const finish={entry:materials.entryDoor,interior:materials.interiorDoor,bath:materials.bathDoor,service:materials.serviceDoor}[wall.doorFinish]||materials.wood;
+      box(g,x,0,-.02,w,h,.04,finish);
+      if(wall.level===1&&horizontal&&Math.abs(b-1.5)<.001)for(let xx=x+.10;xx<x+w-.08;xx+=.16)box(g,xx,.06,-inward*.022-.004,.008,h-.12,.008,materials.doorGroove||materials.woodLine);
     }
     if(handle) {
-      const handleX=handle==='start'?x+.12:x+w-.12;
+      const handleX=handle==='bottom'?x+w/2:handle==='start'?x+.12:x+w-.12;
       for(const side of isWindow?[inward]:[-1,1]) {
         if(wall.study==='门7')box(g,handleX-.03,Math.min(.88,h-.18),side*.022-.004,.06,.16,.008,materials.metal);
-        else box(g,handleX-.06,Math.min(.95,h-.08),side*.04-.025,.12,.035,.05,materials.metal);
+        else box(g,handleX-.06,handle==='bottom'?.10:Math.min(.95,h-.08),side*.04-.025,.12,.035,.05,materials.metal);
       }
     }
   }
   for(const x of [0,length-.045])box(root,x,0,-wall.width/2,.045,height,wall.width,materials.windowFrame);
   if(limit>=head)box(root,0,height-.045,-wall.width/2,length,.045,wall.width,materials.windowFrame);
-  if(isWindow) {
-    box(root,0,0,-wall.width/2,length,.045,wall.width,materials.windowFrame);
+  if(isWindow)box(root,0,0,-wall.width/2,length,.045,wall.width,materials.windowFrame);
+  if(isWindow&&wall.operation==='awning') {
+    const sash=new THREE.Group();root.add(sash);sash.position.set(.025,height-.025,0);
+    const leaf=new THREE.Group();sash.add(leaf);leaf.position.y=-(height-.05);
+    panel(leaf,0,length-.05,height-.05,true,'bottom');
+    moves.push(t=>{sash.rotation.x=inward*t*Math.PI/6;});
+  } else if(isWindow&&!wall.operation?.startsWith('casement')) {
     const width=wall.singleSash?length:(wall.openingLeaf??.45);
     const start=wall.openingSide==='end'?length-width:0;
     if(width<length-.01) {
@@ -63,14 +69,14 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
     panel(leaf,0,half-.045,height-.065,true,'start');
     moves.push(t=>{leaf.position.x=half+.01-t*(half-.08);});
   } else {
-    const glazed=wall.glazed||wall.study==='门1';
+    const glazed=isWindow||wall.glazed||wall.study==='门1';
     const hingeAtStart=(horizontal?c<a:d<b);
-    const leaves=length>1.6?2:1;
+    const leaves=isWindow?wall.operation==='casement'?2:1:length>1.6?2:1;
     for(let i=0;i<leaves;i++) {
       const start=leaves===2?i===0:hingeAtStart,span=length/leaves-(leaves===2?.045:.09);
       const leaf=new THREE.Group();root.add(leaf);leaf.position.set(start?.045:length-.045,.025,0);
       panel(leaf,start?0:-span,span,height-.065,glazed,start?'end':'start');
-      moves.push(t=>{leaf.rotation.y=(start?-1:1)*inward*(wall.opensTo==='outside'?-1:1)*t*Math.PI/2;});
+      moves.push(t=>{leaf.rotation.y=(start?-1:1)*inward*(wall.operation?.startsWith('casement')||wall.opensTo==='outside'?-1:1)*t*Math.PI/2;});
     }
   }
   const target=new THREE.Mesh(new THREE.PlaneGeometry(length,height),pickMaterial);
