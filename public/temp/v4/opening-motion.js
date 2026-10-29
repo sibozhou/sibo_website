@@ -20,9 +20,10 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
   }
   function panel(g,x,w,h,glazed,handle) {
     if(glazed) {
-      box(g,x+.035,.035,-.014,w-.07,h-.07,.028,wall.frost?materials.frost:materials.glass);
-      for(const xx of [x,x+w-.035])box(g,xx,0,-.025,.035,h,.05,materials.windowFrame);
-      for(const yy of [0,h-.035])box(g,x,yy,-.025,w,.035,.05,materials.windowFrame);
+      const profile=wall.balconyPortal?.025:.035;
+      box(g,x+profile,profile,-.014,w-2*profile,h-2*profile,.028,wall.frost?materials.frost:materials.glass);
+      for(const xx of [x,x+w-profile])box(g,xx,0,-.025,profile,h,.05,materials.windowFrame);
+      for(const yy of [0,h-profile])box(g,x,yy,-.025,w,profile,.05,materials.windowFrame);
     } else {
       const finish={entry:materials.entryDoor,interior:materials.interiorDoor,bath:materials.bathDoor,service:materials.serviceDoor}[wall.doorFinish]||materials.wood;
       box(g,x,0,-.02,w,h,.04,finish);
@@ -37,8 +38,9 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
       }
     }
   }
-  for(const x of [0,length-.045])box(root,x,0,-wall.width/2,.045,height,wall.width,materials.windowFrame);
-  if(limit>=head)box(root,0,height-.045,-wall.width/2,length,.045,wall.width,materials.windowFrame);
+  const frame=wall.balconyPortal?.035:.045;
+  for(const x of [0,length-frame])box(root,x,0,-wall.width/2,frame,height,wall.width,materials.windowFrame);
+  if(limit>=head)box(root,0,height-frame,-wall.width/2,length,frame,wall.width,materials.windowFrame);
   if(isWindow)box(root,0,0,-wall.width/2,length,.045,wall.width,materials.windowFrame);
   if(isWindow&&wall.operation==='awning') {
     const sash=new THREE.Group();root.add(sash);sash.position.set(.025,height-.025,0);
@@ -80,12 +82,13 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
     moves.push(t=>{leaf.position.x=-.02+t*(length+.04);});
     if(limit>=head)box(root,-.05,height+.025,inward*(wall.width/2+.035)-.025,length*2+.10,.055,.05,materials.metal);
   } else if(wall.operation==='slide') {
-    const half=length/2;
-    const fixed=new THREE.Group();root.add(fixed);fixed.position.set(.035,.025,-.035);
+    const half=length/2,fixedAtStart=wall.fixedSide!=='end';
+    const fixed=new THREE.Group();root.add(fixed);fixed.position.set(fixedAtStart?.035:half+.01,.025,-.035);
     panel(fixed,0,half-.045,height-.065,true,null);
-    const leaf=new THREE.Group();root.add(leaf);leaf.position.set(half+.01,.025,.035);
-    panel(leaf,0,half-.045,height-.065,true,'start');
-    moves.push(t=>{leaf.position.x=half+.01-t*(half-.08);});
+    const leaf=new THREE.Group();root.add(leaf);const closed=fixedAtStart?half+.01:.035;leaf.position.set(closed,.025,.035);
+    panel(leaf,0,half-.045,height-.065,true,fixedAtStart?'start':'end');
+    moves.push(t=>{leaf.position.x=closed+(fixedAtStart?-1:1)*t*(half-.08);});
+    if(wall.balconyPortal)box(root,0,.008,-.07,length,.012,.14,materials.windowFrame);
   } else {
     const glazed=isWindow||wall.glazed||wall.study==='门1';
     const hingeAtStart=(horizontal?c<a:d<b);
