@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
+import { createOpening } from './opening-motion.js?v=interactive-1028-1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -96,6 +97,7 @@ let siteContextInfo,siteScenery,siteNotes;
 function siteAngle() {return siteContextInfo&&state.design==='original'?(180-siteContextInfo.frontBearing)*Math.PI/180:0;}
 const roots={};
 const floors = [], homes = [], roofGroups = [], wallSets = [], roomMeshes = [], labels = [];
+const openingEntries=new Map(),arrivalStairs=[];
 let dailyFurniture, festivalFurniture, hallDaily, hallFestival, highlighted;
 let nextFrame = false;
 function requestFrame() { if (!nextFrame) { nextFrame=true; requestAnimationFrame(render); } }
@@ -104,7 +106,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=beds-baths-1028-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=interactive-1028-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -194,17 +196,14 @@ function buildModel(design,modelData) {
         if(facadeChanges) {
           block(g,mx(-.14,.09),11.05,.09,.09,heights[level-1],0,materials.windowFrame);
           if(level===1) {
-            makeFacadeDoor(g,home,8.4,1.5,2.1,2.35,false);
             makePlanter(g,home,8.0,.5,.75);
           }
           if(level===2)makePlanter(g,home,7.95,.65,.7);
           if(level===2) {
-            makeFacadeDoor(g,home,8.4,1.5,2.1,2.4,true);
             makeLabel({id:home+'-balcony-door',name:(home==='A'?'甲':'乙')+'户阳台门（窗改门）',home,level,rect:[mx(8.4,2.1),.7,2.1,.6],kind:'terrace',description:'二层公共起居厅原正面窗改为玻璃推拉门，直接进入本户阳台；保留原窗洞宽度，降低窗台。门净宽、轨道和门槛防水须深化。'},g);
           }
         }
         if(facadeChanges&&level===3) {
-          makeFacadeDoor(g,home,7.75,8.5,1.1,2.3,true);
           block(g,mx(7.6,1.4),7.8,1.4,.8,.08,2.38,materials.windowFrame);
           makePlanter(g,home,3.8,3.0,.9);makePlanter(g,home,9.5,6.5,.85);
           makeLabel({id:home+'-terrace-door',name:(home==='A'?'甲':'乙')+'户露台门（新增）',home,level,rect:[mx(7.75,1.1),8.0,1.1,.6],kind:'terrace',description:'由三层楼梯旁公共门厅直接进入本户露台，不穿卧室。门洞、开启方向、门槛防水与排水须深化；图中约1100毫米宽为方案洞口意向。'},g);
@@ -236,6 +235,10 @@ function buildModel(design,modelData) {
       if(level===3&&home==='B')makeLounge(g,home,6.9,12.5,6.9,4.2,false);
       }
       if(level<3)makeStairs(g,home,heights[level-1]);
+      if(facadeChanges&&original&&level===3) {
+        const arrival=group(g);arrival.position.y=-heights[1];makeStairs(arrival,home,heights[1]);
+        arrivalStairs.push(arrival);
+      }
       if(level<3&&!strictOriginal) {
         // The front entrance canopy/balcony is open, with supports only.
         if(!facadeStudy||level===1)for(const x of [7.5,12.3])block(g,mx(x-.15,.3),-.15,.3,.3,heights[level-1],0,materials.wall);
@@ -317,7 +320,9 @@ function makeWall(w,parent,height,cut) {
   }
   if(w.kind==='window') {
     const sill=w.sill??((Math.abs(y1-15.3)<.01&&horizontal)?1.75:.85),head=w.head??2.45;
-    part(0,sill);part(head,heights[w.level-1]);part(sill,head,w.frost?materials.frost:materials.glass,.28);
+    part(0,sill);part(head,heights[w.level-1]);
+    if(facadeChanges&&currentDesign==='original'){addModelOpening(w,parent,height);return;}
+    part(sill,head,w.frost?materials.frost:materials.glass,.28);
     part(sill,sill+.045,materials.windowFrame,1.12);part(head-.05,head,materials.windowFrame,1.12);
     if(facadeStudy) {
       if(w.level===1&&width>.19)part(0,.55,materials.plinth,1.04);
@@ -346,6 +351,7 @@ function makeWall(w,parent,height,cut) {
     part(w.head??2.35,heights[w.level-1]);
     // Recessed threshold marks openings while keeping circulation visible.
     if(w.kind!=='opening')block(parent,x,y,dx,dy,.015,.01,materials.lightWood);
+    if(facadeChanges&&currentDesign==='original'&&w.kind==='door'){addModelOpening(w,parent,height);return;}
     if(facadeStudy&&w.kind==='door'&&(!w.study||['门4','门5','门6'].includes(w.study))&&!(!strictOriginal&&w.level===1&&horizontal&&y1===1.5)) {
       part(.025,Math.min(w.head??2.35,height)-.04,w.glazed?materials.glass:materials.wood,.32);
       const frameHeight=Math.min(w.head??2.35,height);
@@ -357,16 +363,34 @@ function makeWall(w,parent,height,cut) {
   }
 }
 
-function makeFacadeDoor(parent,home,x,y,w,h,glazed) {
-  function part(along,depth,width,thickness,height,elev,material) {
-    block(parent,mirror(home,x+along,width),y+depth,width,thickness,height,elev,material);
-  }
-  for(const a of [0,w-.055])part(a,-.03,.055,.06,h,0,materials.windowFrame);
-  part(0,-.03,w,.06,.055,h-.055,materials.windowFrame);
-  part(.055,-.015,w-.11,.03,h-.11,.055,glazed?materials.glass:materials.wood);
-  if(glazed&&w>1.5)part(w/2-.035,-.045,.07,.09,h-.11,.055,materials.windowFrame);
-  if(!glazed)for(let a=.14;a<w-.1;a+=.16)part(a,-.034,.008,.008,h-.14,.07,materials.woodLine);
-  part(glazed&&w>1.5?w/2-.16:w-.18,-.065,.025,.055,.25,.95,materials.metal);
+function addModelOpening(w,parent,height) {
+  const key=[w.level,w.home,w.kind,...w.points].join(':');
+  let entry=openingEntries.get(key);
+  if(!entry){entry={wall:w,variants:[],value:0,target:0};openingEntries.set(key,entry);}
+  const [a,b,c,d]=w.points,horizontal=Math.abs(b-d)<.001,middle=[(a+c)/2,(b+d)/2];
+  const adjacent=data.rooms.filter(r=>r.home===w.home&&r.level===w.level).filter(r=>{
+    const[x,y,width,depth]=r.rect;
+    return horizontal?(Math.abs(b-y)<.001||Math.abs(b-y-depth)<.001)&&middle[0]>=x&&middle[0]<=x+width:(Math.abs(a-x)<.001||Math.abs(a-x-width)<.001)&&middle[1]>=y&&middle[1]<=y+depth;
+  });
+  const bathroom=adjacent.find(r=>r.kind==='bath');
+  const room=w.opensTo==='private'?adjacent.find(r=>r.id===bathroom?.connectedRoom):bathroom||adjacent[0];
+  const centre=room?[room.rect[0]+room.rect[2]/2,room.rect[1]+room.rect[3]/2]:[w.home==='B'?22.7:6.9,8.35];
+  const normal=horizontal?[0,Math.sign(centre[1]-middle[1])]:[Math.sign(centre[0]-middle[0]),0];
+  const variant=createOpening(parent,w,height,normal,materials,solid);
+  if(variant){variant.root.userData.opening=entry;entry.variants.push(variant);}
+}
+
+function toggleOpening(entry) {
+  entry.target=entry.target?0:1;entry.from=entry.value;entry.started=performance.now();
+  const type=entry.wall.kind==='window'?'内倒窗':entry.wall.operation==='slide'?'推拉门':'平开门';
+  toast(type+(entry.target?' · 打开':' · 关闭'));requestFrame();
+}
+
+function pickOpening(raycaster) {
+  const visible=object=>{for(let p=object;p;p=p.parent)if(!p.visible)return false;return true;};
+  const hit=raycaster.intersectObject(roots[state.design],true).find(h=>visible(h.object));
+  for(let object=hit?.object;object;object=object.parent)if(object.userData.opening){toggleOpening(object.userData.opening);return true;}
+  return false;
 }
 
 function facadeBand(parent,home,a,b,width,h,elev,material) {
@@ -869,6 +893,7 @@ function updateView(moveCamera=false) {
   floors.forEach(({g,level})=>{g.visible=!only||only===level;g.position.y=base[level-1]+offsetFor(level);});
   homes.forEach(({g,home})=>{g.visible=state.home==='both'||state.home===home;});
   wallSets.forEach(({full,low})=>{full.visible=!$('#cutaway').checked;low.visible=$('#cutaway').checked;});
+  arrivalStairs.forEach(g=>{g.visible=state.floor==='3'||state.floor==='explode';});
   roofGroups.forEach(g=>{g.visible=state.floor==='all'&&$('#show-roof').checked;});
   if(dailyFurniture)dailyFurniture.visible=state.scene==='daily';
   if(festivalFurniture)festivalFurniture.visible=state.scene==='festival';
@@ -965,6 +990,7 @@ function bindControls() {
   $('#share').addEventListener('click',share);
   bindModelGestures();
   if(matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0||matchMedia('(max-width:740px)').matches)$('#gesture-hint').textContent='单指旋转 · 双指捏合缩放 / 拖动平移';
+  if(facadeChanges)$('#gesture-hint').textContent+=' · 点门窗开合';
 }
 
 function bindModelGestures() {
@@ -982,10 +1008,16 @@ function bindModelGestures() {
   surface.addEventListener('pointerup',e=>{
     const candidate=tap;active.delete(e.pointerId);tap=null;
     if(!candidate||candidate.id!==e.pointerId||active.size||e.timeStamp-candidate.time>500||Math.hypot(e.clientX-candidate.x,e.clientY-candidate.y)>8)return;
-    if(candidate.room){selectRoom(candidate.room);return;}
+    if(candidate.room){
+      const room=candidate.room;
+      const entry=facadeChanges&&[...openingEntries.values()].find(e=>e.wall.home===room.home&&e.wall.level===room.level&&(room.id.endsWith('-balcony-door')&&e.wall.study==='门2'||room.id.endsWith('-terrace-door')&&e.wall.study==='门1'||room.id.endsWith('-rear-exit')&&e.wall.code==='rear-exit'));
+      if(entry){toggleOpening(entry);return;}
+      selectRoom(room);return;
+    }
     const rect=renderer.domElement.getBoundingClientRect();
     pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);
     raycaster.setFromCamera(pointer,camera);
+    if(facadeChanges&&pickOpening(raycaster))return;
     const visible=roomMeshes.filter(m=>m.userData.room.design===state.design&&m.parent.visible&&m.parent.parent.visible);
     const hit=raycaster.intersectObjects(visible,false)[0];if(hit)selectRoom(hit.object.userData.room);
   },true);
@@ -997,7 +1029,7 @@ let toastTimer;
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'beds-baths-1028-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'interactive-1028-1');}
   if(state.camera==='site')url.searchParams.set('view','site');
   try {
     if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案10/28 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
@@ -1010,8 +1042,15 @@ function resize() {
   if(renderer.getPixelRatio()!==ratio)renderer.setPixelRatio(ratio);
   renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();requestFrame();
 }
-function render() {
+function render(time=performance.now()) {
   nextFrame=false;controls.update();scene.updateMatrixWorld();
+  let moving=false;
+  for(const entry of openingEntries.values())if(entry.value!==entry.target) {
+    const progress=Math.min(1,Math.max(0,(time-entry.started)/360));
+    entry.value=matchMedia('(prefers-reduced-motion:reduce)').matches||progress===1?entry.target:entry.from+(entry.target-entry.from)*(1-(1-progress)**3);
+    entry.variants.forEach(v=>v.setOpen(entry.value));moving=true;
+  }
+  if(moving){renderer.shadowMap.needsUpdate=true;scene.updateMatrixWorld();requestFrame();}
   renderer.render(scene,camera);
   const width=host.clientWidth,height=host.clientHeight;
   const occupied=[];
