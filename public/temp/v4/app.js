@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-cycles-1';
-import { createOpening } from './opening-motion.js?v=1029-v4-cycles-1';
-import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-cycles-1';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-circulation-2';
+import { createOpening } from './opening-motion.js?v=1029-v4-circulation-2';
+import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-circulation-2';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -121,7 +121,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-cycles-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-circulation-2':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -320,9 +320,9 @@ function buildModel(design,modelData) {
       if(level===2)makeLounge(g,home,7.5,1.5,4.8,5.2,true);
       if(level===3&&home==='B')makeLounge(g,home,6.9,12.5,6.9,4.2,false);
       }
-      if(level<3)makeStairs(g,home,heights[level-1]);
+      if(level<3){const flight=group(g);flight.userData.stairFlight={home,level};makeStairs(flight,home,heights[level-1]);}
       if(facadeChanges&&original&&level===3) {
-        const arrival=group(g);arrival.position.y=-heights[1];makeStairs(arrival,home,heights[1]);
+        const arrival=group(g);arrival.userData.stairArrival={home,fromLevel:2};arrival.position.y=-heights[1];makeStairs(arrival,home,heights[1]);
         arrivalStairs.push(arrival);
       }
       if(level<3&&!strictOriginal) {
@@ -607,9 +607,10 @@ function makeSeparatedLink(parent) {
 function makeJoinedDining(parent) {
   const h=data.joinedDining,length=(h.partitionEnd-h.partitionStart)/5;
   hallDaily=group(parent);hallFestival=group(parent);
+  hallDaily.userData.diningVariant='daily';hallFestival.userData.diningVariant='festival';
+  const partition=group(hallDaily);partition.userData.diningPartition=true;
   for(let i=0;i<5;i++) {
-    block(hallDaily,h.partitionX-.04,h.partitionStart+i*length,.08,length-.012,2.59,.04,materials.white);
-    block(hallFestival,h.partitionX-length/2,h.partitionEnd+i*.055,length,.05,2.59,.04,materials.white);
+    block(partition,h.partitionX-.04,h.partitionStart+i*length,.08,length-.012,2.59,.04,materials.white);
   }
   for(const [i,home]of ['A','B'].entries()) {
     const daily=group(hallDaily),festival=group(hallFestival),[x,y]=h.tableCentres[i];
@@ -748,7 +749,8 @@ function makeRoom(room,parent) {
   if(facadeChanges&&room.design==='original'&&room.kind==='bath')room={...room,description:(room.access==='switchable'?room.description:room.access==='public'?'从公共走廊进入。':'从相邻卧室进入。')+'设淋浴区、坐便器和洗手盆。洁具尺寸、门扇开启、排水与防水仍须深化。'};
   const [x,y,w,d]=room.rect;
   const material=facadeChanges&&room.design==='original'?floorMaterials[room.floorFinish]:new THREE.MeshStandardMaterial({color:colors[room.kind]||0xdedccc,roughness:1});
-  const geometry=roomGeometry(room);
+  const continuousDining=facadeChanges&&room.design==='original'&&room.level===1&&(room.kind==='dining'||room.id==='rear-link');
+  const geometry=roomGeometry(room,continuousDining?0:.23);
   if(material.userData.floorFinish) {
     const uv=geometry.attributes.uv,position=geometry.attributes.position,shift=data.joinedLayout.homeShift[room.home]??0;
     for(let i=0;i<uv.count;i++)uv.setXY(i,position.getX(i)+x+w/2+shift,position.getY(i)+y+d/2);
@@ -1483,7 +1485,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-cycles-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-circulation-2');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}

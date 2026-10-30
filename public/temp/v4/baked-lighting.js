@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { HDRLoader } from './vendor/HDRLoader.js';
 
 // Cycles diffuse direct + indirect bake, stored as linear HDR irradiance / pi.
-// This is a fixed, closed-opening night scene; moving leaves retain interaction.
+// Fixed night scene with dining partition removed; opening leaves remain interactive.
 export async function loadBakedLighting(root) {
   const base=new URL('./lighting/',import.meta.url);
   const asset=name=>{const url=new URL(name,base);url.search=new URL(import.meta.url).search;return url;};
