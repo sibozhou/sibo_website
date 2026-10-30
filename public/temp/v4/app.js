@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-bedrooms-4';
-import { createOpening } from './opening-motion.js?v=1029-v4-bedrooms-4';
-import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-bedrooms-4';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-corner-twins-5';
+import { createOpening } from './opening-motion.js?v=1029-v4-corner-twins-5';
+import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-corner-twins-5';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -121,7 +121,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-bedrooms-4':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-corner-twins-5':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -746,7 +746,7 @@ function roomGeometry(room,inset=.23) {
 }
 function makeRoom(room,parent) {
   if(room.kind==='stairs') {makeLabel(room,parent);return;}
-  if(facadeChanges&&room.design==='original'&&room.kind==='bath')room={...room,description:(room.access==='switchable'?room.description:room.access==='public'?'从公共走廊进入。':'从相邻卧室进入。')+'设淋浴区、坐便器和洗手盆。洁具尺寸、门扇开启、排水与防水仍须深化。'};
+  if(facadeChanges&&room.design==='original'&&room.kind==='bath')room={...room,description:(room.access==='switchable'?room.description:room.access==='public'?'从公共走廊进入。':'从相邻卧室进入。')+'设淋浴区、坐便器和洗手盆。洁具尺寸、门扇开启、排水与防水仍须深化。'+(room.ventilationNote||'')};
   const [x,y,w,d]=room.rect;
   const material=facadeChanges&&room.design==='original'?floorMaterials[room.floorFinish]:new THREE.MeshStandardMaterial({color:colors[room.kind]||0xdedccc,roughness:1});
   const continuousDining=facadeChanges&&room.design==='original'&&room.level===1&&(room.kind==='dining'||room.id==='rear-link'||room.corridorAnnex);
@@ -1485,7 +1485,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-bedrooms-4');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-corner-twins-5');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}

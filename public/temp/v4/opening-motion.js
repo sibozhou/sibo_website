@@ -64,6 +64,16 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
       panel(inner,start?0:-span,span,height-.065,true,start?'end':'start');
       moves.push(t=>{outer.rotation.y=(start?1:-1)*inward*t*(wall.openingAngle??85)*Math.PI/180;inner.rotation.y=-2*outer.rotation.y;});
     }
+  } else if(isWindow&&wall.operation==='fixed-two-casements') {
+    const width=wall.openingLeaf;
+    box(root,width+.025,.025,-.014,length-2*width-.05,height-.05,.028,materials.glass);
+    for(const start of [true,false]) {
+      const split=start?width:length-width;
+      box(root,split-.02,0,-.035,.04,height,.07,materials.windowFrame);
+      const sash=new THREE.Group();root.add(sash);sash.position.set(start?.025:length-.025,.025,0);
+      panel(sash,start?0:-(width-.05),width-.05,height-.05,true,start?'end':'start');
+      moves.push(t=>{sash.rotation.y=(start?1:-1)*inward*t*Math.PI/2;});
+    }
   } else if(isWindow&&wall.operation==='fixed-casement') {
     const width=wall.openingLeaf,start=wall.openingSide!=='end',split=start?width:length-width;
     const fixedStart=start?width:0,fixedWidth=length-width;
