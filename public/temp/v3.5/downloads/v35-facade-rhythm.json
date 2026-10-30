@@ -803,10 +803,14 @@
       ],
       "windowIds": [
         "W35-001",
-        "W35-002"
+        "W35-002",
+        "W35-089",
+        "W35-090",
+        "W35-095",
+        "W35-096"
       ],
       "rhythm": "从卫浴回凹转角重新起排：边墙1400毫米，1350窗，1300净墙，1350窗，1500边墙",
-      "constraint": "二、三层原北阳台门原位保留；对应门洞处不能画跨层5.80米连窗"
+      "constraint": "取消卧室北阳台后，北墙采用1350窗、1300净墙、1400/1500端墙，首至三层同轴；保留原柱及各房间功能。"
     },
     {
       "id": "A-south-upper",
@@ -929,10 +933,12 @@
         "W35-004",
         "W35-005",
         "W35-010",
-        "W35-011"
+        "W35-011",
+        "W35-092",
+        "W35-093"
       ],
       "rhythm": "从卫浴回凹转角重新起排：边墙1400毫米，1350窗，1300净墙，1350窗，1500边墙",
-      "constraint": "二、三层原北阳台门原位保留；对应门洞处不能画跨层5.80米连窗"
+      "constraint": "取消卧室北阳台后，北墙采用1350窗、1300净墙、1400/1500端墙，首至三层同轴；保留原柱及各房间功能。"
     },
     {
       "id": "B-south-upper",
@@ -991,23 +997,23 @@
     }
   ],
   "statistics": {
-    "windowCount": 79,
-    "width1350": 75,
+    "windowCount": 89,
+    "width1350": 85,
     "narrowWidthExceptions": 4,
-    "continuousPairs": 15,
-    "fullWidthContinuousPairs": 13,
+    "continuousPairs": 21,
+    "fullWidthContinuousPairs": 19,
     "exceptionWindows": 57,
     "exceptionReasons": {
-      "unpaired": 27,
-      "corner": 40,
+      "corner": 44,
       "width": 4,
+      "unpaired": 21,
       "hallHeight": 4,
       "thirdAxis": 4,
       "raisedLaundry": 2,
       "spacing": 2,
       "storeHeight": 2
     },
-    "doorCount": 60
+    "doorCount": 50
   },
   "storageTransom": {
     "width": 1.35,
