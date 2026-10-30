@@ -748,11 +748,11 @@
         14.9
       ],
       "localAnchor": [
-        4.2,
+        4.1,
         14.9
       ],
       "worldAnchor": [
-        4.2,
+        4.1,
         14.9
       ],
       "windowIds": [
@@ -763,19 +763,19 @@
         "W35-023",
         "W35-082"
       ],
-      "rhythm": "左套卫中心x=4.20；右套卫中心x=6.00，轴距1800、1350窗间净墙450毫米",
-      "constraint": "回凹墙总宽3.60米，小于1350窗+双边角距>1350所需>4.05米；一层右段保留后门，不能强做连窗"
+      "rhythm": "卫浴恢复原高位小窗：左窗中心x=4.10，右窗中心x=6.00；普通窗另按1350×1900布置。",
+      "constraint": "保留原卫浴小窗；一层右侧储藏窗采用1350×1900，后门改至厨房回凹侧墙。"
     },
     {
       "id": "A-bath-side",
       "bathRoom": "A1-front-bath",
       "localAnchor": [
         3.3,
-        7.60074
+        7.6
       ],
       "worldAnchor": [
         3.3,
-        7.60074
+        7.6
       ],
       "windowIds": [
         "W35-009",
@@ -787,7 +787,7 @@
         "W35-021",
         "W35-085"
       ],
-      "rhythm": "以前卫浴柱间窗中心y=7.60074起排；向南1350窗至y=5.20、3.625，向北楼梯窗y=9.175；各连续净墙≤1350毫米",
+      "rhythm": "前卫浴恢复原1000×700高窗；其他外窗各层统一1350×1900，普通侧窗原轴线保留。",
       "constraint": "保留两根450毫米柱使前卫浴柱间净宽约1100毫米，窗宽1000毫米例外；甲户一层农具外门不变"
     },
     {
@@ -875,11 +875,11 @@
         14.9
       ],
       "localAnchor": [
-        4.2,
+        4.1,
         14.9
       ],
       "worldAnchor": [
-        25.4,
+        25.5,
         14.9
       ],
       "windowIds": [
@@ -890,19 +890,19 @@
         "W35-041",
         "W35-083"
       ],
-      "rhythm": "左套卫中心x=4.20；右套卫中心x=6.00，轴距1800、1350窗间净墙450毫米",
-      "constraint": "回凹墙总宽3.60米，小于1350窗+双边角距>1350所需>4.05米；一层右段保留后门，不能强做连窗"
+      "rhythm": "卫浴恢复原高位小窗：左窗中心x=4.10，右窗中心x=6.00；普通窗另按1350×1900布置。",
+      "constraint": "保留原卫浴小窗；一层右侧储藏窗采用1350×1900，后门改至厨房回凹侧墙。"
     },
     {
       "id": "B-bath-side",
       "bathRoom": "B1-front-bath",
       "localAnchor": [
         3.3,
-        7.60074
+        7.6
       ],
       "worldAnchor": [
         26.3,
-        7.60074
+        7.6
       ],
       "windowIds": [
         "W35-012",
@@ -915,7 +915,7 @@
         "W35-086",
         "W35-087"
       ],
-      "rhythm": "以前卫浴柱间窗中心y=7.60074起排；向南1350窗至y=5.20、3.625，向北楼梯窗y=9.175；各连续净墙≤1350毫米",
+      "rhythm": "前卫浴恢复原1000×700高窗；其他外窗各层统一1350×1900，普通侧窗原轴线保留。",
       "constraint": "保留两根450毫米柱使前卫浴柱间净宽约1100毫米，窗宽1000毫米例外；甲户一层农具外门不变"
     },
     {
@@ -998,29 +998,31 @@
   ],
   "statistics": {
     "windowCount": 89,
-    "width1350": 85,
-    "narrowWidthExceptions": 4,
-    "continuousPairs": 21,
-    "fullWidthContinuousPairs": 19,
-    "exceptionWindows": 57,
+    "standardCount": 75,
+    "standardSizeCount": 75,
+    "width1350": 75,
+    "originalBathCount": 14,
+    "doorCount": 50,
+    "exceptionWindows": 38,
+    "layoutExceptionWindows": 38,
     "exceptionReasons": {
-      "corner": 44,
-      "width": 4,
-      "unpaired": 21,
-      "hallHeight": 4,
+      "corner": 34,
       "thirdAxis": 4,
-      "raisedLaundry": 2,
-      "spacing": 2,
-      "storeHeight": 2
-    },
-    "doorCount": 50
+      "spacing": 2
+    }
   },
-  "storageTransom": {
+  "storageWindow": {
     "width": 1.35,
-    "sill": 2.65,
-    "head": 3.65,
-    "height": 1.0,
+    "height": 1.9,
+    "sill": 0.9,
+    "head": 2.8,
     "controlHeight": 1.45,
-    "note": "后门1000毫米洞口与门位保留，门上1350毫米高位横窗对齐二、三层右卫浴窗；窗台和5.80米连窗高度例外，高位手摇下引控制器仅为操作意向。"
+    "backDoorLocal": [
+      6.9,
+      16.1,
+      6.9,
+      15.1
+    ],
+    "note": "北侧储藏窗恢复标准窗比例，后门移至厨房回凹外墙；平台、台阶、房间外形和柱位保持。"
   }
 }

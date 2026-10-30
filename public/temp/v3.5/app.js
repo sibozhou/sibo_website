@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1030-v35-north-windows-3';
-import { createOpening } from './opening-motion.js?v=1030-v35-north-windows-3';
-import { loadBakedLighting } from './baked-lighting.js?v=1030-v35-north-windows-3';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1030-v35-uniform-1900-4';
+import { createOpening } from './opening-motion.js?v=1030-v35-uniform-1900-4';
+import { loadBakedLighting } from './baked-lighting.js?v=1030-v35-uniform-1900-4';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -121,7 +121,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1030-v35-north-windows-3':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1030-v35-uniform-1900-4':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -277,7 +277,7 @@ function buildModel(design,modelData) {
         if(joined&&level===1) {
           makeUnderStairStorage(g,home);
           makeGroundServices(g,home);
-          makeLabel({id:home+'-back-entry',home,level,rect:[mirror(home,5.5,1),14.55,1,.7],kind:'terrace',name:'北侧后门',description:data.backAccess.description},g);
+          makeLabel({id:home+'-back-entry',home,level,rect:[mirror(home,6.35,.7),15.25,.7,.7],kind:'terrace',name:'厨房后勤门',description:data.backAccess.description},g);
           const access=data.courtyardAccess,[px,py,pw,pd]=access.landing;
           block(g,mx(px,pw),py,pw,pd,-data.vertical.outdoorLevel,data.vertical.outdoorLevel,materials.slab);
           for(let i=1;i<access.risers;i++)block(g,mx(px+pw+(i-1)*access.tread,access.tread),py,access.tread,pd,-data.vertical.outdoorLevel-i*access.riserHeight,data.vertical.outdoorLevel,materials.slab);
@@ -856,10 +856,12 @@ function makeOriginalFixtures(parent,home,level) {
   if(level<3)makeBathroom(parent,mx(3.3,2.8),6.7,2.8,1.8,home,false,false);
   }
   if(level===1) {
-    block(parent,mx(7.05,.6),12.7,.6,3.7,.83,0,materials.lightWood);
-    block(parent,mx(7.05,.6),12.7,.6,3.7,.06,.83,materials.white);
-    for(const y of [14.2,14.6])cylinder(parent,mx(7.35),y,.13,.02,.91,materials.dark);
-    block(parent,mx(7.14,.42),15.6,.42,.6,.02,.9,materials.water);
+    block(parent,mx(7.05,.6),12.7,.6,2.08,.83,0,materials.lightWood);
+    block(parent,mx(7.05,.6),12.7,.6,2.08,.06,.83,materials.white);
+    for(const y of [13.55,13.93])cylinder(parent,mx(7.35),y,.13,.02,.91,materials.dark);
+    block(parent,mx(7.85,2.1),15.95,2.1,.6,.83,0,materials.lightWood);
+    block(parent,mx(7.85,2.1),15.95,2.1,.6,.06,.83,materials.white);
+    block(parent,mx(8.10,.65),16.02,.65,.42,.02,.9,materials.water);
     if(!facadeChanges||!(data.rearHall||data.joinedDining))roundTable(parent,mx(12),14.55,1.8,12);
     if(!facadeStudy) {
     block(parent,mx(6.3,.85),3.3,.85,2.5,.35,.1,materials.sofa);
@@ -1516,7 +1518,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1030-v35-north-windows-3');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1030-v35-uniform-1900-4');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}

@@ -1,2402 +1,83 @@
 {
   "width": 1.35,
-  "continuousSillOutdoor": 1.35,
-  "continuousSillIndoor": 0.9,
-  "continuousHeadIndoor": 6.7,
-  "continuousHeight": 5.8,
-  "spandrel": [
-    3.65,
-    4.15
-  ],
-  "thirdSize": [
+  "height": 1.9,
+  "standardSize": [
     1.35,
     1.9
   ],
-  "thirdSillIndoor": 0.9,
-  "thirdSillUnverified": true,
-  "exceptions": [
-    {
-      "id": "W35-013",
-      "home": "A",
-      "level": 1,
-      "points": [
-        3.525,
-        14.9,
-        4.875,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        3.3,
-        6.9
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.225,
-        2.025
-      ],
-      "nextWindowGap": 0.45,
-      "continuousSolidParts": [
-        [
-          4.875,
-          5.325
-        ]
-      ],
-      "continuousStack": true,
-      "bathAnchor": "A-bath-recess",
-      "bathRoom": "A1-bath-left",
-      "rooms": [
-        "A1-bath-left"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 1
-    },
-    {
-      "id": "W35-015",
-      "home": "A",
-      "level": 1,
-      "points": [
-        3.3,
-        7.10074,
-        3.3,
-        8.10074
-      ],
-      "width": 1.0,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        2.2,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        4.90074,
-        2.99926
-      ],
-      "nextWindowGap": 1.07426,
-      "continuousSolidParts": [
-        [
-          8.10074,
-          9.175
-        ]
-      ],
-      "continuousStack": true,
-      "bathAnchor": "A-bath-side",
-      "bathRoom": "A1-front-bath",
-      "rooms": [
-        "A1-front-bath"
-      ],
-      "exceptionCodes": [
-        "width"
-      ],
-      "notes": [
-        "保留柱、后门及短墙限制：窗宽例外；不能切柱强做1350毫米"
-      ],
-      "layoutOrder": 2
-    },
-    {
-      "id": "W35-082",
-      "home": "A",
-      "level": 1,
-      "points": [
-        5.325,
-        14.9,
-        6.675,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 2.65,
-      "head": 3.65,
-      "height": 1.0,
-      "facadeRun": [
-        3.3,
-        6.9
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.025,
-        0.225
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "A-bath-recess",
-      "bathRoom": "A1-bath-left",
-      "rooms": [
-        "A1-dry-store"
-      ],
-      "exceptionCodes": [
-        "storeHeight",
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "储藏间保留后门，门上1350毫米高位横窗：窗台2650毫米、窗高1000毫米，5.80米连窗高度例外",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 3
-    },
-    {
-      "id": "W35-016",
-      "home": "A",
-      "level": 1,
-      "points": [
-        3.3,
-        9.175,
-        3.3,
-        10.525
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        2.2,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        6.975,
-        0.575
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": "A-bath-side",
-      "bathRoom": "A1-front-bath",
-      "rooms": [
-        "A1-stairs"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 5
-    },
-    {
-      "id": "W35-049",
-      "home": "A",
-      "level": 1,
-      "points": [
-        0.97745,
-        16.7,
-        2.32745,
-        16.7
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        0,
-        3.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.97745,
-        0.97255
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A1-bed1"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 9
-    },
-    {
-      "id": "W35-056",
-      "home": "A",
-      "level": 1,
-      "points": [
-        9.4,
-        7.075,
-        9.4,
-        8.425
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        6.7,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.375,
-        2.675
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 11
-    },
-    {
-      "id": "W35-053",
-      "home": "A",
-      "level": 1,
-      "points": [
-        10.425,
-        6.7,
-        11.775,
-        6.7
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 4.7,
-      "height": 3.8,
-      "facadeRun": [
-        9.4,
-        12.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        1.025,
-        0.525
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A1-hall"
-      ],
-      "exceptionCodes": [
-        "hallHeight",
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "5米玄关厅上方为开敞露台：只设单层高窗，不做悬空5.80米连窗",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 12
-    },
-    {
-      "id": "W35-026",
-      "home": "A",
-      "level": 1,
-      "points": [
-        12.3,
-        3.475,
-        12.3,
-        4.825
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 4.7,
-      "height": 3.8,
-      "facadeRun": [
-        0,
-        6.7
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        3.475,
-        1.875
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A1-hall"
-      ],
-      "exceptionCodes": [
-        "hallHeight",
-        "unpaired"
-      ],
-      "notes": [
-        "5米玄关厅上方为开敞露台：只设单层高窗，不做悬空5.80米连窗",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
-      "layoutOrder": 14
-    },
-    {
-      "id": "W35-017",
-      "home": "A",
-      "level": 2,
-      "points": [
-        3.525,
-        14.9,
-        4.875,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        3.3,
-        6.9
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.225,
-        2.025
-      ],
-      "nextWindowGap": 0.45,
-      "continuousSolidParts": [
-        [
-          4.875,
-          5.325
-        ]
-      ],
-      "continuousStack": true,
-      "bathAnchor": "A-bath-recess",
-      "bathRoom": "A2-bath-left",
-      "rooms": [
-        "A2-bath-left"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 15
-    },
-    {
-      "id": "W35-018",
-      "home": "A",
-      "level": 2,
-      "points": [
-        5.325,
-        14.9,
-        6.675,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        3.3,
-        6.9
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.025,
-        0.225
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "A-bath-recess",
-      "bathRoom": "A2-bath-right",
-      "rooms": [
-        "A2-bath-right"
-      ],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 16
-    },
-    {
-      "id": "W35-020",
-      "home": "A",
-      "level": 2,
-      "points": [
-        3.3,
-        7.10074,
-        3.3,
-        8.10074
-      ],
-      "width": 1.0,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        2.2,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        4.90074,
-        2.99926
-      ],
-      "nextWindowGap": 1.07426,
-      "continuousSolidParts": [
-        [
-          8.10074,
-          9.175
-        ]
-      ],
-      "continuousStack": true,
-      "bathAnchor": "A-bath-side",
-      "bathRoom": "A2-front-bath",
-      "rooms": [
-        "A2-front-bath"
-      ],
-      "exceptionCodes": [
-        "width"
-      ],
-      "notes": [
-        "保留柱、后门及短墙限制：窗宽例外；不能切柱强做1350毫米"
-      ],
-      "layoutOrder": 17
-    },
-    {
-      "id": "W35-085",
-      "home": "A",
-      "level": 2,
-      "points": [
-        3.3,
-        5.2,
-        3.3,
-        6.55
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        2.2,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        3.0,
-        4.55
-      ],
-      "nextWindowGap": 0.55074,
-      "continuousSolidParts": [
-        [
-          6.55,
-          7.10074
-        ]
-      ],
-      "continuousStack": false,
-      "bathAnchor": "A-bath-side",
-      "bathRoom": "A1-front-bath",
-      "rooms": [
-        "A2-bed5"
-      ],
-      "exceptionCodes": [
-        "unpaired"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
-      "layoutOrder": 19
-    },
-    {
-      "id": "W35-021",
-      "home": "A",
-      "level": 2,
-      "points": [
-        3.3,
-        9.175,
-        3.3,
-        10.525
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        2.2,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        6.975,
-        0.575
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": "A-bath-side",
-      "bathRoom": "A1-front-bath",
-      "rooms": [
-        "A2-stairs"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 20
-    },
-    {
-      "id": "W35-071",
-      "home": "A",
-      "level": 2,
-      "points": [
-        13.8,
-        13.225,
-        13.8,
-        14.575
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        11.1,
-        16.7
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.125,
-        2.125
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "A-inner-side",
-      "bathRoom": "A2-bath-right",
-      "rooms": [
-        "A2-bed4"
-      ],
-      "exceptionCodes": [
-        "unpaired"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
-      "layoutOrder": 21
-    },
-    {
-      "id": "W35-088",
-      "home": "A",
-      "level": 2,
-      "points": [
-        0.97745,
-        16.7,
-        2.32745,
-        16.7
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        0,
-        3.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.97745,
-        0.97255
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A2-bed2"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 25
-    },
-    {
-      "id": "W35-027",
-      "home": "A",
-      "level": 2,
-      "points": [
-        6.9,
-        15.05,
-        6.9,
-        16.4
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        14.9,
-        16.7
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.15,
-        0.3
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A2-bed3"
-      ],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 27
-    },
-    {
-      "id": "W35-080",
-      "home": "A",
-      "level": 2,
-      "points": [
-        10.2,
-        5.1,
-        10.2,
-        6.45
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.26562,
-      "height": 1.36562,
-      "facadeRun": [
-        5.0,
-        16.7
-      ],
-      "outlineVerified": false,
-      "cornerMargins": [
-        0.1,
-        10.25
-      ],
-      "nextWindowGap": 2.625,
-      "continuousSolidParts": [
-        [
-          6.45,
-          9.075
-        ]
-      ],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A2-laundry"
-      ],
-      "exceptionCodes": [
-        "raisedLaundry",
-        "unpaired",
-        "corner",
-        "spacing"
-      ],
-      "notes": [
-        "洗衣间楼面+5.00米且受坡顶约束：窗台、窗高例外",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350",
-        "相邻窗间连续净墙>1350毫米；抬高洗衣间与主楼面的墙段交接；如再增1350窗将逼近转角至约50毫米，保留实体边墙"
-      ],
-      "layoutOrder": 28
-    },
-    {
-      "id": "W35-058",
-      "home": "A",
-      "level": 2,
-      "points": [
-        10.2,
-        9.075,
-        10.2,
-        10.425
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        6.7,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.375,
-        0.675
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 29
-    },
-    {
-      "id": "W35-057",
-      "home": "A",
-      "level": 2,
-      "points": [
-        11.05,
-        11.1,
-        12.4,
-        11.1
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        10.2,
-        13.8
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.85,
-        1.4
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A2-bed4"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 30
-    },
-    {
-      "id": "W35-022",
-      "home": "A",
-      "level": 3,
-      "points": [
-        3.525,
-        14.9,
-        4.875,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        3.3,
-        6.9
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.225,
-        2.025
-      ],
-      "nextWindowGap": 0.45,
-      "continuousSolidParts": [
-        [
-          4.875,
-          5.325
-        ]
-      ],
-      "continuousStack": false,
-      "bathAnchor": "A-bath-recess",
-      "bathRoom": "A3-bath-left",
-      "rooms": [
-        "A3-bath-left"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 31
-    },
-    {
-      "id": "W35-023",
-      "home": "A",
-      "level": 3,
-      "points": [
-        5.325,
-        14.9,
-        6.675,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        3.3,
-        6.9
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.025,
-        0.225
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "A-bath-recess",
-      "bathRoom": "A3-bath-right",
-      "rooms": [
-        "A3-bath-right"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 32
-    },
-    {
-      "id": "W35-009",
-      "home": "A",
-      "level": 3,
-      "points": [
-        3.3,
-        9.175,
-        3.3,
-        10.525
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        8.5,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.675,
-        0.575
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "A-bath-side",
-      "bathRoom": "A1-front-bath",
-      "rooms": [
-        "A3-stairs"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 33
-    },
-    {
-      "id": "W35-061",
-      "home": "A",
-      "level": 3,
-      "points": [
-        4.7,
-        8.5,
-        6.05,
-        8.5
-      ],
-      "width": 1.35,
+  "standardSillIndoor": 0.9,
+  "firstSillOutdoor": 1.35,
+  "bathroomWindows": {
+    "mode": "original",
+    "count": 14,
+    "widths": [
+      0.9,
+      1.0
+    ],
+    "height": 0.7,
+    "sill": 1.7,
+    "head": 2.4,
+    "glazing": "无色磨砂",
+    "operation": "顶部铰接固定，底边整扇向外抬起"
+  },
+  "sillAdjustments": {
+    "southRoofWindows": {
+      "count": 4,
       "sill": 1.2,
-      "head": 3.1,
-      "height": 1.9,
-      "facadeRun": [
-        3.3,
-        10.2
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        1.4,
-        4.15
-      ],
-      "nextWindowGap": 1.3,
-      "continuousSolidParts": [
-        [
-          6.05,
-          7.35
-        ]
-      ],
-      "continuousStack": false,
-      "bathAnchor": "A-south-upper",
-      "bathRoom": "A2-front-bath",
-      "rooms": [
-        "A3-stairs"
-      ],
-      "exceptionCodes": [
-        "thirdAxis"
-      ],
-      "notes": [
-        "三层南窗台暂按1200毫米，避低坡屋面；1350×1900尺寸不变，原要求未给窗台高",
-        "下层该处为内部卫浴/楼梯墙或不存在三层的低屋顶：上下对应不强增悬空外窗"
-      ],
-      "layoutOrder": 38
+      "head": 3.1
     },
-    {
-      "id": "W35-062",
-      "home": "A",
-      "level": 3,
-      "points": [
-        7.35,
-        8.5,
-        8.7,
-        8.5
-      ],
-      "width": 1.35,
-      "sill": 1.2,
-      "head": 3.1,
-      "height": 1.9,
-      "facadeRun": [
-        3.3,
-        10.2
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        4.05,
-        1.5
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "A-south-upper",
-      "bathRoom": "A2-front-bath",
-      "rooms": [],
-      "exceptionCodes": [
-        "thirdAxis"
-      ],
-      "notes": [
-        "三层南窗台暂按1200毫米，避低坡屋面；1350×1900尺寸不变，原要求未给窗台高",
-        "下层该处为内部卫浴/楼梯墙或不存在三层的低屋顶：上下对应不强增悬空外窗"
-      ],
-      "layoutOrder": 39
-    },
-    {
-      "id": "W35-094",
-      "home": "A",
-      "level": 3,
-      "points": [
-        0.97745,
-        16.7,
-        2.32745,
-        16.7
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        0,
-        3.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.97745,
-        0.97255
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A3-bed6"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 40
-    },
-    {
-      "id": "W35-030",
-      "home": "A",
-      "level": 3,
-      "points": [
-        6.9,
-        15.05,
-        6.9,
-        16.4
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        14.9,
-        16.7
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.15,
-        0.3
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A3-bed7"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 41
-    },
-    {
-      "id": "W35-060",
-      "home": "A",
-      "level": 3,
-      "points": [
-        10.2,
-        9.075,
-        10.2,
-        10.425
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        8.5,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.575,
-        0.675
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 42
-    },
-    {
-      "id": "W35-059",
-      "home": "A",
-      "level": 3,
-      "points": [
-        11.05,
-        11.1,
-        12.4,
-        11.1
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        10.2,
-        13.8
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.85,
-        1.4
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "A3-bed8"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 43
-    },
-    {
-      "id": "W35-031",
-      "home": "B",
-      "level": 1,
-      "points": [
-        26.075,
-        14.9,
-        24.725,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        22.700000000000003,
-        26.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.025,
-        0.225
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": "B-bath-recess",
-      "bathRoom": "B1-bath-left",
-      "rooms": [
-        "B1-bath-left"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 44
-    },
-    {
-      "id": "W35-033",
-      "home": "B",
-      "level": 1,
-      "points": [
-        26.3,
-        7.10074,
-        26.3,
-        8.10074
-      ],
-      "width": 1.0,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        2.2,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        4.90074,
-        2.99926
-      ],
-      "nextWindowGap": 1.07426,
-      "continuousSolidParts": [
-        [
-          8.10074,
-          9.175
-        ]
-      ],
-      "continuousStack": true,
-      "bathAnchor": "B-bath-side",
-      "bathRoom": "B1-front-bath",
-      "rooms": [
-        "B1-front-bath"
-      ],
-      "exceptionCodes": [
-        "width"
-      ],
-      "notes": [
-        "保留柱、后门及短墙限制：窗宽例外；不能切柱强做1350毫米"
-      ],
-      "layoutOrder": 45
-    },
-    {
-      "id": "W35-083",
-      "home": "B",
-      "level": 1,
-      "points": [
-        22.925,
-        14.9,
-        24.275,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 2.65,
-      "head": 3.65,
-      "height": 1.0,
-      "facadeRun": [
-        22.700000000000003,
-        26.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.225,
-        2.025
-      ],
-      "nextWindowGap": 0.45,
-      "continuousSolidParts": [
-        [
-          24.275,
-          24.725
-        ]
-      ],
-      "continuousStack": false,
-      "bathAnchor": "B-bath-recess",
-      "bathRoom": "B1-bath-left",
-      "rooms": [
-        "B1-dry-store"
-      ],
-      "exceptionCodes": [
-        "storeHeight",
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "储藏间保留后门，门上1350毫米高位横窗：窗台2650毫米、窗高1000毫米，5.80米连窗高度例外",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 46
-    },
-    {
-      "id": "W35-034",
-      "home": "B",
-      "level": 1,
-      "points": [
-        26.3,
-        9.175,
-        26.3,
-        10.525
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        2.2,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        6.975,
-        0.575
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": "B-bath-side",
-      "bathRoom": "B1-front-bath",
-      "rooms": [
-        "B1-stairs"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 49
-    },
-    {
-      "id": "W35-044",
-      "home": "B",
-      "level": 1,
-      "points": [
-        17.3,
-        3.475,
-        17.3,
-        4.825
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 4.7,
-      "height": 3.8,
-      "facadeRun": [
-        0,
-        6.7
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        3.475,
-        1.875
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B1-hall"
-      ],
-      "exceptionCodes": [
-        "hallHeight",
-        "unpaired"
-      ],
-      "notes": [
-        "5米玄关厅上方为开敞露台：只设单层高窗，不做悬空5.80米连窗",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
-      "layoutOrder": 53
-    },
-    {
-      "id": "W35-054",
-      "home": "B",
-      "level": 1,
-      "points": [
-        17.825,
-        6.7,
-        19.175,
-        6.7
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 4.7,
-      "height": 3.8,
-      "facadeRun": [
-        17.3,
-        20.200000000000003
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.525,
-        1.025
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B1-hall"
-      ],
-      "exceptionCodes": [
-        "hallHeight",
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "5米玄关厅上方为开敞露台：只设单层高窗，不做悬空5.80米连窗",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 54
-    },
-    {
-      "id": "W35-064",
-      "home": "B",
-      "level": 1,
-      "points": [
-        20.2,
-        7.075,
-        20.2,
-        8.425
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        6.7,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.375,
-        2.675
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 56
-    },
-    {
-      "id": "W35-050",
-      "home": "B",
-      "level": 1,
-      "points": [
-        27.27692,
-        16.7,
-        28.62692,
-        16.7
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        26.3,
-        29.6
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.97692,
-        0.97308
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B1-bed1"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 58
-    },
-    {
-      "id": "W35-036",
-      "home": "B",
-      "level": 2,
-      "points": [
-        22.925,
-        14.9,
-        24.275,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        22.700000000000003,
-        26.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.225,
-        2.025
-      ],
-      "nextWindowGap": 0.45,
-      "continuousSolidParts": [
-        [
-          24.275,
-          24.725
-        ]
-      ],
-      "continuousStack": false,
-      "bathAnchor": "B-bath-recess",
-      "bathRoom": "B2-bath-right",
-      "rooms": [
-        "B2-bath-right"
-      ],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 59
-    },
-    {
-      "id": "W35-035",
-      "home": "B",
-      "level": 2,
-      "points": [
-        26.075,
-        14.9,
-        24.725,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        22.700000000000003,
-        26.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.025,
-        0.225
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": "B-bath-recess",
-      "bathRoom": "B2-bath-left",
-      "rooms": [
-        "B2-bath-left"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 60
-    },
-    {
-      "id": "W35-038",
-      "home": "B",
-      "level": 2,
-      "points": [
-        26.3,
-        7.10074,
-        26.3,
-        8.10074
-      ],
-      "width": 1.0,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        2.2,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        4.90074,
-        2.99926
-      ],
-      "nextWindowGap": 1.07426,
-      "continuousSolidParts": [
-        [
-          8.10074,
-          9.175
-        ]
-      ],
-      "continuousStack": true,
-      "bathAnchor": "B-bath-side",
-      "bathRoom": "B2-front-bath",
-      "rooms": [
-        "B2-front-bath"
-      ],
-      "exceptionCodes": [
-        "width"
-      ],
-      "notes": [
-        "保留柱、后门及短墙限制：窗宽例外；不能切柱强做1350毫米"
-      ],
-      "layoutOrder": 61
-    },
-    {
-      "id": "W35-039",
-      "home": "B",
-      "level": 2,
-      "points": [
-        26.3,
-        9.175,
-        26.3,
-        10.525
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        2.2,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        6.975,
-        0.575
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": "B-bath-side",
-      "bathRoom": "B1-front-bath",
-      "rooms": [
-        "B2-stairs"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 64
-    },
-    {
-      "id": "W35-075",
-      "home": "B",
-      "level": 2,
-      "points": [
-        15.8,
-        13.225,
-        15.8,
-        14.575
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        11.1,
-        16.7
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.125,
-        2.125
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "B-inner-side",
-      "bathRoom": "B2-bath-right",
-      "rooms": [
-        "B2-bed4"
-      ],
-      "exceptionCodes": [
-        "unpaired"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
-      "layoutOrder": 65
-    },
-    {
-      "id": "W35-065",
-      "home": "B",
-      "level": 2,
-      "points": [
-        18.55,
-        11.1,
-        17.2,
-        11.1
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        15.8,
-        19.400000000000002
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        1.4,
-        0.85
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B2-bed4"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 69
-    },
-    {
-      "id": "W35-081",
-      "home": "B",
-      "level": 2,
-      "points": [
-        19.4,
-        5.1,
-        19.4,
-        6.45
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.26562,
-      "height": 1.36562,
-      "facadeRun": [
-        5.0,
-        16.7
-      ],
-      "outlineVerified": false,
-      "cornerMargins": [
-        0.1,
-        10.25
-      ],
-      "nextWindowGap": 2.625,
-      "continuousSolidParts": [
-        [
-          6.45,
-          9.075
-        ]
-      ],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B2-laundry"
-      ],
-      "exceptionCodes": [
-        "raisedLaundry",
-        "unpaired",
-        "corner",
-        "spacing"
-      ],
-      "notes": [
-        "洗衣间楼面+5.00米且受坡顶约束：窗台、窗高例外",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350",
-        "相邻窗间连续净墙>1350毫米；抬高洗衣间与主楼面的墙段交接；如再增1350窗将逼近转角至约50毫米，保留实体边墙"
-      ],
-      "layoutOrder": 70
-    },
-    {
-      "id": "W35-066",
-      "home": "B",
-      "level": 2,
-      "points": [
-        19.4,
-        9.075,
-        19.4,
-        10.425
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        6.7,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.375,
-        0.675
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 71
-    },
-    {
-      "id": "W35-045",
-      "home": "B",
-      "level": 2,
-      "points": [
-        22.7,
-        15.05,
-        22.7,
-        16.4
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        14.9,
-        16.7
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.15,
-        0.3
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B2-bed3"
-      ],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 72
-    },
-    {
-      "id": "W35-091",
-      "home": "B",
-      "level": 2,
-      "points": [
-        27.27692,
-        16.7,
-        28.62692,
-        16.7
-      ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
-      "facadeRun": [
-        26.3,
-        29.6
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.97692,
-        0.97308
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": true,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B2-bed2"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 74
-    },
-    {
-      "id": "W35-041",
-      "home": "B",
-      "level": 3,
-      "points": [
-        22.925,
-        14.9,
-        24.275,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        22.700000000000003,
-        26.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.225,
-        2.025
-      ],
-      "nextWindowGap": 0.45,
-      "continuousSolidParts": [
-        [
-          24.275,
-          24.725
-        ]
-      ],
-      "continuousStack": false,
-      "bathAnchor": "B-bath-recess",
-      "bathRoom": "B3-bath-right",
-      "rooms": [
-        "B3-bath-right"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 75
-    },
-    {
-      "id": "W35-040",
-      "home": "B",
-      "level": 3,
-      "points": [
-        26.075,
-        14.9,
-        24.725,
-        14.9
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        22.700000000000003,
-        26.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        2.025,
-        0.225
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "B-bath-recess",
-      "bathRoom": "B3-bath-left",
-      "rooms": [
-        "B3-bath-left"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 76
-    },
-    {
-      "id": "W35-012",
-      "home": "B",
-      "level": 3,
-      "points": [
-        26.3,
-        9.175,
-        26.3,
-        10.525
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        8.5,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.675,
-        0.575
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "B-bath-side",
-      "bathRoom": "B1-front-bath",
-      "rooms": [
-        "B3-stairs"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 77
-    },
-    {
-      "id": "W35-069",
-      "home": "B",
-      "level": 3,
-      "points": [
-        22.25,
-        8.5,
-        20.9,
-        8.5
-      ],
-      "width": 1.35,
-      "sill": 1.2,
-      "head": 3.1,
-      "height": 1.9,
-      "facadeRun": [
-        19.400000000000002,
-        26.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        1.5,
-        4.05
-      ],
-      "nextWindowGap": 1.3,
-      "continuousSolidParts": [
-        [
-          22.25,
-          23.55
-        ]
-      ],
-      "continuousStack": false,
-      "bathAnchor": "B-south-upper",
-      "bathRoom": "B2-front-bath",
-      "rooms": [],
-      "exceptionCodes": [
-        "thirdAxis"
-      ],
-      "notes": [
-        "三层南窗台暂按1200毫米，避低坡屋面；1350×1900尺寸不变，原要求未给窗台高",
-        "下层该处为内部卫浴/楼梯墙或不存在三层的低屋顶：上下对应不强增悬空外窗"
-      ],
-      "layoutOrder": 82
-    },
-    {
-      "id": "W35-068",
-      "home": "B",
-      "level": 3,
-      "points": [
-        24.9,
-        8.5,
-        23.55,
-        8.5
-      ],
-      "width": 1.35,
-      "sill": 1.2,
-      "head": 3.1,
-      "height": 1.9,
-      "facadeRun": [
-        19.400000000000002,
-        26.3
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        4.15,
-        1.4
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": "B-south-upper",
-      "bathRoom": "B2-front-bath",
-      "rooms": [
-        "B3-stairs"
-      ],
-      "exceptionCodes": [
-        "thirdAxis"
-      ],
-      "notes": [
-        "三层南窗台暂按1200毫米，避低坡屋面；1350×1900尺寸不变，原要求未给窗台高",
-        "下层该处为内部卫浴/楼梯墙或不存在三层的低屋顶：上下对应不强增悬空外窗"
-      ],
-      "layoutOrder": 83
-    },
-    {
-      "id": "W35-084",
-      "home": "B",
-      "level": 3,
-      "points": [
-        18.55,
-        11.1,
-        17.2,
-        11.1
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        15.8,
-        19.400000000000002
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        1.4,
-        0.85
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B3-av"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 84
-    },
-    {
-      "id": "W35-067",
-      "home": "B",
-      "level": 3,
-      "points": [
-        19.4,
-        9.075,
-        19.4,
-        10.425
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        8.5,
-        11.1
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.575,
-        0.675
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 85
-    },
-    {
-      "id": "W35-048",
-      "home": "B",
-      "level": 3,
-      "points": [
-        22.7,
-        15.05,
-        22.7,
-        16.4
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        14.9,
-        16.7
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.15,
-        0.3
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B3-av"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 86
-    },
-    {
-      "id": "W35-097",
-      "home": "B",
-      "level": 3,
-      "points": [
-        27.27692,
-        16.7,
-        28.62692,
-        16.7
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
-      "facadeRun": [
-        26.3,
-        29.6
-      ],
-      "outlineVerified": true,
-      "cornerMargins": [
-        0.97692,
-        0.97308
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "B3-bed6"
-      ],
-      "exceptionCodes": [
-        "corner"
-      ],
-      "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 87
-    },
-    {
-      "id": "W35-078",
-      "home": "both",
-      "level": 1,
-      "points": [
-        14.125,
-        11.1,
-        15.475,
-        11.1
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        13.8,
-        15.8
-      ],
-      "outlineVerified": false,
-      "cornerMargins": [
-        0.325,
-        0.325
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "rear-link"
-      ],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 88
-    },
-    {
-      "id": "W35-079",
-      "home": "both",
-      "level": 1,
-      "points": [
-        14.125,
-        16.7,
-        15.475,
-        16.7
-      ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
-      "facadeRun": [
-        13.8,
-        15.8
-      ],
-      "outlineVerified": false,
-      "cornerMargins": [
-        0.325,
-        0.325
-      ],
-      "nextWindowGap": null,
-      "continuousSolidParts": [],
-      "continuousStack": false,
-      "bathAnchor": null,
-      "bathRoom": null,
-      "rooms": [
-        "rear-link"
-      ],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
-      ],
-      "layoutOrder": 89
+    "raisedLaundryWindows": {
+      "count": 2,
+      "sill": 0.3,
+      "head": 2.2
     }
-  ],
-  "note": "从真实卫浴窗定位，按建筑外墙分段协调；长墙采用1350毫米窗宽、1300毫米净墙、2650毫米轴距。共89窗、85处1350标准宽、21组跨层连窗；57处窗有尺寸/对应例外。标准连窗整体+0.90至+6.70米，楼板处+3.65至+4.15米设500毫米不透明背板。保留原柱、房间完整实墙及入户门；不强做全楼单一网格。高位小开启扇需另定手摇或电动执行器。",
+  },
+  "note": "各层普通窗统一1350×1900，共75扇；14处卫浴保留原高位磨砂上悬小窗。取消一、二层跨层连窗，恢复各层独立墙段。38处普通窗仍有转角、净墙或上下轴线排布协调事项，窗洞尺寸均已统一。",
   "schedule": [
     {
       "id": "W35-013",
       "home": "A",
       "level": 1,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        3.525,
+        3.65,
         14.9,
-        4.875,
+        4.55,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         3.3,
         6.9
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        0.225,
-        2.025
+        0.35,
+        2.35
       ],
-      "nextWindowGap": 0.45,
+      "nextWindowGap": 0.775,
       "continuousSolidParts": [
         [
-          4.875,
+          4.55,
           5.325
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "A-bath-recess",
       "bathRoom": "A1-bath-left",
       "rooms": [
         "A1-bath-left"
       ],
-      "exceptionCodes": [
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 1
     },
@@ -2404,43 +85,45 @@
       "id": "W35-015",
       "home": "A",
       "level": 1,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
         3.3,
-        7.10074,
+        7.1,
         3.3,
-        8.10074
+        8.1
       ],
       "width": 1.0,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         2.2,
         11.1
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        4.90074,
-        2.99926
+        4.9,
+        3.0
       ],
-      "nextWindowGap": 1.07426,
+      "nextWindowGap": 1.075,
       "continuousSolidParts": [
         [
-          8.10074,
+          8.1,
           9.175
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": "A-bath-side",
       "bathRoom": "A1-front-bath",
       "rooms": [
         "A1-front-bath"
       ],
-      "exceptionCodes": [
-        "width"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "保留柱、后门及短墙限制：窗宽例外；不能切柱强做1350毫米"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 2
     },
@@ -2448,6 +131,8 @@
       "id": "W35-082",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         5.325,
         14.9,
@@ -2455,9 +140,9 @@
         14.9
       ],
       "width": 1.35,
-      "sill": 2.65,
-      "head": 3.65,
-      "height": 1.0,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         3.3,
         6.9
@@ -2469,21 +154,21 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "A-bath-recess",
       "bathRoom": "A1-bath-left",
       "rooms": [
         "A1-dry-store"
       ],
       "exceptionCodes": [
-        "storeHeight",
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "储藏间保留后门，门上1350毫米高位横窗：窗台2650毫米、窗高1000毫米，5.80米连窗高度例外",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "储藏窗1350×1900，原后门转厨房回凹侧墙；顶部400毫米开启扇避免与新门同时开启相碰",
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 3
     },
@@ -2491,6 +176,8 @@
       "id": "W35-014",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         3.3,
         3.625,
@@ -2499,8 +186,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -2510,7 +197,7 @@
         1.425,
         6.125
       ],
-      "nextWindowGap": 2.12574,
+      "nextWindowGap": 2.125,
       "continuousSolidParts": [
         [
           4.975,
@@ -2518,10 +205,12 @@
         ],
         [
           6.3,
-          7.10074
+          7.1
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": "A-bath-side",
       "bathRoom": "A1-front-bath",
       "rooms": [
@@ -2535,6 +224,8 @@
       "id": "W35-016",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         3.3,
         9.175,
@@ -2543,8 +234,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -2556,7 +247,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "A-bath-side",
       "bathRoom": "A1-front-bath",
       "rooms": [
@@ -2566,7 +260,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 5
     },
@@ -2574,6 +268,8 @@
       "id": "W35-001",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         8.3,
         16.7,
@@ -2582,8 +278,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         6.9,
         13.8
@@ -2600,7 +296,10 @@
           10.95
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "A-north-long",
       "bathRoom": "A1-bath-left",
       "rooms": [
@@ -2614,6 +313,8 @@
       "id": "W35-002",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         10.95,
         16.7,
@@ -2622,8 +323,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         6.9,
         13.8
@@ -2635,7 +336,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "A-north-long",
       "bathRoom": "A1-bath-left",
       "rooms": [
@@ -2649,6 +353,8 @@
       "id": "W35-051",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         0,
         13.225,
@@ -2657,8 +363,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         11.1,
         16.7
@@ -2670,7 +376,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "A-outer-side",
       "bathRoom": "A1-bath-left",
       "rooms": [
@@ -2684,6 +393,8 @@
       "id": "W35-049",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         0.97745,
         16.7,
@@ -2692,8 +403,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         0,
         3.3
@@ -2705,7 +416,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -2715,7 +429,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 9
     },
@@ -2723,6 +437,8 @@
       "id": "W35-003",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         4.725,
         2.2,
@@ -2731,8 +447,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         3.3,
         7.5
@@ -2744,7 +460,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -2758,6 +476,8 @@
       "id": "W35-056",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         9.4,
         7.075,
@@ -2766,8 +486,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         6.7,
         11.1
@@ -2779,17 +499,15 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [],
       "exceptionCodes": [
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 11
     },
@@ -2797,6 +515,8 @@
       "id": "W35-053",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         10.425,
         6.7,
@@ -2805,8 +525,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 4.7,
-      "height": 3.8,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         9.4,
         12.3
@@ -2818,21 +538,17 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "A1-hall"
       ],
       "exceptionCodes": [
-        "hallHeight",
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "5米玄关厅上方为开敞露台：只设单层高窗，不做悬空5.80米连窗",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 12
     },
@@ -2840,6 +556,8 @@
       "id": "W35-055",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         11.05,
         11.1,
@@ -2848,8 +566,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         9.4,
         13.8
@@ -2861,7 +579,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [],
@@ -2873,6 +594,8 @@
       "id": "W35-026",
       "home": "A",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         12.3,
         3.475,
@@ -2881,8 +604,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 4.7,
-      "height": 3.8,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         0,
         6.7
@@ -2894,63 +617,60 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "A1-hall"
       ],
-      "exceptionCodes": [
-        "hallHeight",
-        "unpaired"
-      ],
-      "notes": [
-        "5米玄关厅上方为开敞露台：只设单层高窗，不做悬空5.80米连窗",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
+      "exceptionCodes": [],
+      "notes": [],
       "layoutOrder": 14
     },
     {
       "id": "W35-017",
       "home": "A",
       "level": 2,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        3.525,
+        3.65,
         14.9,
-        4.875,
+        4.55,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         3.3,
         6.9
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        0.225,
-        2.025
+        0.35,
+        2.35
       ],
-      "nextWindowGap": 0.45,
+      "nextWindowGap": 1.0,
       "continuousSolidParts": [
         [
-          4.875,
-          5.325
+          4.55,
+          5.55
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "A-bath-recess",
       "bathRoom": "A2-bath-left",
       "rooms": [
         "A2-bath-left"
       ],
-      "exceptionCodes": [
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 15
     },
@@ -2958,40 +678,41 @@
       "id": "W35-018",
       "home": "A",
       "level": 2,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        5.325,
+        5.55,
         14.9,
-        6.675,
+        6.45,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         3.3,
         6.9
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        2.025,
-        0.225
+        2.25,
+        0.45
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "A-bath-recess",
       "bathRoom": "A2-bath-right",
       "rooms": [
         "A2-bath-right"
       ],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 16
     },
@@ -2999,43 +720,45 @@
       "id": "W35-020",
       "home": "A",
       "level": 2,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
         3.3,
-        7.10074,
+        7.1,
         3.3,
-        8.10074
+        8.1
       ],
       "width": 1.0,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         2.2,
         11.1
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        4.90074,
-        2.99926
+        4.9,
+        3.0
       ],
-      "nextWindowGap": 1.07426,
+      "nextWindowGap": 1.075,
       "continuousSolidParts": [
         [
-          8.10074,
+          8.1,
           9.175
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        1
+      ],
       "bathAnchor": "A-bath-side",
       "bathRoom": "A2-front-bath",
       "rooms": [
         "A2-front-bath"
       ],
-      "exceptionCodes": [
-        "width"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "保留柱、后门及短墙限制：窗宽例外；不能切柱强做1350毫米"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 17
     },
@@ -3043,6 +766,8 @@
       "id": "W35-019",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         3.3,
         3.625,
@@ -3050,9 +775,9 @@
         4.975
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -3069,7 +794,9 @@
           5.2
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        1
+      ],
       "bathAnchor": "A-bath-side",
       "bathRoom": "A1-front-bath",
       "rooms": [
@@ -3083,6 +810,8 @@
       "id": "W35-085",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         3.3,
         5.2,
@@ -3090,9 +819,9 @@
         6.55
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -3102,31 +831,29 @@
         3.0,
         4.55
       ],
-      "nextWindowGap": 0.55074,
+      "nextWindowGap": 0.55,
       "continuousSolidParts": [
         [
           6.55,
-          7.10074
+          7.1
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": "A-bath-side",
       "bathRoom": "A1-front-bath",
       "rooms": [
         "A2-bed5"
       ],
-      "exceptionCodes": [
-        "unpaired"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
+      "exceptionCodes": [],
+      "notes": [],
       "layoutOrder": 19
     },
     {
       "id": "W35-021",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         3.3,
         9.175,
@@ -3134,9 +861,9 @@
         10.525
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -3148,7 +875,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "A-bath-side",
       "bathRoom": "A1-front-bath",
       "rooms": [
@@ -3158,7 +888,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 20
     },
@@ -3166,6 +896,8 @@
       "id": "W35-071",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         13.8,
         13.225,
@@ -3173,9 +905,9 @@
         14.575
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         11.1,
         16.7
@@ -3187,24 +919,24 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        3
+      ],
       "bathAnchor": "A-inner-side",
       "bathRoom": "A2-bath-right",
       "rooms": [
         "A2-bed4"
       ],
-      "exceptionCodes": [
-        "unpaired"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
+      "exceptionCodes": [],
+      "notes": [],
       "layoutOrder": 21
     },
     {
       "id": "W35-089",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         8.3,
         16.7,
@@ -3212,9 +944,9 @@
         16.7
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         6.9,
         13.8
@@ -3231,7 +963,10 @@
           10.95
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "A-north-long",
       "bathRoom": "A1-bath-left",
       "rooms": [
@@ -3245,6 +980,8 @@
       "id": "W35-090",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         10.95,
         16.7,
@@ -3252,9 +989,9 @@
         16.7
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         6.9,
         13.8
@@ -3266,7 +1003,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "A-north-long",
       "bathRoom": "A1-bath-left",
       "rooms": [
@@ -3280,6 +1020,8 @@
       "id": "W35-025",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         0,
         13.225,
@@ -3287,9 +1029,9 @@
         14.575
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         11.1,
         16.7
@@ -3301,7 +1043,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "A-outer-side",
       "bathRoom": "A1-bath-left",
       "rooms": [
@@ -3315,6 +1060,8 @@
       "id": "W35-088",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         0.97745,
         16.7,
@@ -3322,9 +1069,9 @@
         16.7
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         0,
         3.3
@@ -3336,7 +1083,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -3346,7 +1096,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 25
     },
@@ -3354,6 +1104,8 @@
       "id": "W35-007",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         4.725,
         2.2,
@@ -3361,9 +1113,9 @@
         2.2
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         3.3,
         7.5
@@ -3375,7 +1127,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -3389,6 +1143,8 @@
       "id": "W35-027",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         6.9,
         15.05,
@@ -3396,9 +1152,9 @@
         16.4
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         14.9,
         16.7
@@ -3410,19 +1166,19 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "A2-bed3"
       ],
       "exceptionCodes": [
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 27
     },
@@ -3430,6 +1186,8 @@
       "id": "W35-080",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         10.2,
         5.1,
@@ -3437,9 +1195,9 @@
         6.45
       ],
       "width": 1.35,
-      "sill": 0.9,
-      "head": 2.26562,
-      "height": 1.36562,
+      "sill": 0.3,
+      "head": 2.2,
+      "height": 1.9,
       "facadeRun": [
         5.0,
         16.7
@@ -3456,23 +1214,20 @@
           9.075
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "A2-laundry"
       ],
       "exceptionCodes": [
-        "raisedLaundry",
-        "unpaired",
         "corner",
         "spacing"
       ],
       "notes": [
-        "洗衣间楼面+5.00米且受坡顶约束：窗台、窗高例外",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350",
-        "相邻窗间连续净墙>1350毫米；抬高洗衣间与主楼面的墙段交接；如再增1350窗将逼近转角至约50毫米，保留实体边墙"
+        "抬高洗衣间窗台300毫米、窗头2200毫米，避低坡屋顶；窗口1350×1900不变，低窗台固定玻璃防坠须深化",
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布",
+        "普通窗相邻连续净墙>1350毫米，受抬高洗衣间与主楼面交接限制，保持原实体边墙"
       ],
       "layoutOrder": 28
     },
@@ -3480,6 +1235,8 @@
       "id": "W35-058",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         10.2,
         9.075,
@@ -3487,9 +1244,9 @@
         10.425
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         6.7,
         11.1
@@ -3501,17 +1258,17 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [],
       "exceptionCodes": [
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 29
     },
@@ -3519,6 +1276,8 @@
       "id": "W35-057",
       "home": "A",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         11.05,
         11.1,
@@ -3526,9 +1285,9 @@
         11.1
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         10.2,
         13.8
@@ -3540,7 +1299,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -3550,7 +1312,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 30
     },
@@ -3558,43 +1320,46 @@
       "id": "W35-022",
       "home": "A",
       "level": 3,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        3.525,
+        3.65,
         14.9,
-        4.875,
+        4.55,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         3.3,
         6.9
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        0.225,
-        2.025
+        0.35,
+        2.35
       ],
-      "nextWindowGap": 0.45,
+      "nextWindowGap": 1.0,
       "continuousSolidParts": [
         [
-          4.875,
-          5.325
+          4.55,
+          5.55
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "A-bath-recess",
       "bathRoom": "A3-bath-left",
       "rooms": [
         "A3-bath-left"
       ],
-      "exceptionCodes": [
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 31
     },
@@ -3602,38 +1367,41 @@
       "id": "W35-023",
       "home": "A",
       "level": 3,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        5.325,
+        5.55,
         14.9,
-        6.675,
+        6.45,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         3.3,
         6.9
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        2.025,
-        0.225
+        2.25,
+        0.45
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "A-bath-recess",
       "bathRoom": "A3-bath-right",
       "rooms": [
         "A3-bath-right"
       ],
-      "exceptionCodes": [
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 32
     },
@@ -3641,6 +1409,8 @@
       "id": "W35-009",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         3.3,
         9.175,
@@ -3662,7 +1432,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "A-bath-side",
       "bathRoom": "A1-front-bath",
       "rooms": [
@@ -3672,7 +1445,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 33
     },
@@ -3680,6 +1453,8 @@
       "id": "W35-073",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         13.8,
         13.225,
@@ -3701,7 +1476,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": "A-inner-side",
       "bathRoom": "A2-bath-right",
       "rooms": [
@@ -3715,6 +1492,8 @@
       "id": "W35-095",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         8.3,
         16.7,
@@ -3741,7 +1520,10 @@
           10.95
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "A-north-long",
       "bathRoom": "A1-bath-left",
       "rooms": [
@@ -3755,6 +1537,8 @@
       "id": "W35-096",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         10.95,
         16.7,
@@ -3776,7 +1560,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "A-north-long",
       "bathRoom": "A1-bath-left",
       "rooms": [
@@ -3790,6 +1577,8 @@
       "id": "W35-029",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         0,
         13.225,
@@ -3811,7 +1600,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "A-outer-side",
       "bathRoom": "A1-bath-left",
       "rooms": [
@@ -3825,6 +1617,8 @@
       "id": "W35-061",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         4.7,
         8.5,
@@ -3851,7 +1645,7 @@
           7.35
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": "A-south-upper",
       "bathRoom": "A2-front-bath",
       "rooms": [
@@ -3861,8 +1655,8 @@
         "thirdAxis"
       ],
       "notes": [
-        "三层南窗台暂按1200毫米，避低坡屋面；1350×1900尺寸不变，原要求未给窗台高",
-        "下层该处为内部卫浴/楼梯墙或不存在三层的低屋顶：上下对应不强增悬空外窗"
+        "三层南窗窗台1200毫米、窗头3100毫米避低坡屋顶，窗口1350×1900不变",
+        "下层此处为室内卫浴/楼梯墙或低屋顶，未强行把外窗轴线延续至室内"
       ],
       "layoutOrder": 38
     },
@@ -3870,6 +1664,8 @@
       "id": "W35-062",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         7.35,
         8.5,
@@ -3891,7 +1687,7 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": "A-south-upper",
       "bathRoom": "A2-front-bath",
       "rooms": [],
@@ -3899,8 +1695,8 @@
         "thirdAxis"
       ],
       "notes": [
-        "三层南窗台暂按1200毫米，避低坡屋面；1350×1900尺寸不变，原要求未给窗台高",
-        "下层该处为内部卫浴/楼梯墙或不存在三层的低屋顶：上下对应不强增悬空外窗"
+        "三层南窗窗台1200毫米、窗头3100毫米避低坡屋顶，窗口1350×1900不变",
+        "下层此处为室内卫浴/楼梯墙或低屋顶，未强行把外窗轴线延续至室内"
       ],
       "layoutOrder": 39
     },
@@ -3908,6 +1704,8 @@
       "id": "W35-094",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         0.97745,
         16.7,
@@ -3929,7 +1727,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -3939,7 +1740,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 40
     },
@@ -3947,6 +1748,8 @@
       "id": "W35-030",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         6.9,
         15.05,
@@ -3968,7 +1771,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -3978,7 +1783,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 41
     },
@@ -3986,6 +1791,8 @@
       "id": "W35-060",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         10.2,
         9.075,
@@ -4007,7 +1814,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [],
@@ -4015,7 +1824,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 42
     },
@@ -4023,6 +1832,8 @@
       "id": "W35-059",
       "home": "A",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         11.05,
         11.1,
@@ -4044,7 +1855,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -4054,7 +1868,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 43
     },
@@ -4062,38 +1876,41 @@
       "id": "W35-031",
       "home": "B",
       "level": 1,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        26.075,
+        25.950000000000003,
         14.9,
-        24.725,
+        25.05,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         22.700000000000003,
         26.3
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        2.025,
-        0.225
+        2.35,
+        0.35
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "B-bath-recess",
       "bathRoom": "B1-bath-left",
       "rooms": [
         "B1-bath-left"
       ],
-      "exceptionCodes": [
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 44
     },
@@ -4101,43 +1918,45 @@
       "id": "W35-033",
       "home": "B",
       "level": 1,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
         26.3,
-        7.10074,
+        7.1,
         26.3,
-        8.10074
+        8.1
       ],
       "width": 1.0,
-      "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         2.2,
         11.1
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        4.90074,
-        2.99926
+        4.9,
+        3.0
       ],
-      "nextWindowGap": 1.07426,
+      "nextWindowGap": 1.075,
       "continuousSolidParts": [
         [
-          8.10074,
+          8.1,
           9.175
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": "B-bath-side",
       "bathRoom": "B1-front-bath",
       "rooms": [
         "B1-front-bath"
       ],
-      "exceptionCodes": [
-        "width"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "保留柱、后门及短墙限制：窗宽例外；不能切柱强做1350毫米"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 45
     },
@@ -4145,16 +1964,18 @@
       "id": "W35-083",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
-        22.925,
-        14.9,
         24.275,
+        14.9,
+        22.925,
         14.9
       ],
       "width": 1.35,
-      "sill": 2.65,
-      "head": 3.65,
-      "height": 1.0,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         22.700000000000003,
         26.3
@@ -4164,28 +1985,28 @@
         0.225,
         2.025
       ],
-      "nextWindowGap": 0.45,
+      "nextWindowGap": 0.775,
       "continuousSolidParts": [
         [
           24.275,
-          24.725
+          25.05
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "B-bath-recess",
       "bathRoom": "B1-bath-left",
       "rooms": [
         "B1-dry-store"
       ],
       "exceptionCodes": [
-        "storeHeight",
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "储藏间保留后门，门上1350毫米高位横窗：窗台2650毫米、窗高1000毫米，5.80米连窗高度例外",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "储藏窗1350×1900，原后门转厨房回凹侧墙；顶部400毫米开启扇避免与新门同时开启相碰",
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 46
     },
@@ -4193,6 +2014,8 @@
       "id": "W35-032",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         26.3,
         3.625,
@@ -4201,8 +2024,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -4219,7 +2042,9 @@
           5.2
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": "B-bath-side",
       "bathRoom": "B1-front-bath",
       "rooms": [
@@ -4233,6 +2058,8 @@
       "id": "W35-086",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         26.3,
         5.2,
@@ -4241,8 +2068,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -4252,14 +2079,16 @@
         3.0,
         4.55
       ],
-      "nextWindowGap": 0.55074,
+      "nextWindowGap": 0.55,
       "continuousSolidParts": [
         [
           6.55,
-          7.10074
+          7.1
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": "B-bath-side",
       "bathRoom": "B1-front-bath",
       "rooms": [
@@ -4273,6 +2102,8 @@
       "id": "W35-034",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         26.3,
         9.175,
@@ -4281,8 +2112,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -4294,7 +2125,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "B-bath-side",
       "bathRoom": "B1-front-bath",
       "rooms": [
@@ -4304,7 +2138,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 49
     },
@@ -4312,6 +2146,8 @@
       "id": "W35-005",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         18.65,
         16.7,
@@ -4320,8 +2156,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         15.8,
         22.700000000000003
@@ -4338,7 +2174,10 @@
           19.95
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "B-north-long",
       "bathRoom": "B1-bath-left",
       "rooms": [
@@ -4352,6 +2191,8 @@
       "id": "W35-004",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         21.3,
         16.7,
@@ -4360,8 +2201,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         15.8,
         22.700000000000003
@@ -4373,7 +2214,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "B-north-long",
       "bathRoom": "B1-bath-left",
       "rooms": [
@@ -4387,6 +2231,8 @@
       "id": "W35-052",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         29.6,
         13.225,
@@ -4395,8 +2241,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         11.1,
         16.7
@@ -4408,7 +2254,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": "B-outer-side",
       "bathRoom": "B1-bath-left",
       "rooms": [
@@ -4422,6 +2271,8 @@
       "id": "W35-044",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         17.3,
         3.475,
@@ -4430,8 +2281,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 4.7,
-      "height": 3.8,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         0,
         6.7
@@ -4443,26 +2294,22 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "B1-hall"
       ],
-      "exceptionCodes": [
-        "hallHeight",
-        "unpaired"
-      ],
-      "notes": [
-        "5米玄关厅上方为开敞露台：只设单层高窗，不做悬空5.80米连窗",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
+      "exceptionCodes": [],
+      "notes": [],
       "layoutOrder": 53
     },
     {
       "id": "W35-054",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         17.825,
         6.7,
@@ -4471,8 +2318,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 4.7,
-      "height": 3.8,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         17.3,
         20.200000000000003
@@ -4484,21 +2331,17 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "B1-hall"
       ],
       "exceptionCodes": [
-        "hallHeight",
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "5米玄关厅上方为开敞露台：只设单层高窗，不做悬空5.80米连窗",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 54
     },
@@ -4506,6 +2349,8 @@
       "id": "W35-063",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         18.55,
         11.1,
@@ -4514,8 +2359,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         15.8,
         20.200000000000003
@@ -4527,7 +2372,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [],
@@ -4539,6 +2387,8 @@
       "id": "W35-064",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         20.2,
         7.075,
@@ -4547,8 +2397,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         6.7,
         11.1
@@ -4560,17 +2410,15 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [],
       "exceptionCodes": [
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 56
     },
@@ -4578,6 +2426,8 @@
       "id": "W35-006",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         23.525,
         2.2,
@@ -4586,8 +2436,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         22.1,
         26.3
@@ -4599,7 +2449,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -4613,6 +2465,8 @@
       "id": "W35-050",
       "home": "B",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         27.27692,
         16.7,
@@ -4621,8 +2475,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         26.3,
         29.6
@@ -4634,7 +2488,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        2,
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -4644,7 +2501,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 58
     },
@@ -4652,45 +2509,46 @@
       "id": "W35-036",
       "home": "B",
       "level": 2,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        22.925,
+        24.05,
         14.9,
-        24.275,
+        23.150000000000002,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         22.700000000000003,
         26.3
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        0.225,
-        2.025
+        0.45,
+        2.25
       ],
-      "nextWindowGap": 0.45,
+      "nextWindowGap": 1.0,
       "continuousSolidParts": [
         [
-          24.275,
-          24.725
+          24.05,
+          25.05
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "B-bath-recess",
       "bathRoom": "B2-bath-right",
       "rooms": [
         "B2-bath-right"
       ],
-      "exceptionCodes": [
-        "unpaired",
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 59
     },
@@ -4698,38 +2556,41 @@
       "id": "W35-035",
       "home": "B",
       "level": 2,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        26.075,
+        25.950000000000003,
         14.9,
-        24.725,
+        25.05,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         22.700000000000003,
         26.3
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        2.025,
-        0.225
+        2.35,
+        0.35
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "B-bath-recess",
       "bathRoom": "B2-bath-left",
       "rooms": [
         "B2-bath-left"
       ],
-      "exceptionCodes": [
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 60
     },
@@ -4737,43 +2598,45 @@
       "id": "W35-038",
       "home": "B",
       "level": 2,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
         26.3,
-        7.10074,
+        7.1,
         26.3,
-        8.10074
+        8.1
       ],
       "width": 1.0,
-      "sill": 0.25,
-      "head": 2.8,
-      "height": 2.55,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         2.2,
         11.1
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        4.90074,
-        2.99926
+        4.9,
+        3.0
       ],
-      "nextWindowGap": 1.07426,
+      "nextWindowGap": 1.075,
       "continuousSolidParts": [
         [
-          8.10074,
+          8.1,
           9.175
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        1
+      ],
       "bathAnchor": "B-bath-side",
       "bathRoom": "B2-front-bath",
       "rooms": [
         "B2-front-bath"
       ],
-      "exceptionCodes": [
-        "width"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "保留柱、后门及短墙限制：窗宽例外；不能切柱强做1350毫米"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 61
     },
@@ -4781,6 +2644,8 @@
       "id": "W35-037",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         26.3,
         3.625,
@@ -4788,9 +2653,9 @@
         4.975
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -4807,7 +2672,9 @@
           5.2
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        1
+      ],
       "bathAnchor": "B-bath-side",
       "bathRoom": "B1-front-bath",
       "rooms": [
@@ -4821,6 +2688,8 @@
       "id": "W35-087",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         26.3,
         5.2,
@@ -4828,9 +2697,9 @@
         6.55
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -4840,14 +2709,16 @@
         3.0,
         4.55
       ],
-      "nextWindowGap": 0.55074,
+      "nextWindowGap": 0.55,
       "continuousSolidParts": [
         [
           6.55,
-          7.10074
+          7.1
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        1
+      ],
       "bathAnchor": "B-bath-side",
       "bathRoom": "B1-front-bath",
       "rooms": [
@@ -4861,6 +2732,8 @@
       "id": "W35-039",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         26.3,
         9.175,
@@ -4868,9 +2741,9 @@
         10.525
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         2.2,
         11.1
@@ -4882,7 +2755,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "B-bath-side",
       "bathRoom": "B1-front-bath",
       "rooms": [
@@ -4892,7 +2768,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 64
     },
@@ -4900,6 +2776,8 @@
       "id": "W35-075",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         15.8,
         13.225,
@@ -4907,9 +2785,9 @@
         14.575
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         11.1,
         16.7
@@ -4921,24 +2799,24 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        3
+      ],
       "bathAnchor": "B-inner-side",
       "bathRoom": "B2-bath-right",
       "rooms": [
         "B2-bed4"
       ],
-      "exceptionCodes": [
-        "unpaired"
-      ],
-      "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗"
-      ],
+      "exceptionCodes": [],
+      "notes": [],
       "layoutOrder": 65
     },
     {
       "id": "W35-093",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         17.3,
         16.7,
@@ -4946,9 +2824,9 @@
         16.7
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         15.8,
         22.700000000000003
@@ -4965,7 +2843,10 @@
           19.95
         ]
       ],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "B-north-long",
       "bathRoom": "B1-bath-left",
       "rooms": [
@@ -4979,6 +2860,8 @@
       "id": "W35-092",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         19.95,
         16.7,
@@ -4986,9 +2869,9 @@
         16.7
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         15.8,
         22.700000000000003
@@ -5000,7 +2883,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "B-north-long",
       "bathRoom": "B1-bath-left",
       "rooms": [
@@ -5014,6 +2900,8 @@
       "id": "W35-043",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         29.6,
         13.225,
@@ -5021,9 +2909,9 @@
         14.575
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         11.1,
         16.7
@@ -5035,7 +2923,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": "B-outer-side",
       "bathRoom": "B1-bath-left",
       "rooms": [
@@ -5049,6 +2940,8 @@
       "id": "W35-065",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         18.55,
         11.1,
@@ -5056,9 +2949,9 @@
         11.1
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         15.8,
         19.400000000000002
@@ -5070,7 +2963,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -5080,7 +2976,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 69
     },
@@ -5088,6 +2984,8 @@
       "id": "W35-081",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         19.4,
         5.1,
@@ -5095,9 +2993,9 @@
         6.45
       ],
       "width": 1.35,
-      "sill": 0.9,
-      "head": 2.26562,
-      "height": 1.36562,
+      "sill": 0.3,
+      "head": 2.2,
+      "height": 1.9,
       "facadeRun": [
         5.0,
         16.7
@@ -5114,23 +3012,20 @@
           9.075
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "B2-laundry"
       ],
       "exceptionCodes": [
-        "raisedLaundry",
-        "unpaired",
         "corner",
         "spacing"
       ],
       "notes": [
-        "洗衣间楼面+5.00米且受坡顶约束：窗台、窗高例外",
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350",
-        "相邻窗间连续净墙>1350毫米；抬高洗衣间与主楼面的墙段交接；如再增1350窗将逼近转角至约50毫米，保留实体边墙"
+        "抬高洗衣间窗台300毫米、窗头2200毫米，避低坡屋顶；窗口1350×1900不变，低窗台固定玻璃防坠须深化",
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布",
+        "普通窗相邻连续净墙>1350毫米，受抬高洗衣间与主楼面交接限制，保持原实体边墙"
       ],
       "layoutOrder": 70
     },
@@ -5138,6 +3033,8 @@
       "id": "W35-066",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         19.4,
         9.075,
@@ -5145,9 +3042,9 @@
         10.425
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         6.7,
         11.1
@@ -5159,17 +3056,17 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [],
       "exceptionCodes": [
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 71
     },
@@ -5177,6 +3074,8 @@
       "id": "W35-045",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         22.7,
         15.05,
@@ -5184,9 +3083,9 @@
         16.4
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         14.9,
         16.7
@@ -5198,19 +3097,19 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "B2-bed3"
       ],
       "exceptionCodes": [
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 72
     },
@@ -5218,6 +3117,8 @@
       "id": "W35-008",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         23.525,
         2.2,
@@ -5225,9 +3126,9 @@
         2.2
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         22.1,
         26.3
@@ -5239,7 +3140,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -5253,6 +3156,8 @@
       "id": "W35-091",
       "home": "B",
       "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         27.27692,
         16.7,
@@ -5260,9 +3165,9 @@
         16.7
       ],
       "width": 1.35,
-      "sill": 0.25,
+      "sill": 0.9,
       "head": 2.8,
-      "height": 2.55,
+      "height": 1.9,
       "facadeRun": [
         26.3,
         29.6
@@ -5274,7 +3179,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": true,
+      "alignedLevels": [
+        1,
+        3
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -5284,7 +3192,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 74
     },
@@ -5292,43 +3200,46 @@
       "id": "W35-041",
       "home": "B",
       "level": 3,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        22.925,
+        24.05,
         14.9,
-        24.275,
+        23.150000000000002,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         22.700000000000003,
         26.3
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        0.225,
-        2.025
+        0.45,
+        2.25
       ],
-      "nextWindowGap": 0.45,
+      "nextWindowGap": 1.0,
       "continuousSolidParts": [
         [
-          24.275,
-          24.725
+          24.05,
+          25.05
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "B-bath-recess",
       "bathRoom": "B3-bath-right",
       "rooms": [
         "B3-bath-right"
       ],
-      "exceptionCodes": [
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 75
     },
@@ -5336,38 +3247,41 @@
       "id": "W35-040",
       "home": "B",
       "level": 3,
+      "category": "bath-original",
+      "categoryName": "原卫浴高窗",
       "points": [
-        26.075,
+        25.950000000000003,
         14.9,
-        24.725,
+        25.05,
         14.9
       ],
-      "width": 1.35,
-      "sill": 0.9,
-      "head": 2.8,
-      "height": 1.9,
+      "width": 0.9,
+      "sill": 1.7,
+      "head": 2.4,
+      "height": 0.7,
       "facadeRun": [
         22.700000000000003,
         26.3
       ],
       "outlineVerified": true,
       "cornerMargins": [
-        2.025,
-        0.225
+        2.35,
+        0.35
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "B-bath-recess",
       "bathRoom": "B3-bath-left",
       "rooms": [
         "B3-bath-left"
       ],
-      "exceptionCodes": [
-        "corner"
-      ],
+      "exceptionCodes": [],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "按本次要求保留原卫浴高位磨砂上悬小窗，单独分类，不套普通窗1350×1900尺寸"
       ],
       "layoutOrder": 76
     },
@@ -5375,6 +3289,8 @@
       "id": "W35-012",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         26.3,
         9.175,
@@ -5396,7 +3312,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "B-bath-side",
       "bathRoom": "B1-front-bath",
       "rooms": [
@@ -5406,7 +3325,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 77
     },
@@ -5414,6 +3333,8 @@
       "id": "W35-077",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         15.8,
         13.225,
@@ -5435,7 +3356,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": "B-inner-side",
       "bathRoom": "B2-bath-right",
       "rooms": [
@@ -5449,6 +3372,8 @@
       "id": "W35-011",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         18.65,
         16.7,
@@ -5475,7 +3400,10 @@
           19.95
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "B-north-long",
       "bathRoom": "B1-bath-left",
       "rooms": [
@@ -5489,6 +3417,8 @@
       "id": "W35-010",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         21.3,
         16.7,
@@ -5510,7 +3440,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "B-north-long",
       "bathRoom": "B1-bath-left",
       "rooms": [
@@ -5524,6 +3457,8 @@
       "id": "W35-047",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         29.6,
         13.225,
@@ -5545,7 +3480,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": "B-outer-side",
       "bathRoom": "B1-bath-left",
       "rooms": [
@@ -5559,6 +3497,8 @@
       "id": "W35-069",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         22.25,
         8.5,
@@ -5585,7 +3525,7 @@
           23.55
         ]
       ],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": "B-south-upper",
       "bathRoom": "B2-front-bath",
       "rooms": [],
@@ -5593,8 +3533,8 @@
         "thirdAxis"
       ],
       "notes": [
-        "三层南窗台暂按1200毫米，避低坡屋面；1350×1900尺寸不变，原要求未给窗台高",
-        "下层该处为内部卫浴/楼梯墙或不存在三层的低屋顶：上下对应不强增悬空外窗"
+        "三层南窗窗台1200毫米、窗头3100毫米避低坡屋顶，窗口1350×1900不变",
+        "下层此处为室内卫浴/楼梯墙或低屋顶，未强行把外窗轴线延续至室内"
       ],
       "layoutOrder": 82
     },
@@ -5602,6 +3542,8 @@
       "id": "W35-068",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         24.9,
         8.5,
@@ -5623,7 +3565,7 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": "B-south-upper",
       "bathRoom": "B2-front-bath",
       "rooms": [
@@ -5633,8 +3575,8 @@
         "thirdAxis"
       ],
       "notes": [
-        "三层南窗台暂按1200毫米，避低坡屋面；1350×1900尺寸不变，原要求未给窗台高",
-        "下层该处为内部卫浴/楼梯墙或不存在三层的低屋顶：上下对应不强增悬空外窗"
+        "三层南窗窗台1200毫米、窗头3100毫米避低坡屋顶，窗口1350×1900不变",
+        "下层此处为室内卫浴/楼梯墙或低屋顶，未强行把外窗轴线延续至室内"
       ],
       "layoutOrder": 83
     },
@@ -5642,6 +3584,8 @@
       "id": "W35-084",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         18.55,
         11.1,
@@ -5663,7 +3607,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -5673,7 +3620,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 84
     },
@@ -5681,6 +3628,8 @@
       "id": "W35-067",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         19.4,
         9.075,
@@ -5702,7 +3651,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [],
@@ -5710,7 +3661,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 85
     },
@@ -5718,6 +3669,8 @@
       "id": "W35-048",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         22.7,
         15.05,
@@ -5739,7 +3692,9 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -5749,7 +3704,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 86
     },
@@ -5757,6 +3712,8 @@
       "id": "W35-097",
       "home": "B",
       "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         27.27692,
         16.7,
@@ -5778,7 +3735,10 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [
+        1,
+        2
+      ],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
@@ -5788,7 +3748,7 @@
         "corner"
       ],
       "notes": [
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 87
     },
@@ -5796,6 +3756,8 @@
       "id": "W35-078",
       "home": "both",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         14.125,
         11.1,
@@ -5804,8 +3766,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         13.8,
         15.8
@@ -5817,19 +3779,17 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "rear-link"
       ],
       "exceptionCodes": [
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 88
     },
@@ -5837,6 +3797,8 @@
       "id": "W35-079",
       "home": "both",
       "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
       "points": [
         14.125,
         16.7,
@@ -5845,8 +3807,8 @@
       ],
       "width": 1.35,
       "sill": 0.9,
-      "head": 3.65,
-      "height": 2.75,
+      "head": 2.8,
+      "height": 1.9,
       "facadeRun": [
         13.8,
         15.8
@@ -5858,53 +3820,1685 @@
       ],
       "nextWindowGap": null,
       "continuousSolidParts": [],
-      "continuousStack": false,
+      "alignedLevels": [],
       "bathAnchor": null,
       "bathRoom": null,
       "rooms": [
         "rear-link"
       ],
       "exceptionCodes": [
-        "unpaired",
         "corner"
       ],
       "notes": [
-        "对应层为门洞、开敞露台、室内连接或不同房间布局：未组成5.80米连窗",
-        "建筑转角或短墙端部至窗边≤1350毫米，原柱及门/房间不变；该段尺寸不足以同时容纳1350窗与双边>1350"
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 89
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "W35-082",
+      "home": "A",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        5.325,
+        14.9,
+        6.675,
+        14.9
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        3.3,
+        6.9
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        2.025,
+        0.225
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        2,
+        3
+      ],
+      "bathAnchor": "A-bath-recess",
+      "bathRoom": "A1-bath-left",
+      "rooms": [
+        "A1-dry-store"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "储藏窗1350×1900，原后门转厨房回凹侧墙；顶部400毫米开启扇避免与新门同时开启相碰",
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 3
+    },
+    {
+      "id": "W35-016",
+      "home": "A",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        3.3,
+        9.175,
+        3.3,
+        10.525
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        2.2,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        6.975,
+        0.575
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        2,
+        3
+      ],
+      "bathAnchor": "A-bath-side",
+      "bathRoom": "A1-front-bath",
+      "rooms": [
+        "A1-stairs"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 5
+    },
+    {
+      "id": "W35-049",
+      "home": "A",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        0.97745,
+        16.7,
+        2.32745,
+        16.7
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        0,
+        3.3
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.97745,
+        0.97255
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        2,
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "A1-bed1"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 9
+    },
+    {
+      "id": "W35-056",
+      "home": "A",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        9.4,
+        7.075,
+        9.4,
+        8.425
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        6.7,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.375,
+        2.675
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 11
+    },
+    {
+      "id": "W35-053",
+      "home": "A",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        10.425,
+        6.7,
+        11.775,
+        6.7
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        9.4,
+        12.3
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        1.025,
+        0.525
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "A1-hall"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 12
+    },
+    {
+      "id": "W35-021",
+      "home": "A",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        3.3,
+        9.175,
+        3.3,
+        10.525
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        2.2,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        6.975,
+        0.575
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        3
+      ],
+      "bathAnchor": "A-bath-side",
+      "bathRoom": "A1-front-bath",
+      "rooms": [
+        "A2-stairs"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 20
+    },
+    {
+      "id": "W35-088",
+      "home": "A",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        0.97745,
+        16.7,
+        2.32745,
+        16.7
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        0,
+        3.3
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.97745,
+        0.97255
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "A2-bed2"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 25
+    },
+    {
+      "id": "W35-027",
+      "home": "A",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        6.9,
+        15.05,
+        6.9,
+        16.4
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        14.9,
+        16.7
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.15,
+        0.3
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "A2-bed3"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 27
+    },
+    {
+      "id": "W35-080",
+      "home": "A",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        10.2,
+        5.1,
+        10.2,
+        6.45
+      ],
+      "width": 1.35,
+      "sill": 0.3,
+      "head": 2.2,
+      "height": 1.9,
+      "facadeRun": [
+        5.0,
+        16.7
+      ],
+      "outlineVerified": false,
+      "cornerMargins": [
+        0.1,
+        10.25
+      ],
+      "nextWindowGap": 2.625,
+      "continuousSolidParts": [
+        [
+          6.45,
+          9.075
+        ]
+      ],
+      "alignedLevels": [],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "A2-laundry"
+      ],
+      "exceptionCodes": [
+        "corner",
+        "spacing"
+      ],
+      "notes": [
+        "抬高洗衣间窗台300毫米、窗头2200毫米，避低坡屋顶；窗口1350×1900不变，低窗台固定玻璃防坠须深化",
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布",
+        "普通窗相邻连续净墙>1350毫米，受抬高洗衣间与主楼面交接限制，保持原实体边墙"
+      ],
+      "layoutOrder": 28
+    },
+    {
+      "id": "W35-058",
+      "home": "A",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        10.2,
+        9.075,
+        10.2,
+        10.425
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        6.7,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        2.375,
+        0.675
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 29
+    },
+    {
+      "id": "W35-057",
+      "home": "A",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        11.05,
+        11.1,
+        12.4,
+        11.1
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        10.2,
+        13.8
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.85,
+        1.4
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "A2-bed4"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 30
+    },
+    {
+      "id": "W35-009",
+      "home": "A",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        3.3,
+        9.175,
+        3.3,
+        10.525
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        8.5,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.675,
+        0.575
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        2
+      ],
+      "bathAnchor": "A-bath-side",
+      "bathRoom": "A1-front-bath",
+      "rooms": [
+        "A3-stairs"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 33
+    },
+    {
+      "id": "W35-061",
+      "home": "A",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        4.7,
+        8.5,
+        6.05,
+        8.5
+      ],
+      "width": 1.35,
+      "sill": 1.2,
+      "head": 3.1,
+      "height": 1.9,
+      "facadeRun": [
+        3.3,
+        10.2
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        1.4,
+        4.15
+      ],
+      "nextWindowGap": 1.3,
+      "continuousSolidParts": [
+        [
+          6.05,
+          7.35
+        ]
+      ],
+      "alignedLevels": [],
+      "bathAnchor": "A-south-upper",
+      "bathRoom": "A2-front-bath",
+      "rooms": [
+        "A3-stairs"
+      ],
+      "exceptionCodes": [
+        "thirdAxis"
+      ],
+      "notes": [
+        "三层南窗窗台1200毫米、窗头3100毫米避低坡屋顶，窗口1350×1900不变",
+        "下层此处为室内卫浴/楼梯墙或低屋顶，未强行把外窗轴线延续至室内"
+      ],
+      "layoutOrder": 38
+    },
+    {
+      "id": "W35-062",
+      "home": "A",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        7.35,
+        8.5,
+        8.7,
+        8.5
+      ],
+      "width": 1.35,
+      "sill": 1.2,
+      "head": 3.1,
+      "height": 1.9,
+      "facadeRun": [
+        3.3,
+        10.2
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        4.05,
+        1.5
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [],
+      "bathAnchor": "A-south-upper",
+      "bathRoom": "A2-front-bath",
+      "rooms": [],
+      "exceptionCodes": [
+        "thirdAxis"
+      ],
+      "notes": [
+        "三层南窗窗台1200毫米、窗头3100毫米避低坡屋顶，窗口1350×1900不变",
+        "下层此处为室内卫浴/楼梯墙或低屋顶，未强行把外窗轴线延续至室内"
+      ],
+      "layoutOrder": 39
+    },
+    {
+      "id": "W35-094",
+      "home": "A",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        0.97745,
+        16.7,
+        2.32745,
+        16.7
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        0,
+        3.3
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.97745,
+        0.97255
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        2
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "A3-bed6"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 40
+    },
+    {
+      "id": "W35-030",
+      "home": "A",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        6.9,
+        15.05,
+        6.9,
+        16.4
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        14.9,
+        16.7
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.15,
+        0.3
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        2
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "A3-bed7"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 41
+    },
+    {
+      "id": "W35-060",
+      "home": "A",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        10.2,
+        9.075,
+        10.2,
+        10.425
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        8.5,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.575,
+        0.675
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        2
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 42
+    },
+    {
+      "id": "W35-059",
+      "home": "A",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        11.05,
+        11.1,
+        12.4,
+        11.1
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        10.2,
+        13.8
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.85,
+        1.4
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        2
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "A3-bed8"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 43
+    },
+    {
+      "id": "W35-083",
+      "home": "B",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        24.275,
+        14.9,
+        22.925,
+        14.9
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        22.700000000000003,
+        26.3
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.225,
+        2.025
+      ],
+      "nextWindowGap": 0.775,
+      "continuousSolidParts": [
+        [
+          24.275,
+          25.05
+        ]
+      ],
+      "alignedLevels": [
+        2,
+        3
+      ],
+      "bathAnchor": "B-bath-recess",
+      "bathRoom": "B1-bath-left",
+      "rooms": [
+        "B1-dry-store"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "储藏窗1350×1900，原后门转厨房回凹侧墙；顶部400毫米开启扇避免与新门同时开启相碰",
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 46
+    },
+    {
+      "id": "W35-034",
+      "home": "B",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        26.3,
+        9.175,
+        26.3,
+        10.525
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        2.2,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        6.975,
+        0.575
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        2,
+        3
+      ],
+      "bathAnchor": "B-bath-side",
+      "bathRoom": "B1-front-bath",
+      "rooms": [
+        "B1-stairs"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 49
+    },
+    {
+      "id": "W35-054",
+      "home": "B",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        17.825,
+        6.7,
+        19.175,
+        6.7
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        17.3,
+        20.200000000000003
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.525,
+        1.025
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "B1-hall"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 54
+    },
+    {
+      "id": "W35-064",
+      "home": "B",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        20.2,
+        7.075,
+        20.2,
+        8.425
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        6.7,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.375,
+        2.675
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 56
+    },
+    {
+      "id": "W35-050",
+      "home": "B",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        27.27692,
+        16.7,
+        28.62692,
+        16.7
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        26.3,
+        29.6
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.97692,
+        0.97308
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        2,
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "B1-bed1"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 58
+    },
+    {
+      "id": "W35-039",
+      "home": "B",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        26.3,
+        9.175,
+        26.3,
+        10.525
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        2.2,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        6.975,
+        0.575
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        3
+      ],
+      "bathAnchor": "B-bath-side",
+      "bathRoom": "B1-front-bath",
+      "rooms": [
+        "B2-stairs"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 64
+    },
+    {
+      "id": "W35-065",
+      "home": "B",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        18.55,
+        11.1,
+        17.2,
+        11.1
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        15.8,
+        19.400000000000002
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        1.4,
+        0.85
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "B2-bed4"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 69
+    },
+    {
+      "id": "W35-081",
+      "home": "B",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        19.4,
+        5.1,
+        19.4,
+        6.45
+      ],
+      "width": 1.35,
+      "sill": 0.3,
+      "head": 2.2,
+      "height": 1.9,
+      "facadeRun": [
+        5.0,
+        16.7
+      ],
+      "outlineVerified": false,
+      "cornerMargins": [
+        0.1,
+        10.25
+      ],
+      "nextWindowGap": 2.625,
+      "continuousSolidParts": [
+        [
+          6.45,
+          9.075
+        ]
+      ],
+      "alignedLevels": [],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "B2-laundry"
+      ],
+      "exceptionCodes": [
+        "corner",
+        "spacing"
+      ],
+      "notes": [
+        "抬高洗衣间窗台300毫米、窗头2200毫米，避低坡屋顶；窗口1350×1900不变，低窗台固定玻璃防坠须深化",
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布",
+        "普通窗相邻连续净墙>1350毫米，受抬高洗衣间与主楼面交接限制，保持原实体边墙"
+      ],
+      "layoutOrder": 70
+    },
+    {
+      "id": "W35-066",
+      "home": "B",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        19.4,
+        9.075,
+        19.4,
+        10.425
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        6.7,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        2.375,
+        0.675
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 71
+    },
+    {
+      "id": "W35-045",
+      "home": "B",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        22.7,
+        15.05,
+        22.7,
+        16.4
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        14.9,
+        16.7
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.15,
+        0.3
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "B2-bed3"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 72
+    },
+    {
+      "id": "W35-091",
+      "home": "B",
+      "level": 2,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        27.27692,
+        16.7,
+        28.62692,
+        16.7
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        26.3,
+        29.6
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.97692,
+        0.97308
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        3
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "B2-bed2"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 74
+    },
+    {
+      "id": "W35-012",
+      "home": "B",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        26.3,
+        9.175,
+        26.3,
+        10.525
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        8.5,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.675,
+        0.575
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        2
+      ],
+      "bathAnchor": "B-bath-side",
+      "bathRoom": "B1-front-bath",
+      "rooms": [
+        "B3-stairs"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 77
+    },
+    {
+      "id": "W35-069",
+      "home": "B",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        22.25,
+        8.5,
+        20.9,
+        8.5
+      ],
+      "width": 1.35,
+      "sill": 1.2,
+      "head": 3.1,
+      "height": 1.9,
+      "facadeRun": [
+        19.400000000000002,
+        26.3
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        1.5,
+        4.05
+      ],
+      "nextWindowGap": 1.3,
+      "continuousSolidParts": [
+        [
+          22.25,
+          23.55
+        ]
+      ],
+      "alignedLevels": [],
+      "bathAnchor": "B-south-upper",
+      "bathRoom": "B2-front-bath",
+      "rooms": [],
+      "exceptionCodes": [
+        "thirdAxis"
+      ],
+      "notes": [
+        "三层南窗窗台1200毫米、窗头3100毫米避低坡屋顶，窗口1350×1900不变",
+        "下层此处为室内卫浴/楼梯墙或低屋顶，未强行把外窗轴线延续至室内"
+      ],
+      "layoutOrder": 82
+    },
+    {
+      "id": "W35-068",
+      "home": "B",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        24.9,
+        8.5,
+        23.55,
+        8.5
+      ],
+      "width": 1.35,
+      "sill": 1.2,
+      "head": 3.1,
+      "height": 1.9,
+      "facadeRun": [
+        19.400000000000002,
+        26.3
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        4.15,
+        1.4
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [],
+      "bathAnchor": "B-south-upper",
+      "bathRoom": "B2-front-bath",
+      "rooms": [
+        "B3-stairs"
+      ],
+      "exceptionCodes": [
+        "thirdAxis"
+      ],
+      "notes": [
+        "三层南窗窗台1200毫米、窗头3100毫米避低坡屋顶，窗口1350×1900不变",
+        "下层此处为室内卫浴/楼梯墙或低屋顶，未强行把外窗轴线延续至室内"
+      ],
+      "layoutOrder": 83
+    },
+    {
+      "id": "W35-084",
+      "home": "B",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        18.55,
+        11.1,
+        17.2,
+        11.1
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        15.8,
+        19.400000000000002
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        1.4,
+        0.85
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        2
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "B3-av"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 84
+    },
+    {
+      "id": "W35-067",
+      "home": "B",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        19.4,
+        9.075,
+        19.4,
+        10.425
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        8.5,
+        11.1
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.575,
+        0.675
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        2
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 85
+    },
+    {
+      "id": "W35-048",
+      "home": "B",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        22.7,
+        15.05,
+        22.7,
+        16.4
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        14.9,
+        16.7
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.15,
+        0.3
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        2
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "B3-av"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 86
+    },
+    {
+      "id": "W35-097",
+      "home": "B",
+      "level": 3,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        27.27692,
+        16.7,
+        28.62692,
+        16.7
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        26.3,
+        29.6
+      ],
+      "outlineVerified": true,
+      "cornerMargins": [
+        0.97692,
+        0.97308
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [
+        1,
+        2
+      ],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "B3-bed6"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 87
+    },
+    {
+      "id": "W35-078",
+      "home": "both",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        14.125,
+        11.1,
+        15.475,
+        11.1
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        13.8,
+        15.8
+      ],
+      "outlineVerified": false,
+      "cornerMargins": [
+        0.325,
+        0.325
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "rear-link"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
+      ],
+      "layoutOrder": 88
+    },
+    {
+      "id": "W35-079",
+      "home": "both",
+      "level": 1,
+      "category": "standard",
+      "categoryName": "普通标准窗",
+      "points": [
+        14.125,
+        16.7,
+        15.475,
+        16.7
+      ],
+      "width": 1.35,
+      "sill": 0.9,
+      "head": 2.8,
+      "height": 1.9,
+      "facadeRun": [
+        13.8,
+        15.8
+      ],
+      "outlineVerified": false,
+      "cornerMargins": [
+        0.325,
+        0.325
+      ],
+      "nextWindowGap": null,
+      "continuousSolidParts": [],
+      "alignedLevels": [],
+      "bathAnchor": null,
+      "bathRoom": null,
+      "rooms": [
+        "rear-link"
+      ],
+      "exceptionCodes": [
+        "corner"
+      ],
+      "notes": [
+        "普通窗边至建筑转角或短墙端≤1350毫米；原柱及房间保留，需协调该段排布"
       ],
       "layoutOrder": 89
     }
   ],
   "statistics": {
     "windowCount": 89,
-    "width1350": 85,
-    "narrowWidthExceptions": 4,
-    "continuousPairs": 21,
-    "fullWidthContinuousPairs": 19,
-    "exceptionWindows": 57,
+    "standardCount": 75,
+    "standardSizeCount": 75,
+    "width1350": 75,
+    "originalBathCount": 14,
+    "doorCount": 50,
+    "exceptionWindows": 38,
+    "layoutExceptionWindows": 38,
     "exceptionReasons": {
-      "corner": 44,
-      "width": 4,
-      "unpaired": 21,
-      "hallHeight": 4,
+      "corner": 34,
       "thirdAxis": 4,
-      "raisedLaundry": 2,
-      "spacing": 2,
-      "storeHeight": 2
-    },
-    "doorCount": 50
-  },
-  "thirdSillExceptions": {
-    "ids": [
-      "W35-061",
-      "W35-062",
-      "W35-068",
-      "W35-069"
-    ],
-    "sill": 1.2,
-    "head": 3.1,
-    "width": 1.35,
-    "height": 1.9,
-    "reason": "三层南窗避二层坡屋面，窗台暂定1200毫米，窗口1350×1900不变；原要求未给窗台高。"
+      "spacing": 2
+    }
   }
 }
