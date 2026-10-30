@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-lighting-1';
-import { createOpening } from './opening-motion.js?v=1029-v4-lighting-1';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-cycles-1';
+import { createOpening } from './opening-motion.js?v=1029-v4-cycles-1';
+import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-cycles-1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -76,6 +77,7 @@ const unitSphere = new THREE.SphereGeometry(1,12,8);
 const toiletSeat = new THREE.TorusGeometry(1,.13,8,24);toiletSeat.rotateX(-Math.PI/2);
 const batches = new Map();
 const fixtureSources=[];const nightLightSlots=[];let nightStrength=0,nightSignature='';
+let bakedLighting,bakeLoading=false,bakeError=false;
 function solid(parent, geometry, material, position, scale, rotation = 0) {
   let list = batches.get(parent);
   if (!list) { list = new Map(); batches.set(parent,list); }
@@ -119,7 +121,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-lighting-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-cycles-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -146,6 +148,11 @@ try {
   highlighted=new THREE.Mesh(new THREE.PlaneGeometry(1,1),focusMaterial);highlighted.rotation.set(-Math.PI/2,0,0,'YXZ');highlighted.visible=false;scene.add(highlighted);
   bindControls();if(facadeChanges)setupSolar(original.solarStudy);
   $('#cutaway').checked=false;updateView(true);
+  if(facadeChanges){
+    bakeLoading=true;
+    loadBakedLighting(roots.original).then(result=>{bakedLighting=result;bakeLoading=false;updateLightingNote();requestFrame();})
+      .catch(error=>{console.error(error);bakeLoading=false;bakeError=true;updateLightingNote();});
+  }
   new ResizeObserver(resize).observe(host); resize();
   $('#loading').hidden=true;
   renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();fail('三维显示连接中断');});
@@ -1350,7 +1357,7 @@ function updateSolarLight() {
   const sun=solarPosition({...solarSite,dayOfYear:seasonDay(state.sunSeason),hour:state.sunHour});
   const smooth=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);},day=smooth(-6,9,sun.altitude),direct=smooth(-.5,12,sun.altitude);
   sunLight.target.position.set(0,4,0);sunLight.position.set(90*sun.east,4+90*sun.up,-90*sun.north);sunLight.intensity=2.5*direct;sunLight.castShadow=direct>.01;
-  sunLight.color.set(0xffc998).lerp(new THREE.Color(0xfff3df),smooth(0,30,sun.altitude));skyLight.intensity=.22+1.28*day;
+  sunLight.color.set(0xffc998).lerp(new THREE.Color(0xfff3df),smooth(0,30,sun.altitude));skyLight.intensity=.06+1.44*day;
   skyLight.color.set(0x8fa6c1).lerp(new THREE.Color(0xffffff),day);
   scene.background.set(0x1d2936).lerp(new THREE.Color(0xe8e9e5),day);
   $('#sun-date').textContent=seasonDate(state.sunSeason);const minutes=Math.round(state.sunHour*60);$('#sun-time').textContent=String(Math.floor(minutes/60)).padStart(2,'0')+':'+String(minutes%60).padStart(2,'0');
@@ -1360,7 +1367,8 @@ function updateSolarLight() {
 
 function updateLightingNote() {
   const cut=state.floor!=='all'||$('#cutaway').checked||!$('#show-roof').checked;
-  $('#solar-note').textContent='北京时间 · '+(cut?'剖切光影示意':nightStrength>.5?'夜景灯光示意':'晴天日照示意');
+  $('#loading').hidden=!(nightStrength>.5&&bakeLoading);
+  $('#solar-note').textContent='北京时间 · '+(nightStrength>.5?(bakeLoading?'夜景光照载入中…':bakeError?'夜景光照未载入，请刷新':cut?'剖切夜景示意':'夜景灯光预览'):cut?'剖切光影示意':'晴天日照示意');
 }
 function setupNightLighting() {
   const count=24;
@@ -1372,6 +1380,7 @@ function setupNightLighting() {
 }
 function updateNightLighting() {
   if(!nightLightSlots.length)return;
+  if(bakedLighting){bakedLighting.setStrength(state.design==='original'?nightStrength:0);for(const light of nightLightSlots)light.visible=false;return;}
   if(nightStrength<.002||state.design!=='original') {
     for(const light of nightLightSlots)light.visible=false;
     nightSignature='';return;
@@ -1474,7 +1483,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-lighting-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-cycles-1');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
