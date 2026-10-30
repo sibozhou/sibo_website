@@ -1,7 +1,7 @@
 {
   "scope": "三楼所有外窗逐扇与真实低坡屋面网格射线检查；仅4扇南窗与低屋面投影相交，其余窗不被该屋面遮挡。",
   "minimumRequired": 0.15,
-  "thirdFloorWindows": 22,
+  "thirdFloorWindows": 26,
   "intersections": [
     {
       "id": "W35-061",
