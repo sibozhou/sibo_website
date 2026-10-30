@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-courtyard-9';
-import { createOpening } from './opening-motion.js?v=1029-v4-courtyard-9';
-import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-courtyard-9';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1030-v4-windows-10';
+import { createOpening } from './opening-motion.js?v=1030-v4-windows-10';
+import { loadBakedLighting } from './baked-lighting.js?v=1030-v4-windows-10';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -122,7 +122,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-courtyard-9':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1030-v4-windows-10':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -431,7 +431,7 @@ function makeWall(w,parent,height,cut) {
   const x=Math.min(x1,x2)-(horizontal?0:width/2),y=Math.min(y1,y2)-(horizontal?width/2:0);
   const dx=horizontal?length:width,dy=horizontal?width:length;
   function part(bottom,top,material=materials.wall,thickness=1) {
-    top=Math.min(top,height);if(top-bottom<.015)return;
+    if(w.wallBase!==undefined)bottom=Math.max(bottom,w.wallBase);top=Math.min(top,height,w.wallTop??Infinity);if(top-bottom<.015)return;
     block(parent,x+(horizontal?0:width*(1-thickness)/2),y+(horizontal?width*(1-thickness)/2:0),
       horizontal?dx:dx*thickness,horizontal?dy*thickness:dy,top-bottom,bottom,material);
   }
@@ -1531,7 +1531,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-courtyard-9');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1030-v4-windows-10');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
