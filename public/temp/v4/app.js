@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-light-window-6';
-import { createOpening } from './opening-motion.js?v=1029-v4-light-window-6';
-import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-light-window-6';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-courtyard-9';
+import { createOpening } from './opening-motion.js?v=1029-v4-courtyard-9';
+import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-courtyard-9';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -36,12 +36,13 @@ function mat(name, color, options = {}) {
 mat('wall',0xf5f1e4); mat('wallCap',0xe3dfcf); mat('slab',0xe7e3d5);
 mat('wood',0xb68d61); mat('lightWood',0xd8bd94); mat('white',0xfbf8ec);
 mat('linen',0xded7bd); mat('blanket',0x8da28b); mat('pillow',0xf4efdf);
-mat('metal',0x64776d); mat('glass',0xa6c9c2,{transparent:true,opacity:.4,roughness:.18,depthWrite:false});
+mat('metal',0x64776d); mat('glass',0xffffff,{transparent:true,opacity:.12,roughness:.06,depthWrite:false});
+mat('patioWood',0xa99b82,{roughness:.88});mat('patioFabric',0xe2ded2,{roughness:.95,side:THREE.DoubleSide});mat('patioFrame',0x747063,{roughness:.72,metalness:.25});
 mat('windowFrame',0x718e80); mat('sofa',0xc4bda4); mat('seat',0xafb9a1);
 mat('dark',0x394a40); mat('tile',0xd0ded6); mat('water',0xa0c4c2); mat('roof',0x6e7b6d);
 mat('ground',0xd6ddcc); mat('paving',0xe3e3d6); mat('court',0xd2d9c4); mat('red',0xaa6049);
-mat('frost',0xd9e3dd,{transparent:true,opacity:.78,roughness:.8});
-mat('guardGlass',0xc2d3d6,{transparent:true,opacity:.30,roughness:.08,depthWrite:false,side:THREE.DoubleSide});
+mat('frost',0xffffff,{transparent:true,opacity:.78,roughness:.8});
+mat('guardGlass',0xffffff,{transparent:true,opacity:.12,roughness:.06,depthWrite:false,side:THREE.DoubleSide});
 mat('plinth',0x96958e);mat('joint',0xc4c0b7);mat('leaf',0x526d36);mat('pot',0x777a6b);
 mat('woodLine',0x84623d);
 for(const [i,color] of [0x9da98a,0xb2b193,0x8d9f79,0xa5ac8b,0x959c7d].entries())mat('field'+i,color,{depthWrite:false});
@@ -57,18 +58,18 @@ mat('warmGlow',0xffefd0,{emissive:0xffd6a0,emissiveIntensity:0,roughness:.55});m
 mat('entryDoor',0x806a55);mat('interiorDoor',0xb2a087);mat('bathDoor',0xb9b6aa);mat('serviceDoor',0x666c63);mat('doorGroove',0x65513f);
 if(facadeStudy) {
   document.body.classList.add('facade-study');
-  document.title=(strictOriginal?'严格原图版':'方案10/29 · v4')+' · 祁东双户住宅';
+  document.title=(strictOriginal?'严格原图版':'方案10/30 · v4')+' · 祁东双户住宅';
   if(strictOriginal)$('.brand small').textContent='平面核对 · 高度未核实';
-  for(const [name,color] of Object.entries({wall:0xf2e9d9,wallCap:0x777a75,slab:0xe6e0d3,roof:0xb3b0a7,windowFrame:0x414944,metal:0x414944,wood:0xa57a48,glass:0xa8b9bf,ground:0xd2d0c8,paving:0xe1ddd2,court:0xd2cebc}))materials[name].color.setHex(color);
-  materials.glass.opacity=.28;
+  for(const [name,color] of Object.entries({wall:0xf2e9d9,wallCap:0x777a75,slab:0xe6e0d3,roof:0xb3b0a7,windowFrame:0x414944,metal:0x414944,wood:0xa57a48,glass:0xffffff,ground:0xd2d0c8,paving:0xe1ddd2,court:0xd2cebc}))materials[name].color.setHex(color);
+  materials.glass.opacity=.12;
   const textureCanvas=document.createElement('canvas');textureCanvas.width=textureCanvas.height=128;
   const textureContext=textureCanvas.getContext('2d');textureContext.fillStyle='#c9bda9';textureContext.fillRect(0,0,128,128);
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
-  $$('.brand strong').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/29 · v4');if(strictOriginal)$('.brand').href='./v2/';
+  $$('.brand strong').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/30 · v4');if(strictOriginal)$('.brand').href='./v2/';
   $('#original-model')?.style.setProperty('display','flex');
-  $$('[data-design="original"]').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/29 · v4');
+  $$('[data-design="original"]').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/30 · v4');
 }
 if(facadeChanges)materials.seamRoof.color.setHex(roofColors[state.roofColor].hex);
 const unitBox = new THREE.BoxGeometry(1,1,1);
@@ -121,7 +122,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-light-window-6':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-courtyard-9':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -236,7 +237,7 @@ function buildModel(design,modelData) {
       for(let x=-1.2;x<30.8;x+=1.2)block(paving,x,-1.9,.014,3.2,.008,-.215,materials.joint);
       for(let y=-1.9;y<1.3;y+=1.2)block(paving,-1.2,y,32,.014,.008,-.215,materials.joint);
     }
-    const tree=group(paving);if(joined)tree.position.y=-.45;makeCourtyardTree(tree);
+    const tree=group(paving);if(joined)tree.position.y=-.45;if(data.courtyardGarden){tree.position.x=data.courtyardGarden.tree[0]-14.8;tree.position.z=8-data.courtyardGarden.tree[1];}makeCourtyardTree(tree);if(data.courtyardGarden)makeCourtyardGarden(paving);
   }
   for(let level=1;level<=3;level++) {
     const f=group(building);f.position.y=base[level-1];floors.push({g:f,level,design});thisFloors.push(f);
@@ -283,7 +284,8 @@ function buildModel(design,modelData) {
           makeLabel({id:home+'-back-entry',home,level,rect:[mirror(home,5.5,1),14.55,1,.7],kind:'terrace',name:'北侧后门',description:data.backAccess.description},g);
           const access=data.courtyardAccess,[px,py,pw,pd]=access.landing;
           block(g,mx(px,pw),py,pw,pd,-data.vertical.outdoorLevel,data.vertical.outdoorLevel,materials.slab);
-          for(let i=1;i<access.risers;i++)block(g,mx(px+pw+(i-1)*access.tread,access.tread),py,access.tread,pd,-data.vertical.outdoorLevel-i*access.riserHeight,data.vertical.outdoorLevel,materials.slab);
+          if(access.stairDirection==='south')for(let i=1;i<access.risers;i++){const [sx,sy,sw,sd]=access.stairLocal;block(g,mx(sx,sw),sy-i*sd,sw,sd,-data.vertical.outdoorLevel-i*access.riserHeight,data.vertical.outdoorLevel,materials.slab);}
+          else for(let i=1;i<access.risers;i++)block(g,mx(px+pw+(i-1)*access.tread,access.tread),py,access.tread,pd,-data.vertical.outdoorLevel-i*access.riserHeight,data.vertical.outdoorLevel,materials.slab);
           makeLabel({id:home+'-courtyard-access',home,level,rect:[mx(9.1,.6),9,.6,.7],kind:'service',name:'天井门',description:access.description},g);
         }
         if(joined&&level===2)makeTerraceLaundry(g,home);
@@ -684,6 +686,43 @@ function makeCourtyardTree(parent) {
   block(parent,14.15,7.35,1.3,1.3,.03,-.03,materials.woodLine);
   cylinder(parent,14.8,8,.10,2.8,0,materials.wood);
   for(let i=0;i<17;i++)solid(parent,unitSphere,materials.leaf,[Math.cos(i*2.4)*.7,2.6+i%3*.32,.35+Math.sin(i*2.4)*.7],[.65,.55,.62],i);
+}
+
+function makeCourtyardGarden(parent) {
+  const d=data.courtyardGarden,g=group(parent);g.position.y=data.vertical.outdoorLevel;
+  for(const [index,rect] of [d.treeBed,...d.edgeBeds].entries()) {
+    const[x,y,w,h]=rect,base=index===0?.025:.09;
+    block(g,x,y,w,h,base,.005,materials.plinth);
+    block(g,x+.045,y+.045,w-.09,h-.09,.015,base-.005,materials.woodLine);
+  }
+  for(const[x,y,w,h]of d.edgeBeds)for(let i=0;i<7;i++) {
+    const cy=y+.18+i*(h-.36)/6;
+    for(let k=0;k<3;k++)solid(g,unitSphere,materials.leaf,[x+w/2-14.8+Math.cos(k*2.1)*.10,.22+k*.04,8.35-cy],[.14,.18,.13],k);
+  }
+  const[cx,cy]=d.table;
+  cylinder(g,cx,cy,.34,.025,.005,materials.patioFrame);cylinder(g,cx,cy,.06,.70,.03,materials.patioFrame);
+  cylinder(g,cx,cy,d.tableDiameter/2,.04,.72,materials.patioWood);
+  cylinder(g,cx,cy,.25,.12,.035,materials.plinth);
+  cylinder(g,cx,cy,.022,d.umbrellaHeight-.22,.155,materials.patioFrame);
+  for(let i=0;i<4;i++) {
+    const angle=i*Math.PI/2,x=cx+Math.cos(angle)*d.chairRadius,y=cy+Math.sin(angle)*d.chairRadius,seat=group(g);
+    seat.position.copy(worldPoint(x,y));seat.rotation.y=Math.PI/2+angle;
+    for(const xx of [-.23,.20])for(const yy of [-.23,.20])solid(seat,unitBox,materials.patioFrame,[xx,.23,yy],[.028,.46,.028]);
+    solid(seat,unitBox,materials.patioWood,[0,.45,0],[.50,.035,.50]);
+    solid(seat,unitBox,materials.linen,[0,.49,0],[.47,.05,.46]);
+    for(const xx of [-.235,.235])solid(seat,unitBox,materials.patioFrame,[xx,.63,.22],[.025,.38,.025]);
+    solid(seat,unitBox,materials.patioFrame,[0,.80,.22],[.49,.065,.035]);
+    solid(seat,unitBox,materials.patioFabric,[0,.68,.215],[.44,.22,.035]);
+  }
+  const radius=d.umbrellaDiameter/2,top=d.umbrellaHeight,edge=top-.28,vertices=[];
+  for(let i=0;i<12;i++) {
+    const a=i*Math.PI/6,b=(i+1)*Math.PI/6;
+    const p=[[cx,cy,top],[cx+radius*Math.cos(a),cy+radius*Math.sin(a),edge],[cx+radius*Math.cos(b),cy+radius*Math.sin(b),edge]];
+    vertices.push(...p.flatMap(([x,y,z])=>worldPoint(x,y,z).toArray()));
+  }
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geo.computeVertexNormals();const umbrella=new THREE.Mesh(geo,materials.patioFabric);umbrella.castShadow=true;umbrella.receiveShadow=true;g.add(umbrella);
+  for(const[x,y,w,h]of d.drains){block(g,x,y,w,h,.012,.008,materials.patioFrame);for(let t=.06;t<w;t+=.08)block(g,x+t,y+.01,.012,h-.02,.004,.021,materials.dark);}
+  makeLabel({id:'courtyard-garden',home:'both',level:1,rect:[cx-.5,cy-.5,1,1],kind:'terrace',name:'四人庭院',description:d.description},parent);
 }
 
 function sitePatch(parent,points,material,elev=-.25,order=2) {
@@ -1492,12 +1531,12 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-light-window-6');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-courtyard-9');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
   try {
-    if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案10/29 · v4 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
+    if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案10/30 · v4 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
     else {await navigator.clipboard.writeText(url.href);toast('分享链接已复制，可以发给家人了');}
   }catch(e){if(e.name!=='AbortError')toast('请复制浏览器地址栏中的链接分享');}
 }

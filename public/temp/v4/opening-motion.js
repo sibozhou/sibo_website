@@ -110,7 +110,7 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
   } else {
     const glazed=isWindow||wall.glazed||wall.study==='门1';
     const hingeAtStart=(horizontal?c<a:d<b);
-    const leaves=isWindow?wall.operation==='casement'?2:1:length>1.6?2:1;
+    const leaves=isWindow?wall.operation==='casement'?2:1:wall.leaves??(length>1.6?2:1);
     for(let i=0;i<leaves;i++) {
       const start=leaves===2?i===0:hingeAtStart,span=length/leaves-(leaves===2?.045:.09);
       const leaf=new THREE.Group();root.add(leaf);leaf.position.set(start?.045:length-.045,.025,0);
