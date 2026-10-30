@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-mobile-3';
-import { createOpening } from './opening-motion.js?v=1029-v4-mobile-3';
-import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-mobile-3';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v4-bedrooms-4';
+import { createOpening } from './opening-motion.js?v=1029-v4-bedrooms-4';
+import { loadBakedLighting } from './baked-lighting.js?v=1029-v4-bedrooms-4';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -121,7 +121,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-mobile-3':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v4-bedrooms-4':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -465,7 +465,7 @@ function makeWall(w,parent,height,cut) {
     }
     part(w.head??2.35,heights[w.level-1]);
     // Recessed threshold marks openings while keeping circulation visible.
-    if(w.kind!=='opening')block(parent,x,y,dx,dy,.015,w.balconyPortal?0:.01,w.balconyPortal?materials.windowFrame:materials.lightWood);
+    if(w.kind!=='opening'&&!w.flushThreshold)block(parent,x,y,dx,dy,.015,w.balconyPortal?0:.01,w.balconyPortal?materials.windowFrame:materials.lightWood);
     if(facadeChanges&&currentDesign==='original'&&w.kind==='door'){addModelOpening(w,parent,height);return;}
     if(facadeStudy&&w.kind==='door'&&(!w.study||['门4','门5','门6'].includes(w.study))&&!(!strictOriginal&&w.level===1&&horizontal&&y1===1.5)) {
       part(.025,Math.min(w.head??2.35,height)-.04,w.glazed?materials.glass:materials.wood,.32);
@@ -749,7 +749,7 @@ function makeRoom(room,parent) {
   if(facadeChanges&&room.design==='original'&&room.kind==='bath')room={...room,description:(room.access==='switchable'?room.description:room.access==='public'?'从公共走廊进入。':'从相邻卧室进入。')+'设淋浴区、坐便器和洗手盆。洁具尺寸、门扇开启、排水与防水仍须深化。'};
   const [x,y,w,d]=room.rect;
   const material=facadeChanges&&room.design==='original'?floorMaterials[room.floorFinish]:new THREE.MeshStandardMaterial({color:colors[room.kind]||0xdedccc,roughness:1});
-  const continuousDining=facadeChanges&&room.design==='original'&&room.level===1&&(room.kind==='dining'||room.id==='rear-link');
+  const continuousDining=facadeChanges&&room.design==='original'&&room.level===1&&(room.kind==='dining'||room.id==='rear-link'||room.corridorAnnex);
   const geometry=roomGeometry(room,continuousDining?0:.23);
   if(material.userData.floorFinish) {
     const uv=geometry.attributes.uv,position=geometry.attributes.position,shift=data.joinedLayout.homeShift[room.home]??0;
@@ -1485,7 +1485,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-mobile-3');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v4-bedrooms-4');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
