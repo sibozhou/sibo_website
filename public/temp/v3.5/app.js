@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1029-v35-facade-1';
-import { createOpening } from './opening-motion.js?v=1029-v35-facade-1';
-import { loadBakedLighting } from './baked-lighting.js?v=1029-v35-facade-1';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1030-v35-module-2';
+import { createOpening } from './opening-motion.js?v=1030-v35-module-2';
+import { loadBakedLighting } from './baked-lighting.js?v=1030-v35-module-2';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -36,12 +36,12 @@ function mat(name, color, options = {}) {
 mat('wall',0xf5f1e4); mat('wallCap',0xe3dfcf); mat('slab',0xe7e3d5);
 mat('wood',0xb68d61); mat('lightWood',0xd8bd94); mat('white',0xfbf8ec);
 mat('linen',0xded7bd); mat('blanket',0x8da28b); mat('pillow',0xf4efdf);
-mat('metal',0x64776d); mat('glass',0xa6c9c2,{transparent:true,opacity:.4,roughness:.18,depthWrite:false});
+mat('metal',0x64776d); mat('glass',0xffffff,{transparent:true,opacity:.12,roughness:.06,depthWrite:false});
 mat('windowFrame',0x718e80); mat('sofa',0xc4bda4); mat('seat',0xafb9a1);
 mat('dark',0x394a40); mat('tile',0xd0ded6); mat('water',0xa0c4c2); mat('roof',0x6e7b6d);
 mat('ground',0xd6ddcc); mat('paving',0xe3e3d6); mat('court',0xd2d9c4); mat('red',0xaa6049);
-mat('frost',0xd9e3dd,{transparent:true,opacity:.78,roughness:.8});
-mat('guardGlass',0xc2d3d6,{transparent:true,opacity:.30,roughness:.08,depthWrite:false,side:THREE.DoubleSide});
+mat('frost',0xffffff,{transparent:true,opacity:.78,roughness:.8});
+mat('guardGlass',0xffffff,{transparent:true,opacity:.12,roughness:.06,depthWrite:false,side:THREE.DoubleSide});
 mat('plinth',0x96958e);mat('joint',0xc4c0b7);mat('leaf',0x526d36);mat('pot',0x777a6b);
 mat('woodLine',0x84623d);
 for(const [i,color] of [0x9da98a,0xb2b193,0x8d9f79,0xa5ac8b,0x959c7d].entries())mat('field'+i,color,{depthWrite:false});
@@ -59,8 +59,8 @@ if(facadeStudy) {
   document.body.classList.add('facade-study');
   document.title=(strictOriginal?'严格原图版':'方案10/30 · v3.5')+' · 祁东双户住宅';
   if(strictOriginal)$('.brand small').textContent='平面核对 · 高度未核实';
-  for(const [name,color] of Object.entries({wall:0xf2e9d9,wallCap:0x777a75,slab:0xe6e0d3,roof:0xb3b0a7,windowFrame:0x414944,metal:0x414944,wood:0xa57a48,glass:0xa8b9bf,ground:0xd2d0c8,paving:0xe1ddd2,court:0xd2cebc}))materials[name].color.setHex(color);
-  materials.glass.opacity=.28;
+  for(const [name,color] of Object.entries({wall:0xf2e9d9,wallCap:0x777a75,slab:0xe6e0d3,roof:0xb3b0a7,windowFrame:0x414944,metal:0x414944,wood:0xa57a48,glass:0xffffff,ground:0xd2d0c8,paving:0xe1ddd2,court:0xd2cebc}))materials[name].color.setHex(color);
+  materials.glass.opacity=.12;
   const textureCanvas=document.createElement('canvas');textureCanvas.width=textureCanvas.height=128;
   const textureContext=textureCanvas.getContext('2d');textureContext.fillStyle='#c9bda9';textureContext.fillRect(0,0,128,128);
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
@@ -121,7 +121,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1029-v35-facade-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1030-v35-module-2':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -451,7 +451,7 @@ function makeWall(w,parent,height,cut) {
   const x=Math.min(x1,x2)-(horizontal?0:width/2),y=Math.min(y1,y2)-(horizontal?width/2:0);
   const dx=horizontal?length:width,dy=horizontal?width:length;
   function part(bottom,top,material=materials.wall,thickness=1) {
-    top=Math.min(top,height);if(top-bottom<.015)return;
+    if(w.wallBase!==undefined)bottom=Math.max(bottom,w.wallBase);top=Math.min(top,height,w.wallTop??Infinity);if(top-bottom<.015)return;
     const xx=x+(horizontal?0:width*(1-thickness)/2),yy=y+(horizontal?width*(1-thickness)/2:0),ww=horizontal?dx:dx*thickness,dd=horizontal?dy*thickness:dy;
     if(w.lowRoofLimit){profiledLaundryBlock(parent,w,xx,yy,ww,dd,bottom,top,material);return;}
     block(parent,xx,yy,ww,dd,top-bottom,bottom,material);
@@ -466,7 +466,7 @@ function makeWall(w,parent,height,cut) {
   if(w.kind==='window') {
     const sill=w.sill??((Math.abs(y1-15.3)<.01&&horizontal)?1.75:.85),head=w.head??2.45;
     part(0,sill);part(head,height);
-    if(w.continuousStack&&!cut)part(w.level===1?head:0,w.level===1?height:sill,materials.windowFrame,.34);
+    if((w.continuousStack||w.visualSpandrel)&&!cut)part(w.level===1?head:0,w.level===1?height:sill,materials.windowFrame,.34);
     if(facadeChanges&&currentDesign==='original'){addModelOpening(w,parent,height);return;}
     part(sill,head,w.frost?materials.frost:materials.glass,.28);
     part(sill,sill+.045,materials.windowFrame,1.12);part(head-.05,head,materials.windowFrame,1.12);
@@ -1516,7 +1516,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1029-v35-facade-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1030-v35-module-2');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}

@@ -57,7 +57,13 @@ export function createOpening(parent,wall,limit,normal,materials,solid) {
       box(root,0,split-.02,-.035,length,.04,.07,materials.windowFrame);
       const sash=new THREE.Group();root.add(sash);sash.position.set(.025,height-.025,0);
       const leaf=new THREE.Group();sash.add(leaf);leaf.position.y=-(height-split-.05);
-      panel(leaf,0,length-.05,height-split-.05,true,'bottom');
+      panel(leaf,0,length-.05,height-split-.05,true,wall.highLevelControl?null:'bottom');
+      if(wall.highLevelControl){
+        const control=(wall.controlHeight??1.45)-bottom,z=inward*(wall.width/2+.055);
+        box(root,length-.14,control,z-.012,.018,split-control,.024,materials.metal);
+        box(root,length-.18,control-.04,z-.025,.10,.08,.05,materials.windowFrame);
+        box(root,length-.16,control-.005,z,.09,.018,.035,materials.metal);
+      }
       moves.push(t=>{sash.rotation.x=inward*t*Math.PI/6;});
     }
   } else if(isWindow&&wall.operation==='awning') {

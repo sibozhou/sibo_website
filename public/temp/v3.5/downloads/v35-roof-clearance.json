@@ -1,0 +1,74 @@
+{
+  "scope": "三楼所有外窗逐扇与真实低坡屋面网格射线检查；仅4扇南窗与低屋面投影相交，其余窗不被该屋面遮挡。",
+  "minimumRequired": 0.15,
+  "thirdFloorWindows": 22,
+  "intersections": [
+    {
+      "id": "W35-061",
+      "points": [
+        4.7,
+        8.5,
+        6.05,
+        8.5
+      ],
+      "sill": 1.2,
+      "head": 3.1,
+      "width": 1.35,
+      "height": 1.9,
+      "maximumLowRoofGlobal": 8.23439,
+      "minimumClearance": 0.16561,
+      "samples": 21
+    },
+    {
+      "id": "W35-062",
+      "points": [
+        7.35,
+        8.5,
+        8.7,
+        8.5
+      ],
+      "sill": 1.2,
+      "head": 3.1,
+      "width": 1.35,
+      "height": 1.9,
+      "maximumLowRoofGlobal": 7.95125,
+      "minimumClearance": 0.44875,
+      "samples": 21
+    },
+    {
+      "id": "W35-068",
+      "points": [
+        24.9,
+        8.5,
+        23.55,
+        8.5
+      ],
+      "sill": 1.2,
+      "head": 3.1,
+      "width": 1.35,
+      "height": 1.9,
+      "maximumLowRoofGlobal": 8.23439,
+      "minimumClearance": 0.16561,
+      "samples": 21
+    },
+    {
+      "id": "W35-069",
+      "points": [
+        22.25,
+        8.5,
+        20.9,
+        8.5
+      ],
+      "sill": 1.2,
+      "head": 3.1,
+      "width": 1.35,
+      "height": 1.9,
+      "maximumLowRoofGlobal": 7.95125,
+      "minimumClearance": 0.44875,
+      "samples": 21
+    }
+  ],
+  "transomCount": 2,
+  "glazing": "无色透明，卫浴无色磨砂隐私保留，炭灰框不变",
+  "limits": "净空按模型屋面下皮/上皮示意，保温、防水层、窗台泛水及最终安全构造仍须正式深化。"
+}
