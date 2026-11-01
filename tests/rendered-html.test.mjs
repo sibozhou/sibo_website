@@ -519,7 +519,7 @@ for (const route of ["", "research/", "notes/", "map/", "zh/", "zh/research/", "
       assert.equal(social.includes("973889751412532"), !traditional);
       assert.match(social, /1787955243994726820/);
       assert.match(social, /C72E_FaSwvP/);
-      assert.match(social, /7192238670182014976-9dWk/);
+      assert.match(social, /href="https:\/\/lnkd\.in\/p\/gsmHNmed" aria-label="USC Dornsife post on LinkedIn"/);
       assert.equal(social.replace(/<[^>]*>/g, "").trim(), "");
       assert.equal((social.match(/aria-label="[^"]+"/g) ?? []).length, chinese ? 5 : 6);
       assert.doesNotMatch(markup, /news-reprint|We Are SC|School of Religion/);

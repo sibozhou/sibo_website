@@ -3,7 +3,7 @@ import type { Language } from "./languages";
 const posts = [
   { icon: "x", label: "USC post on X", href: "https://x.com/USC/status/1787955243994726820?s=20" },
   { icon: "instagram", label: "USC post on Instagram", href: "https://www.instagram.com/p/C72E_FaSwvP/" },
-  { icon: "linkedin", label: "USC Dornsife post on LinkedIn", href: "https://www.linkedin.com/posts/uscdornsife_international-student-earns-four-bachelor-activity-7192238670182014976-9dWk/" },
+  { icon: "linkedin", label: "USC Dornsife post on LinkedIn", href: "https://lnkd.in/p/gsmHNmed" },
 ];
 
 const wechat = { icon: "wechat", label: "USC China post on WeChat", href: "https://mp.weixin.qq.com/s/MTZ60leYEtZBZ_XnhVgJxw" };
