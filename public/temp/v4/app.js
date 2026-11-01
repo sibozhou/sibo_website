@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1030-v4-windows-10';
-import { createOpening } from './opening-motion.js?v=1030-v4-windows-10';
-import { loadBakedLighting } from './baked-lighting.js?v=1030-v4-windows-10';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1031-v4-stairs-terrace-1';
+import { createOpening } from './opening-motion.js?v=1031-v4-stairs-terrace-1';
+import { loadBakedLighting } from './baked-lighting.js?v=1031-v4-stairs-terrace-1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -58,7 +58,7 @@ mat('warmGlow',0xffefd0,{emissive:0xffd6a0,emissiveIntensity:0,roughness:.55});m
 mat('entryDoor',0x806a55);mat('interiorDoor',0xb2a087);mat('bathDoor',0xb9b6aa);mat('serviceDoor',0x666c63);mat('doorGroove',0x65513f);
 if(facadeStudy) {
   document.body.classList.add('facade-study');
-  document.title=(strictOriginal?'严格原图版':'方案10/30 · v4')+' · 祁东双户住宅';
+  document.title=(strictOriginal?'严格原图版':'方案10/31 · v4')+' · 祁东双户住宅';
   if(strictOriginal)$('.brand small').textContent='平面核对 · 高度未核实';
   for(const [name,color] of Object.entries({wall:0xf2e9d9,wallCap:0x777a75,slab:0xe6e0d3,roof:0xb3b0a7,windowFrame:0x414944,metal:0x414944,wood:0xa57a48,glass:0xffffff,ground:0xd2d0c8,paving:0xe1ddd2,court:0xd2cebc}))materials[name].color.setHex(color);
   materials.glass.opacity=.12;
@@ -67,9 +67,9 @@ if(facadeStudy) {
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
-  $$('.brand strong').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/30 · v4');if(strictOriginal)$('.brand').href='./v2/';
+  $$('.brand strong').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/31 · v4');if(strictOriginal)$('.brand').href='./v2/';
   $('#original-model')?.style.setProperty('display','flex');
-  $$('[data-design="original"]').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/30 · v4');
+  $$('[data-design="original"]').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/31 · v4');
 }
 if(facadeChanges)materials.seamRoof.color.setHex(roofColors[state.roofColor].hex);
 const unitBox = new THREE.BoxGeometry(1,1,1);
@@ -122,7 +122,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1030-v4-windows-10':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1031-v4-stairs-terrace-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -288,7 +288,7 @@ function buildModel(design,modelData) {
           else for(let i=1;i<access.risers;i++)block(g,mx(px+pw+(i-1)*access.tread,access.tread),py,access.tread,pd,-data.vertical.outdoorLevel-i*access.riserHeight,data.vertical.outdoorLevel,materials.slab);
           makeLabel({id:home+'-courtyard-access',home,level,rect:[mx(9.1,.6),9,.6,.7],kind:'service',name:'天井门',description:access.description},g);
         }
-        if(joined&&level===2)makeTerraceLaundry(g,home);
+        if(joined&&level===2){makeTerraceLaundry(g,home);makeTerraceFurniture(g,home);}
         if(facadeChanges) {
           if(level===1) {
             makePlanter(g,home,8.0,.5,.75);
@@ -330,8 +330,8 @@ function buildModel(design,modelData) {
       if(level===3&&home==='B')makeLounge(g,home,6.9,12.5,6.9,4.2,false);
       }
       if(level<3){const flight=group(g);flight.userData.stairFlight={home,level};makeStairs(flight,home,heights[level-1]);}
-      if(facadeChanges&&original&&level===3) {
-        const arrival=group(g);arrival.userData.stairArrival={home,fromLevel:2};arrival.position.y=-heights[1];makeStairs(arrival,home,heights[1]);
+      if(facadeChanges&&original&&level>1) {
+        const arrival=group(g);arrival.userData.stairArrival={home,fromLevel:level-1};arrival.position.y=-heights[level-2];makeStairs(arrival,home,heights[level-2]);
         arrivalStairs.push(arrival);
       }
       if(level<3&&!strictOriginal) {
@@ -1022,6 +1022,29 @@ function makeTerraceLaundry(parent,home) {
   const [sx,sy,sw,sd]=item.sinkLocal;
   makeBasin(parent,mirror(home,sx,sw),sy,sw,sd,home==='A'?'left':'right');
 }
+function makeTerraceFurniture(parent,home) {
+  const g=group(parent),mx=(x,w=0)=>mirror(home,x,w),f=data.terraceFurniture;
+  g.userData.terraceFurniture=home;
+  const [x,y,w,d]=f.sofa;
+  for(const xx of [x+.09,x+w-.13])for(const yy of [y+.10,y+d-.14])block(g,mx(xx,.04),yy,.04,.04,.23,0,materials.guardMetal);
+  block(g,mx(x,w),y,w,d,.07,.23,materials.guardMetal);
+  block(g,mx(x,.07),y,.07,d,.43,.30,materials.lightWood);
+  for(const yy of [y,y+d-.07])block(g,mx(x,w),yy,w,.07,.25,.30,materials.lightWood);
+  for(let i=0;i<3;i++) {
+    block(g,mx(x+.10,w-.16),y+.10+i*(d-.20)/3,w-.16,(d-.26)/3,.12,.30,materials.linen);
+    block(g,mx(x+.075,.14),y+.10+i*(d-.20)/3,.14,(d-.26)/3,.32,.42,materials.seat);
+  }
+  const [cx,cy,cw,cd]=f.chair;
+  for(const xx of [cx+.08,cx+cw-.12])for(const yy of [cy+.08,cy+cd-.12])block(g,mx(xx,.04),yy,.04,.04,.30,0,materials.guardMetal);
+  block(g,mx(cx,cw),cy,cw,cd,.07,.28,materials.lightWood);
+  block(g,mx(cx+.05,cw-.10),cy+.12,cw-.10,cd-.18,.12,.35,materials.linen);
+  block(g,mx(cx,cw),cy,cw,.11,.36,.43,materials.seat);
+  for(const xx of [cx,cx+cw-.06])block(g,mx(xx,.06),cy,.06,cd,.07,.56,materials.lightWood);
+  const [tx,ty,diameter]=f.table;
+  cylinder(g,mx(tx),ty,.18,.31,0,materials.guardMetal);
+  cylinder(g,mx(tx),ty,diameter/2,.045,.31,materials.lightWood);
+  makePlanter(g,home,...f.planter);
+}
 function makeGroundServices(parent,home) {
   const item=data.groundServices.find(v=>v.home===home),mx=(x,w=0)=>mirror(home,x,w);
   if(item.toolLocal) {
@@ -1093,6 +1116,12 @@ function makeInteriorLighting(parent,home,level) {
       cylinder(g,x,y,.15,.025,0,materials.lampMetal);cylinder(g,x,y,.012,z-.12,.025,materials.lampMetal);
       solid(g,new THREE.CylinderGeometry(.12,.20,.28,24),materials.lampShade,[x-14.8,z,8.35-y],[1,1,1]);
       cylinder(g,x,y,.16,.012,z-.145,glow);
+    } else if(f.kind==='table') {
+      const h=f.baseHeight;
+      cylinder(g,x,y,.065,.018,h,materials.lampMetal);
+      cylinder(g,x,y,.007,.22,h+.018,materials.lampMetal);
+      solid(g,new THREE.CylinderGeometry(.08,.12,.16,24),materials.lampShade,[x-14.8,z+.08,8.35-y],[1,1,1]);
+      cylinder(g,x,y,.105,.008,z-.006,glow);
     } else if(f.kind==='desk') {
       cylinder(g,x,y,.055,.012,.74,materials.lampMetal);cylinder(g,x,y,.006,z-.77,.752,materials.lampMetal);
       cylinder(g,x,y,.055,.055,z-.025,materials.lampMetal);cylinder(g,x,y,.045,.008,z-.03,glow);
@@ -1179,7 +1208,8 @@ function makeFacadeBathroom(parent,room) {
   if(room.id.endsWith('front-bath')) {
     makeShower(parent,mx(.12,.90),y+.12,.90,.90,'side',room.home==='B');
     makeToilet(parent,mx(1.15,.46),y+.10,'rear');
-    if(room.access==='suite')makeBasin(parent,mx(2.30,.40),y+1.05,.40,.60,room.home==='B'?'right':'left');
+    if(room.entryRelocated)makeBasin(parent,mx(1.80,.55),y+.08,.55,.40,'rear');
+    else if(room.access==='suite')makeBasin(parent,mx(2.30,.40),y+1.05,.40,.60,room.home==='B'?'right':'left');
     else makeBasin(parent,mx(1.80,.60),y+.10,.60,.40,'rear');
   } else if(['public','switchable'].includes(room.access)) {
     makeShower(parent,mx(.12,w-.24),y+1.38,w-.24,.90,'front',room.home==='A');
@@ -1244,11 +1274,46 @@ function makeStairs(parent,home,rise) {
     block(parent,mx(4.4+i*run,run),9.98,run,1.02,.15,b-.15,materials.slab);
   }
   block(parent,mx(3.45,.95),8.65,.95,2.35,.15,rise/2-.15,materials.slab);
-  // A simple continuous inner guard indicates the stair direction in the concept model.
-  for(let i=0;i<flight;i++) {
-    const xx=mx(4.4+i*run);
-    block(parent,xx-.02,9.88,.04,.04,.85,rise/2+(i+1)*rise/(2*flight),materials.metal);
+  if(facadeChanges&&data.joinedLayout)makeStairHandrails(parent,home,rise,flight,run);
+}
+function makeStairHandrails(parent,home,rise,flight,run) {
+  const step=rise/(2*flight),mid=rise/2,h=1.10;
+  const paths=[
+    [[7.46,9.64,step+h],[7.3,9.64,step+h],[4.4+run,9.64,mid+h],[4.2,9.64,mid+h],[4.2,10.01,mid+h],[4.4,10.01,mid+step+h],[7.3-run,10.01,rise+h],[7.46,10.01,rise+h]],
+    [[7.46,8.69,step+h],[7.3,8.69,step+h],[4.4+run,8.69,mid+h],[3.51,8.69,mid+h],[3.51,10.96,mid+h],[4.4,10.96,mid+step+h],[7.3-run,10.96,rise+h],[7.46,10.96,rise+h]],
+  ];
+  parent.userData.stairHandrails={home,rise,paths,posts:[],height:h};
+  const positions=[],normals=[],uvs=[],up=new THREE.Vector3(0,1,0);
+  for(const path of paths)for(let i=1;i<path.length;i++) {
+    const a=worldPoint(mirror(home,path[i-1][0]),path[i-1][1],path[i-1][2]),b=worldPoint(mirror(home,path[i][0]),path[i][1],path[i][2]),delta=b.clone().sub(a);
+    const geometry=new THREE.CylinderGeometry(.022,.022,delta.length(),12).toNonIndexed();
+    geometry.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(up,delta.normalize()));geometry.translate(...a.add(b).multiplyScalar(.5).toArray());
+    positions.push(...geometry.attributes.position.array);normals.push(...geometry.attributes.normal.array);uvs.push(...geometry.attributes.uv.array);geometry.dispose();
   }
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
+  const handrail=new THREE.Mesh(geometry,materials.guardMetal);handrail.castShadow=handrail.receiveShadow=true;parent.add(handrail);
+  for(const path of paths)for(const [x,y,z]of path)solid(parent,unitSphere,materials.guardMetal,[mirror(home,x)-14.8,z,8.35-y],[.022,.022,.022]);
+  const post=(x,y,bottom,top,width=.016)=>{
+    block(parent,mirror(home,x)-width/2,y-width/2,width,width,top-bottom,bottom,materials.guardMetal);
+    parent.userData.stairHandrails.posts.push({x,y,bottom,top,width});
+  };
+  for(let i=0;i<flight;i++)for(let j=0;j<3;j++) {
+    const lowerX=7.3-(i+(j+.5)/3)*run,upperX=4.4+(i+(j+.5)/3)*run;
+    const lowerTop=Math.min(mid+h,step+h+(7.3-lowerX)/(2.9-run)*(mid-step));
+    const upperTop=Math.min(rise+h,mid+step+h+(upperX-4.4)/(2.9-run)*(mid-step));
+    for(const y of [8.69,9.64])post(lowerX,y,(i+1)*step,lowerTop,j===1?.028:.016);
+    for(const y of [10.01,10.96])post(upperX,y,mid+(i+1)*step,upperTop,j===1?.028:.016);
+  }
+  for(const path of paths)for(let segment=2;segment<5;segment++) {
+    const a=path[segment],b=path[segment+1];
+    const n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/.10);
+    for(let i=0;i<=n;i++){const t=i/n,end=segment===4&&i===n;post(a[0]+(b[0]-a[0])*t+(end?.004:0),a[1]+(b[1]-a[1])*t,end?mid+step:mid,a[2]+(b[2]-a[2])*t);}
+  }
+  for(const y of [8.69,9.64])post(7.40,y,0,step+h,.035);
+  for(const y of [10.01,10.96])post(7.40,y,rise,rise+h,.035);
+  // Close the narrow well between the two flights at the upper-floor landing.
+  block(parent,mirror(home,7.40)-.022,9.64,.044,.37,.044,rise+h-.022,materials.guardMetal);
+  for(let i=0;i<=4;i++)post(7.40,9.64+.37*i/4,rise,rise+h);
 }
 function rail(parent,x1,y1,x2,y2,h,footWidth=.22) {
   if(facadeStudy&&!strictOriginal)h=1.2;
@@ -1320,7 +1385,7 @@ function updateView(moveCamera=false) {
   floors.forEach(({g,level})=>{g.visible=!only||only===level;g.position.y=base[level-1]+offsetFor(level);});
   homes.forEach(({g,home})=>{g.visible=state.home==='both'||state.home===home;});
   wallSets.forEach(({full,low})=>{full.visible=!$('#cutaway').checked;low.visible=$('#cutaway').checked;});
-  arrivalStairs.forEach(g=>{g.visible=state.floor==='3'||state.floor==='explode';});
+  arrivalStairs.forEach(g=>{g.visible=state.floor===String(g.userData.stairArrival.fromLevel+1)||state.floor==='explode';});
   roofGroups.forEach(g=>{g.visible=state.floor==='all'&&$('#show-roof').checked;});
   secondaryRoofGroups.forEach(g=>{g.visible=state.floor!=='all'||$('#show-roof').checked;});
   if(dailyFurniture)dailyFurniture.visible=state.scene==='daily';
@@ -1531,12 +1596,12 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1030-v4-windows-10');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1031-v4-stairs-terrace-1');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
   try {
-    if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案10/30 · v4 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
+    if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案10/31 · v4 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
     else {await navigator.clipboard.writeText(url.href);toast('分享链接已复制，可以发给家人了');}
   }catch(e){if(e.name!=='AbortError')toast('请复制浏览器地址栏中的链接分享');}
 }
