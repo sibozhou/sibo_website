@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1031-v4-stairs-terrace-1';
-import { createOpening } from './opening-motion.js?v=1031-v4-stairs-terrace-1';
-import { loadBakedLighting } from './baked-lighting.js?v=1031-v4-stairs-terrace-1';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1031-v4-glass-loungers-3';
+import { createOpening } from './opening-motion.js?v=1031-v4-glass-loungers-3';
+import { loadBakedLighting } from './baked-lighting.js?v=1031-v4-glass-loungers-3';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -122,7 +122,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1031-v4-stairs-terrace-1':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1031-v4-glass-loungers-3':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -1025,24 +1025,20 @@ function makeTerraceLaundry(parent,home) {
 function makeTerraceFurniture(parent,home) {
   const g=group(parent),mx=(x,w=0)=>mirror(home,x,w),f=data.terraceFurniture;
   g.userData.terraceFurniture=home;
-  const [x,y,w,d]=f.sofa;
-  for(const xx of [x+.09,x+w-.13])for(const yy of [y+.10,y+d-.14])block(g,mx(xx,.04),yy,.04,.04,.23,0,materials.guardMetal);
-  block(g,mx(x,w),y,w,d,.07,.23,materials.guardMetal);
-  block(g,mx(x,.07),y,.07,d,.43,.30,materials.lightWood);
-  for(const yy of [y,y+d-.07])block(g,mx(x,w),yy,w,.07,.25,.30,materials.lightWood);
-  for(let i=0;i<3;i++) {
-    block(g,mx(x+.10,w-.16),y+.10+i*(d-.20)/3,w-.16,(d-.26)/3,.12,.30,materials.linen);
-    block(g,mx(x+.075,.14),y+.10+i*(d-.20)/3,.14,(d-.26)/3,.32,.42,materials.seat);
+  const angle=f.backAngleDegrees*Math.PI/180,length=.72;
+  for(const [x,y,w,d]of f.loungers) {
+    const chair=group(g);chair.userData.lounger={home,rect:[mx(x,w),y,w,d],facing:'south'};
+    for(const xx of [x+.05,x+w-.09]) {
+      block(chair,mx(xx,.04),y+.12,.04,.04,.29,0,materials.guardMetal);
+      block(chair,mx(xx,.04),y+1.90,.04,.04,.60,0,materials.guardMetal);
+      block(chair,mx(xx,.04),y,.04,1.45,.06,.25,materials.lightWood);
+    }
+    for(const yy of [y,y+1.39])block(chair,mx(x,w),yy,w,.06,.06,.25,materials.lightWood);
+    block(chair,mx(x+.04,w-.08),y+.025,w-.08,1.425,.08,.31,materials.linen);
+    const backY=y+1.45+length*Math.cos(angle)/2,backZ=.35+length*Math.sin(angle)/2,cx=mx(x+w/2);
+    solid(chair,new THREE.BoxGeometry(w,.05,length+.06).rotateX(angle),materials.lightWood,[cx-14.8,backZ-.065*Math.cos(angle),8.35-backY-.065*Math.sin(angle)],[1,1,1]);
+    solid(chair,new THREE.BoxGeometry(w-.08,.08,length).rotateX(angle),materials.linen,[cx-14.8,backZ,8.35-backY],[1,1,1]);
   }
-  const [cx,cy,cw,cd]=f.chair;
-  for(const xx of [cx+.08,cx+cw-.12])for(const yy of [cy+.08,cy+cd-.12])block(g,mx(xx,.04),yy,.04,.04,.30,0,materials.guardMetal);
-  block(g,mx(cx,cw),cy,cw,cd,.07,.28,materials.lightWood);
-  block(g,mx(cx+.05,cw-.10),cy+.12,cw-.10,cd-.18,.12,.35,materials.linen);
-  block(g,mx(cx,cw),cy,cw,.11,.36,.43,materials.seat);
-  for(const xx of [cx,cx+cw-.06])block(g,mx(xx,.06),cy,.06,cd,.07,.56,materials.lightWood);
-  const [tx,ty,diameter]=f.table;
-  cylinder(g,mx(tx),ty,.18,.31,0,materials.guardMetal);
-  cylinder(g,mx(tx),ty,diameter/2,.045,.31,materials.lightWood);
   makePlanter(g,home,...f.planter);
 }
 function makeGroundServices(parent,home) {
@@ -1077,7 +1073,11 @@ function makeStairGlassGuard(parent,item) {
   solid(g,unitBox,materials.windowFrame,[(a+c)/2-14.8,.035,8.35-(b+d)/2],[len,.07,.06],angle);
   solid(g,unitBox,materials.guardMetal,[(a+c)/2-14.8,item.height-.018,8.35-(b+d)/2],[len,.036,.045],angle);
   const n=Math.ceil(len/1.25);
-  for(let i=0;i<n;i++){const t=(i+.5)/n;solid(g,unitBox,materials.guardGlass,[a+(c-a)*t-14.8,(item.height+.08)/2,8.35-b-(d-b)*t],[len/n-.02,item.height-.12,.016],angle);}
+  for(let i=0;i<n;i++){
+    const start=i===0?.04:.01,end=i===n-1?.04:.01,t=(i*len/n+(len/n+start-end)/2)/len;
+    solid(g,unitBox,materials.guardGlass,[a+(c-a)*t-14.8,(item.height+.08)/2,8.35-b-(d-b)*t],[len/n-start-end,item.height-.12,.016],angle);
+  }
+  for(const [x,y]of [[a,b],[c,d]])block(g,x-.02,y-.02,.04,.04,item.height,0,materials.guardMetal);
 }
 
 function makeInteriorLighting(parent,home,level) {
@@ -1277,43 +1277,44 @@ function makeStairs(parent,home,rise) {
   if(facadeChanges&&data.joinedLayout)makeStairHandrails(parent,home,rise,flight,run);
 }
 function makeStairHandrails(parent,home,rise,flight,run) {
-  const step=rise/(2*flight),mid=rise/2,h=1.10;
+  const step=rise/(2*flight),mid=rise/2,h=1.10,mx=x=>mirror(home,x);
   const paths=[
     [[7.46,9.64,step+h],[7.3,9.64,step+h],[4.4+run,9.64,mid+h],[4.2,9.64,mid+h],[4.2,10.01,mid+h],[4.4,10.01,mid+step+h],[7.3-run,10.01,rise+h],[7.46,10.01,rise+h]],
     [[7.46,8.69,step+h],[7.3,8.69,step+h],[4.4+run,8.69,mid+h],[3.51,8.69,mid+h],[3.51,10.96,mid+h],[4.4,10.96,mid+step+h],[7.3-run,10.96,rise+h],[7.46,10.96,rise+h]],
   ];
-  parent.userData.stairHandrails={home,rise,paths,posts:[],height:h};
-  const positions=[],normals=[],uvs=[],up=new THREE.Vector3(0,1,0);
+  const spec={home,rise,paths,panels:[],anchors:[],height:h};parent.userData.stairHandrails=spec;
+  const positions=[],normals=[],uvs=[],up=new THREE.Vector3(0,1,0),along=new THREE.Vector3(1,0,0);
+  const append=geometry=>{positions.push(...geometry.attributes.position.array);normals.push(...geometry.attributes.normal.array);uvs.push(...geometry.attributes.uv.array);geometry.dispose();};
+  const anchor=(x,y,bottom,top)=>{
+    if(top<=bottom)return;
+    block(parent,mx(x)-.014,y-.014,.028,.028,top-bottom,bottom,materials.guardMetal);spec.anchors.push({x,y,bottom,top});
+  };
+  const floorAt=(x,y)=>x<4.4?mid:x>7.3?(y<9.8?0:rise):y<9.8?Math.min(mid,(Math.floor((7.3-x)/run)+1)*step):Math.min(rise,mid+(Math.floor((x-4.4)/run)+1)*step);
   for(const path of paths)for(let i=1;i<path.length;i++) {
-    const a=worldPoint(mirror(home,path[i-1][0]),path[i-1][1],path[i-1][2]),b=worldPoint(mirror(home,path[i][0]),path[i][1],path[i][2]),delta=b.clone().sub(a);
-    const geometry=new THREE.CylinderGeometry(.022,.022,delta.length(),12).toNonIndexed();
-    geometry.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(up,delta.normalize()));geometry.translate(...a.add(b).multiplyScalar(.5).toArray());
-    positions.push(...geometry.attributes.position.array);normals.push(...geometry.attributes.normal.array);uvs.push(...geometry.attributes.uv.array);geometry.dispose();
+    const a=path[i-1],b=path[i],pa=worldPoint(mx(a[0]),a[1],a[2]),pb=worldPoint(mx(b[0]),b[1],b[2]),delta=pb.clone().sub(pa),length=delta.length(),direction=delta.clone().normalize(),centre=pa.clone().add(pb).multiplyScalar(.5);
+    const cap=new THREE.CylinderGeometry(.022,.022,length,12).toNonIndexed();cap.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(up,direction));cap.translate(...centre.toArray());append(cap);
+    if(i===1)continue;
+    const shoe=new THREE.BoxGeometry(length,.07,.06).toNonIndexed();shoe.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(along,direction));shoe.translate(centre.x,centre.y-h+.08,centre.z);append(shoe);
+    const span=Math.hypot(b[0]-a[0],b[1]-a[1]),count=Math.ceil(span/.95),nx=-(b[1]-a[1])/span*.008,ny=(b[0]-a[0])/span*.008;
+    for(let j=0;j<count;j++) {
+      const mix=t=>a.map((v,k)=>v+(b[k]-v)*t),aa=mix(j/count+.006/span),bb=mix((j+1)/count-.006/span);
+      const corners=[[aa[0],aa[1],aa[2]-h+.10],[bb[0],bb[1],bb[2]-h+.10],[bb[0],bb[1],bb[2]-.03],[aa[0],aa[1],aa[2]-.03]];
+      const points=[-1,1].flatMap(side=>corners.map(([x,y,z])=>worldPoint(mx(x+side*nx),y+side*ny,z)));
+      const indices=[0,1,2,0,2,3,4,6,5,4,7,6,0,4,5,0,5,1,1,5,6,1,6,2,2,6,7,2,7,3,3,7,4,3,4,0];
+      let volume=0;for(let k=0;k<indices.length;k+=3)volume+=points[indices[k]].dot(points[indices[k+1]].clone().cross(points[indices[k+2]]));
+      if(volume<0)for(let k=0;k<indices.length;k+=3)[indices[k+1],indices[k+2]]=[indices[k+2],indices[k+1]];
+      const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(indices.flatMap(k=>points[k].toArray()),3));geometry.computeVertexNormals();
+      const panel=new THREE.Mesh(geometry,materials.guardGlass);panel.userData.stairGlassPanel={home};parent.add(panel);spec.panels.push({a:aa,b:bb});
+      const cc=mix((j+.5)/count);anchor(cc[0],cc[1],floorAt(cc[0],cc[1]),cc[2]-h+.08);
+    }
   }
   const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
   const handrail=new THREE.Mesh(geometry,materials.guardMetal);handrail.castShadow=handrail.receiveShadow=true;parent.add(handrail);
-  for(const path of paths)for(const [x,y,z]of path)solid(parent,unitSphere,materials.guardMetal,[mirror(home,x)-14.8,z,8.35-y],[.022,.022,.022]);
-  const post=(x,y,bottom,top,width=.016)=>{
-    block(parent,mirror(home,x)-width/2,y-width/2,width,width,top-bottom,bottom,materials.guardMetal);
-    parent.userData.stairHandrails.posts.push({x,y,bottom,top,width});
-  };
-  for(let i=0;i<flight;i++)for(let j=0;j<3;j++) {
-    const lowerX=7.3-(i+(j+.5)/3)*run,upperX=4.4+(i+(j+.5)/3)*run;
-    const lowerTop=Math.min(mid+h,step+h+(7.3-lowerX)/(2.9-run)*(mid-step));
-    const upperTop=Math.min(rise+h,mid+step+h+(upperX-4.4)/(2.9-run)*(mid-step));
-    for(const y of [8.69,9.64])post(lowerX,y,(i+1)*step,lowerTop,j===1?.028:.016);
-    for(const y of [10.01,10.96])post(upperX,y,mid+(i+1)*step,upperTop,j===1?.028:.016);
-  }
-  for(const path of paths)for(let segment=2;segment<5;segment++) {
-    const a=path[segment],b=path[segment+1];
-    const n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/.10);
-    for(let i=0;i<=n;i++){const t=i/n,end=segment===4&&i===n;post(a[0]+(b[0]-a[0])*t+(end?.004:0),a[1]+(b[1]-a[1])*t,end?mid+step:mid,a[2]+(b[2]-a[2])*t);}
-  }
-  for(const y of [8.69,9.64])post(7.40,y,0,step+h,.035);
-  for(const y of [10.01,10.96])post(7.40,y,rise,rise+h,.035);
-  // Close the narrow well between the two flights at the upper-floor landing.
-  block(parent,mirror(home,7.40)-.022,9.64,.044,.37,.044,rise+h-.022,materials.guardMetal);
-  for(let i=0;i<=4;i++)post(7.40,9.64+.37*i/4,rise,rise+h);
+  for(const path of paths)for(const [x,y,z]of path)solid(parent,unitSphere,materials.guardMetal,[mx(x)-14.8,z,8.35-y],[.022,.022,.022]);
+  for(const y of [8.69,9.64])anchor(7.40,y,0,step+h);
+  for(const y of [10.01,10.96])anchor(7.40,y,rise,rise+h);
+  const from=parent.userData.stairFlight?.level??parent.userData.stairArrival?.fromLevel;
+  if(from===1){const landing=group(parent);landing.position.y=rise;makeStairGlassGuard(landing,{home,points:[mx(7.40),9.64,mx(7.40),10.01],height:1.2});}
 }
 function rail(parent,x1,y1,x2,y2,h,footWidth=.22) {
   if(facadeStudy&&!strictOriginal)h=1.2;
@@ -1596,7 +1597,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1031-v4-stairs-terrace-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1031-v4-glass-loungers-3');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
