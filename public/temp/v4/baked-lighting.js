@@ -39,7 +39,7 @@ export async function loadBakedLighting(root) {
     const group=groups.get(spec.group),geometry=new THREE.BufferGeometry();
     geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));geometry.setAttribute('normal',new THREE.BufferAttribute(normals,3));geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));
     geometry.setAttribute('uv1',new THREE.BufferAttribute(new Float32Array(buffer,group.uvOffset+spec.start*8,spec.count*2),2));
-    const material=old.material.clone();material.lightMap=textures.get(spec.group);material.lightMapIntensity=0;
+    const material=old.material.clone();if(old.material.userData.seasonal)material.color=old.material.color;material.lightMap=textures.get(spec.group);material.lightMapIntensity=0;
     if(!old.isInstancedMesh){old.geometry=geometry;old.material=material;}
     else {
       const mesh=new THREE.Mesh(geometry,material);mesh.position.copy(old.position);mesh.quaternion.copy(old.quaternion);mesh.scale.copy(old.scale);

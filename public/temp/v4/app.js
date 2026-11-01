@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1031-v4-stair-windows-4';
-import { createOpening } from './opening-motion.js?v=1031-v4-stair-windows-4';
-import { loadBakedLighting } from './baked-lighting.js?v=1031-v4-stair-windows-4';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1031-v4-estate-materials-8';
+import { createOpening } from './opening-motion.js?v=1031-v4-estate-materials-8';
+import { loadBakedLighting } from './baked-lighting.js?v=1031-v4-estate-materials-8';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -18,7 +18,7 @@ const state = {
   floor: ['all','1','2','3','explode'].includes(params.get('floor')) ? params.get('floor') : facadeStudy?'all':'1',
   scene: params.get('scene') === 'festival' ? 'festival' : 'daily',
   home: ['A','B'].includes(params.get('home')) ? params.get('home') : 'both',
-  camera: facadeStudy?(['site','north'].includes(params.get('view'))?params.get('view'):facadeChanges&&params.get('scene')==='festival'?'top':'entry'):'bird', selected: null,
+  camera: facadeStudy?(['site','north','arrival','garden'].includes(params.get('view'))?params.get('view'):facadeChanges&&params.get('scene')==='festival'?'top':'entry'):'bird', selected: null,
   sunSeason:boundedParam('season',0,4,2+36/89),sunHour:boundedParam('hour',0,24,14),
   roofColor:Object.hasOwn(roofColors,params.get('roof'))?params.get('roof'):'clay',
 };
@@ -45,6 +45,10 @@ mat('frost',0xffffff,{transparent:true,opacity:.78,roughness:.8});
 mat('guardGlass',0xffffff,{transparent:true,opacity:.12,roughness:.06,depthWrite:false,side:THREE.DoubleSide});
 mat('plinth',0x96958e);mat('joint',0xc4c0b7);mat('leaf',0x526d36);mat('pot',0x777a6b);
 mat('woodLine',0x84623d);
+mat('estateTerrace',0xbdb8ac);mat('estateEdge',0x6c6e67);
+mat('estateGrass',0x85956f).userData.seasonal=true;mat('estateMeadow',0x929c7d).userData.seasonal=true;mat('estatePath',0xc0b7a3);
+mat('arrivalConcrete',0xbdb9ac);mat('arrivalStone',0xc9c4b7);mat('arrivalPaver',0xaaa99e);mat('arrivalJoint',0x97998e);mat('gardenSoil',0x585448);mat('gardenBark',0x927866);
+mat('carStone',0xb6b9ae,{roughness:.38,metalness:.25});mat('carClay',0xa4a092,{roughness:.38,metalness:.25});mat('carGlazing',0x424d48,{roughness:.2,metalness:.25});mat('carTyre',0x383b39);mat('carRim',0x94988f,{metalness:.65,roughness:.25});
 for(const [i,color] of [0x9da98a,0xb2b193,0x8d9f79,0xa5ac8b,0x959c7d].entries())mat('field'+i,color,{depthWrite:false});
 mat('fieldEdge',0x71835d,{depthWrite:false});mat('villageRoad',0xb6b5a8,{depthWrite:false});mat('pond',0x4e6e62,{roughness:.32,depthWrite:false});
 mat('neighbourWall',0xd9d3c5);mat('neighbourRoof',0x956e61);
@@ -66,7 +70,7 @@ if(facadeStudy) {
   const textureContext=textureCanvas.getContext('2d');textureContext.fillStyle='#c9bda9';textureContext.fillRect(0,0,128,128);
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
-  materials.wall.bumpMap=stucco;materials.wall.bumpScale=.018;
+  materials.wall.bumpMap=stucco;materials.wall.bumpScale=.0006;
   $$('.brand strong').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/31 · v4');if(strictOriginal)$('.brand').href='./v2/';
   $('#original-model')?.style.setProperty('display','flex');
   $$('[data-design="original"]').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案10/31 · v4');
@@ -77,6 +81,7 @@ const unitCylinder = new THREE.CylinderGeometry(1,1,1,24);
 const unitSphere = new THREE.SphereGeometry(1,12,8);
 const toiletSeat = new THREE.TorusGeometry(1,.13,8,24);toiletSeat.rotateX(-Math.PI/2);
 const batches = new Map();
+const landscapePlants=[],arrivalCarGroups=[];let landscapePalette={},arrivalGardenGroup,courtyardTreeGroup;
 const fixtureSources=[];const nightLightSlots=[];let nightStrength=0,nightSignature='';
 let bakedLighting,bakeLoading=false,bakeError=false;
 function solid(parent, geometry, material, position, scale, rotation = 0) {
@@ -122,7 +127,7 @@ function fail(error) {
 }
 
 try {
-  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1031-v4-stair-windows-4':'./original-model.json'].map(async p=>(await fetch(p)).json()));
+  const [proposal,original] = await Promise.all(['./model.json',strictOriginal?'./v2/model.json?v=strict-1':facadeStudy?'./facade-model.json?v=1031-v4-estate-materials-8':'./original-model.json'].map(async p=>(await fetch(p)).json()));
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -181,6 +186,31 @@ function footprint(points, home, level, parent, elev, thickness, material, stair
   const mesh=new THREE.Mesh(geometry,material); mesh.receiveShadow=true;mesh.castShadow=true;parent.add(mesh);
 }
 
+function makeSurfaceMaterial(material,finish) {
+  material.color.set(finish.color);material.roughness=finish.roughness;
+  if(!finish.pattern)return;
+  const wood=finish.pattern==='oak',offset=finish.offset??0,period=finish.size??[1,1];
+  const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,512,512);
+  let seed=1937;const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+  ctx.globalAlpha=wood?.055:.035;ctx.fillStyle='#65655f';
+  for(let i=0;i<4200;i++)ctx.fillRect(random()*512,random()*512,1+random()*2,wood?12+random()*80:1+random()*2);
+  ctx.globalAlpha=1;
+  if(finish.joint) {
+    const channel=h=>parseInt(h,16),relative=[0,1,2].map(i=>Math.min(255,Math.round(channel(finish.grout.slice(1+i*2,3+i*2))/channel(finish.color.slice(1+i*2,3+i*2))*255)));
+    ctx.fillStyle=`rgb(${relative.join(',')})`;
+    const rows=offset?2:1,jx=finish.joint/period[0]*512,jy=finish.joint/(period[1]*rows)*512;
+    for(let row=0;row<rows;row++) {
+      ctx.fillRect(0,row*512/rows,512,jy);
+      for(let col=-1;col<2;col++)ctx.fillRect((col+(row%2)*offset)*512,row*512/rows,jx,512/rows);
+    }
+  }
+  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+  texture.repeat.set(1/period[0],1/(period[1]*(offset?2:1)));texture.anisotropy=4;
+  material.map=texture;if(finish.bump){material.bumpMap=texture;material.bumpScale=finish.bump;}
+  material.userData.finishSpec=finish;
+}
+
 function makeFloorMaterials(definitions) {
   for(const [key,finish]of Object.entries(definitions)) {
     if(floorMaterials[key])continue;
@@ -215,6 +245,7 @@ function buildModel(design,modelData) {
   const original=design==='original';
   const joined=facadeChanges&&original&&modelData.joinedLayout;
   if(joined)joinedLayout=joined;
+  if(joined&&modelData.designPalette)for(const[key,spec]of Object.entries(modelData.designPalette.materials))makeSurfaceMaterial(materials[key],spec);
   if(joined)makeFloorMaterials(modelData.floorFinishes);
   if(joined)for(const key of ['entry','interior','bath','service'])materials[key+'Door'].color.set(modelData.doorFinishes[key].color);
   const thisFloors=[];
@@ -239,6 +270,7 @@ function buildModel(design,modelData) {
     }
     const tree=group(paving);if(joined)tree.position.y=-.45;if(data.courtyardGarden){tree.position.x=data.courtyardGarden.tree[0]-14.8;tree.position.z=8-data.courtyardGarden.tree[1];}makeCourtyardTree(tree);if(data.courtyardGarden)makeCourtyardGarden(paving);
   }
+  if(joined&&modelData.arrivalGarden)makeArrivalLandscape(paving);
   for(let level=1;level<=3;level++) {
     const f=group(building);f.position.y=base[level-1];floors.push({g:f,level,design});thisFloors.push(f);
     for(const home of ['A','B']) {
@@ -683,6 +715,7 @@ function makePlanter(parent,home,x,y,size) {
 }
 
 function makeCourtyardTree(parent) {
+  if(data.arrivalGarden)courtyardTreeGroup=parent;
   block(parent,14.15,7.35,1.3,1.3,.03,-.03,materials.woodLine);
   cylinder(parent,14.8,8,.10,2.8,0,materials.wood);
   for(let i=0;i<17;i++)solid(parent,unitSphere,materials.leaf,[Math.cos(i*2.4)*.7,2.6+i%3*.32,.35+Math.sin(i*2.4)*.7],[.65,.55,.62],i);
@@ -725,6 +758,237 @@ function makeCourtyardGarden(parent) {
   makeLabel({id:'courtyard-garden',home:'both',level:1,rect:[cx-.5,cy-.5,1,1],kind:'terrace',name:'四人庭院',description:d.description},parent);
 }
 
+function gardenSeason(day) {
+  const smooth=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);};
+  const pulse=(start,end,fade=18)=>smooth(start,start+fade,day)*(1-smooth(end-fade,end,day));
+  return {leaf:pulse(65,340,35),autumn:pulse(265,338,22),winter:1-pulse(65,330,30),
+    crape:pulse(155,266,22),gardenia:pulse(135,207,18),azalea:pulse(65,145,20),
+    camellia:Math.max(pulse(-30,105,20),pulse(315,470,20)),osmanthus:pulse(252,303,14)};
+}
+function updateLandscapeSeason(day) {
+  if(!landscapePlants.length)return;
+  const p=gardenSeason(day),leaf=new THREE.Color();
+  for(const [key,spec]of Object.entries(landscapePalette)) {
+    leaf.set(spec.leaf);
+    if(key==='crape')leaf.lerp(new THREE.Color(0xb88a4b),p.autumn*.85);
+    if(key==='nandina')leaf.lerp(new THREE.Color(0x9a6552),p.winter*.8+p.autumn*.4);
+    if(spec.autumn)leaf.lerp(new THREE.Color(spec.autumn),p.autumn*.95);
+    if(key==='azalea')leaf.lerp(new THREE.Color(0x645f46),p.winter*.25);
+    materials['gardenLeaf_'+key].color.copy(leaf);
+    if(spec.bloom)materials['gardenBloom_'+key].color.copy(leaf).lerp(new THREE.Color(spec.bloom),p[key]??0);
+  }
+  if(materials.estateGrass)materials.estateGrass.color.set(0x85956f).lerp(new THREE.Color(0xb3a77e),Math.min(1,p.winter*.85+p.autumn*.3));
+  if(materials.estateMeadow)materials.estateMeadow.color.set(0x929c7d).lerp(new THREE.Color(0xaaa48a),p.winter*.55);
+  for(const plant of landscapePlants)if(plant.species==='crape'||plant.deciduous) {
+    plant.leaves.visible=p.leaf>.015;plant.leaves.scale.setScalar(.05+.95*p.leaf);
+    plant.flowers.visible=p.leaf>.015;plant.flowers.scale.setScalar(.05+.95*p.leaf);
+  }
+}
+function makeGardenPlant(parent,species,x,y,size=1,id='') {
+  const spec=landscapePalette[species],g=group(parent);g.position.copy(worldPoint(x,y));
+  g.userData.gardenPlant={species,id};
+  const leaves=group(g),flowers=group(g),leaf=materials['gardenLeaf_'+species];
+  landscapePlants.push({species,leaves,flowers});
+  if(species==='crape') {
+    leaves.position.y=2.75;flowers.position.y=2.75;
+    const branch=(a,b,r)=>{
+      const direction=new THREE.Vector3().subVectors(b,a),mesh=new THREE.Mesh(new THREE.CylinderGeometry(r*.55,r,direction.length(),8),materials.gardenBark);
+      mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());mesh.castShadow=true;g.add(mesh);
+    };
+    for(let i=0;i<3;i++) {
+      const angle=i*2.1,base=new THREE.Vector3(Math.cos(angle)*.08,0,Math.sin(angle)*.08),fork=new THREE.Vector3(Math.cos(angle)*.3,1.8,Math.sin(angle)*.3);
+      branch(base,fork,.045);
+      for(let k=0;k<3;k++) {
+        const t=angle+k*.9-.9,tip=new THREE.Vector3(Math.cos(t)*.86,2.75+(i+k)%3*.17,Math.sin(t)*.86);branch(fork,tip,.023);
+      }
+    }
+    for(let i=0;i<25;i++) {
+      const angle=i*2.4,r=.28+(i%5)*.16,point=[Math.cos(angle)*r,2.45+(i%4)*.21,Math.sin(angle)*r];
+      solid(leaves,unitSphere,leaf,[point[0],point[1]-2.75,point[2]],[.38,.31,.35],i);
+      if(i%2===0)solid(flowers,unitSphere,materials.gardenBloom_crape,[point[0],point[1]+.22-2.75,point[2]],[.15,.11,.13],i);
+    }
+  } else if(species==='mondo') {
+    for(let i=0;i<7;i++)solid(leaves,unitSphere,leaf,[Math.cos(i*2.4)*.05,.10,Math.sin(i*2.4)*.05],[.035,.12,.025],i);
+  } else {
+    const h=spec.height*size,r=h*.48;
+    for(let i=0;i<7;i++) {
+      const angle=i*2.4,px=Math.cos(angle)*r*.5,pz=Math.sin(angle)*r*.5,py=h*(.45+i%3*.12);
+      solid(leaves,unitSphere,leaf,[px,py,pz],[r*.7,h*.30,r*.7],i);
+      if(spec.bloom&&species!=='nandina')solid(flowers,unitSphere,materials['gardenBloom_'+species],[px,py+h*.24,pz],[.06,.035,.06],i);
+    }
+  }
+}
+function makeArrivalCar(parent,p) {
+  const [x,y,w,d]=p.rect,g=group(parent);g.position.copy(worldPoint(x+w/2,y+d/2));g.rotation.y=p.heading*Math.PI/180;
+  g.userData.parking=p.id;arrivalCarGroups.push(g);
+  const paint=p.home==='A'?materials.carStone:materials.carClay;
+  solid(g,unitBox,paint,[0,.58,0],[4.65,.62,1.90]);
+  solid(g,unitBox,paint,[-.22,1.08,0],[2.75,.55,1.75]);
+  solid(g,unitBox,materials.carGlazing,[.10,1.18,0],[2.25,.38,1.78]);
+  solid(g,unitBox,paint,[-.22,1.43,0],[2.55,.06,1.73]);
+  for(const xx of [-1.45,1.40])for(const zz of [-.92,.92]) {
+    const tire=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.16,20),materials.carTyre);tire.rotation.x=Math.PI/2;tire.position.set(xx,.33,zz);g.add(tire);
+    const rim=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.17,16),materials.carRim);rim.rotation.x=Math.PI/2;rim.position.copy(tire.position);g.add(rim);
+  }
+  for(const zz of [-.63,.63])solid(g,unitBox,materials.white,[2.33,.70,zz],[.025,.10,.42]);
+  solid(g,unitBox,materials.carTyre,[2.335,.43,0],[.025,.19,.8]);
+}
+function makeEstateTree(parent,t) {
+  const spec=landscapePalette[t.species],g=group(parent),h=t.height,r=t.spread/2;
+  g.position.copy(worldPoint(...t.point));g.userData.gardenPlant={species:t.species,id:t.id};g.userData.unbakedPlant=true;
+  const leaves=group(g),flowers=group(g);leaves.position.y=flowers.position.y=h*.72;
+  landscapePlants.push({species:t.species,leaves,flowers,deciduous:!!spec.deciduous});
+  const branch=(a,b,radius)=>{
+    const direction=new THREE.Vector3().subVectors(b,a),mesh=new THREE.Mesh(new THREE.CylinderGeometry(radius*.5,radius,direction.length(),8),materials.gardenBark);
+    mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());mesh.castShadow=true;g.add(mesh);
+  };
+  const fork=new THREE.Vector3(0,h*.54,0);branch(new THREE.Vector3(),fork,.105);
+  for(let i=0;i<6;i++){const a=i*2.4;branch(fork,new THREE.Vector3(Math.cos(a)*r*.6,h*(.79+i%3*.025),Math.sin(a)*r*.6),.047);}
+  for(let i=0;i<23;i++) {
+    const a=i*2.4,rr=r*(.15+i%5*.11),px=Math.cos(a)*rr,pz=Math.sin(a)*rr,py=(i%4-1.5)*h*.065;
+    solid(leaves,unitSphere,materials['gardenLeaf_'+t.species],[px,py,pz],[r*.37,h*.13,r*.34],i);
+    if(spec.bloom&&i%2===0)solid(flowers,unitSphere,materials['gardenBloom_'+t.species],[px,py+h*.1,pz],[.06,.04,.06],i);
+  }
+}
+function makeEstateBench(parent,rect,facing='south') {
+  const[x,y,w,d]=rect,horizontal=w>d;
+  block(parent,x,y,w,d,.06,.40,materials.patioWood);
+  if(horizontal)for(const xx of [x+.15,x+w-.27])block(parent,xx,y+.05,.12,d-.1,.38,.02,materials.arrivalStone);
+  else for(const yy of [y+.15,y+d-.27])block(parent,x+.05,yy,w-.1,.12,.38,.02,materials.arrivalStone);
+  if(horizontal) {
+    for(const xx of [x+.12,x+w-.15])block(parent,xx,y+d-.06,.03,.03,.42,.38,materials.patioFrame);
+    block(parent,x+.06,y+d-.055,w-.12,.035,.21,.60,materials.patioWood);
+  } else {
+    const back=facing==='west'?x+w-.055:x+.025;
+    for(const yy of [y+.12,y+d-.15])block(parent,back,yy,.03,.03,.42,.38,materials.patioFrame);
+    block(parent,back,y+.06,.035,d-.12,.21,.60,materials.patioWood);
+  }
+}
+function makeEstateChair(parent,x,y) {
+  const g=group(parent);g.position.copy(worldPoint(x,y));
+  for(const xx of [-.25,.25])for(const zz of [-.25,.25])solid(g,unitBox,materials.patioFrame,[xx,.24,zz],[.03,.48,.03]);
+  solid(g,unitBox,materials.patioWood,[0,.45,0],[.56,.045,.56]);
+  solid(g,unitBox,materials.patioFabric,[0,.49,0],[.51,.05,.51]);
+  for(const xx of [-.25,.25])solid(g,unitBox,materials.patioFrame,[xx,.65,.25],[.03,.40,.03]);
+  solid(g,unitBox,materials.patioFabric,[0,.72,.25],[.50,.25,.04]);
+}
+function makeEstateRamp(parent,r) {
+  const g=group(parent);g.userData.estateFeature='ramp';
+  const[x,y,w,d]=r.rect,[hx,hy,hw,hd]=r.headLanding;
+  block(g,hx,hy,hw,hd,r.rise-.001,.0,materials.arrivalStone);
+  siteRect(g,r.headLanding,materials.estateTerrace,r.rise);
+  const points=[[x,y,r.rise],[x+w,y,r.toe],[x+w,y+d,r.toe],[x,y+d,r.rise],[x,y,-.06],[x+w,y,-.06],[x+w,y+d,-.06],[x,y+d,-.06]];
+  const indices=[0,1,2,0,2,3,4,7,6,4,6,5,0,4,5,0,5,1,1,5,6,1,6,2,2,6,7,2,7,3,3,7,4,3,4,0];
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(indices.flatMap(i=>worldPoint(...points[i]).toArray()),3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(indices.flatMap(i=>[points[i][0],points[i][1]]),2));geo.computeVertexNormals();
+  const mesh=new THREE.Mesh(geo,materials.estateTerrace);mesh.castShadow=mesh.receiveShadow=true;g.add(mesh);
+  const beam=(a,b)=>{const direction=new THREE.Vector3().subVectors(b,a),rail=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,direction.length(),10),materials.guardMetal);rail.position.copy(a).add(b).multiplyScalar(.5);rail.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());g.add(rail);};
+  for(const yy of [y+.04,y+d-.04]) {
+    beam(worldPoint(x,yy,r.rise+r.handrail),worldPoint(x+w,yy,r.toe+r.handrail));
+    for(let i=0;i<=6;i++){const xx=x+w*i/6,z=r.rise+(r.toe-r.rise)*i/6;cylinder(g,xx,yy,.017,r.handrail,z,materials.guardMetal);}
+  }
+  for(const[a,b]of [[[hx+.04,r.entryY[1]+.05],[hx+.04,hy+hd-.04]],[[hx+.04,hy+hd-.04],[hx+hw-.04,hy+hd-.04]],[[hx+hw-.04,16.75],[hx+hw-.04,y+.04]]]) {
+    beam(worldPoint(...a,r.rise+r.handrail),worldPoint(...b,r.rise+r.handrail));
+    for(const p of[a,b])cylinder(g,...p,.017,r.handrail,r.rise,materials.guardMetal);
+  }
+}
+function makeEstatePavilion(parent,p) {
+  const[cx,cy]=p.center,g=group(parent);g.userData.gardenBakeGroup='pavilion';g.userData.estateFeature='pavilion';
+  const half=p.size/2,post=half-.15,beam=p.eaveHeight-.22;
+  block(g,cx-half,cy-half,p.size,p.size,.119,-.10,materials.arrivalStone);
+  siteRect(g,[cx-half,cy-half,p.size,p.size],materials.estateTerrace,.020);
+  for(const xx of [-post,post])for(const yy of [-post,post])block(g,cx+xx-.075,cy+yy-.075,.15,.15,p.eaveHeight-.02,.02,materials.guardMetal);
+  for(const yy of [-post,post])block(g,cx-post-.075,cy+yy-.08,post*2+.15,.16,.22,beam,materials.patioWood);
+  for(const xx of [-post,post])block(g,cx+xx-.08,cy-post-.075,.16,post*2+.15,.22,beam,materials.patioWood);
+  const roof=group(g);roofGroups.push(roof);const r=p.eaveSize/2,corners=[[-r,-r],[r,-r],[r,r],[-r,r]];
+  block(roof,cx-r+.035,cy-r+.035,p.eaveSize-.07,p.eaveSize-.07,.06,p.eaveHeight-.11,materials.patioWood);
+  for(let xx=cx-r+.08;xx<cx+r-.08;xx+=.085)block(roof,xx,cy-r+.08,.06,p.eaveSize-.16,.025,p.eaveHeight-.135,materials.patioWood);
+  for(let i=0;i<4;i++){const a=corners[i],b=corners[(i+1)%4];roofSurface(roof,[[cx+a[0],cy+a[1],p.eaveHeight],[cx+b[0],cy+b[1],p.eaveHeight],[cx,cy,p.peakHeight]],materials.seamRoof);}
+  for(const yy of [-r,r])block(roof,cx-r,cy+yy-.035,p.eaveSize,.07,.08,p.eaveHeight-.08,materials.guardMetal);
+  for(const xx of [-r,r])block(roof,cx+xx-.035,cy-r,.07,p.eaveSize,.08,p.eaveHeight-.08,materials.guardMetal);
+  makeEstateBench(g,[cx-1.75,cy+1.55,2.6,.50]);makeEstateBench(g,[cx+1.55,cy-1.0,.50,2.6],'west');
+  for(const xx of [cx-1.1,cx+1.1])makeEstateChair(g,xx,cy-1.35);
+  for(const xx of [cx-.60,cx+.55])for(const yy of [cy-.15,cy+.35])block(g,xx,yy,.045,.045,.35,.02,materials.patioFrame);
+  block(g,cx-.75,cy-.25,1.5,.75,.045,.37,materials.patioWood);
+  cylinder(roof,cx,cy,.065,.10,p.eaveHeight-.23,materials.guardMetal);cylinder(roof,cx,cy,.012,.10,p.eaveHeight-.17,materials.guardMetal);
+  for(let i=0;i<4;i++){const a=i*Math.PI/2;solid(roof,unitBox,materials.patioWood,[cx-14.8+Math.cos(a)*.40,p.eaveHeight-.21,8.35-cy+Math.sin(a)*.40],[.80,.025,.11],a);}
+  makeLabel({id:'east-pavilion',home:'both',level:1,rect:[cx-1,cy-1,2,2],kind:'terrace',name:p.name,description:p.description},g);
+}
+function makeEstateGarden(parent,e) {
+  const g=group(parent);g.userData.gardenBakeGroup='garden';g.userData.estateFeature='garden';parent.userData.estate=true;
+  const shape=new THREE.Shape(e.outline.map(([x,y])=>new THREE.Vector2(x,y))),hole=new THREE.Path([[-1.2,-1.9],[-1.2,18.3],[30.8,18.3],[30.8,-1.9]].map(([x,y])=>new THREE.Vector2(x,y)));shape.holes.push(hole);
+  const ground=new THREE.ShapeGeometry(shape);ground.rotateX(-Math.PI/2);ground.translate(-14.8,.005,8.35);const meadow=new THREE.Mesh(ground,materials.estateMeadow);meadow.receiveShadow=true;g.add(meadow);
+  block(g,...e.lawn.rect,.008,.007,materials.estateGrass);
+  siteRect(g,e.terrace,materials.estateTerrace,.020);
+  for(const pad of e.restPads??[])siteRect(g,pad,materials.estateTerrace,.020);
+  for(const p of e.paths) {
+    siteRibbon(g,p.points,p.width+.12,materials.estateEdge,.019,5);
+    siteRibbon(g,p.points,p.width,materials.estatePath,.020,6);
+  }
+  for(const patch of e.shrubPatches) {
+    const[x,y,w,d]=patch.rect,cx=x+w/2,cy=y+d/2,outline=[];
+    for(let i=0;i<32;i++){const a=i*Math.PI/16,r=1+.04*Math.sin(a*3);outline.push([cx+Math.cos(a)*w*.5*r,cy+Math.sin(a)*d*.5*r]);}
+    sitePatch(g,outline,materials.gardenSoil,.008,3);
+    const cols=Math.max(2,Math.ceil(w/.85)),rows=Math.max(2,Math.ceil(d/.85));
+    for(let row=0;row<rows;row++)for(let col=0;col<cols;col++) {
+      const nx=(col+.5)/cols,ny=(row+.5)/rows;if((nx*2-1)**2+(ny*2-1)**2>.93)continue;
+      const species=patch.species[(Math.floor(col/2)+Math.floor(row/2))%2],spec=landscapePalette[species],px=x+nx*w,py=y+ny*d,h=spec.height*1.1;
+      if(e.trees.some(t=>Math.hypot(px-t.point[0],py-t.point[1])<.60))continue;
+      for(let k=0;k<3;k++)solid(g,unitSphere,materials['gardenLeaf_'+species],[px-14.8+Math.cos(k*2.4)*h*.16,h*(.48+k*.10),8.35-py+Math.sin(k*2.4)*h*.16],[h*.32,h*.30,h*.31],k);
+      if(spec.bloom&&species!=='nandina')solid(g,unitSphere,materials['gardenBloom_'+species],[px-14.8,h*.83,8.35-py],[.065,.04,.065]);
+    }
+    for(let i=0;i<Math.ceil(w/.65);i++) {
+      const px=x+.2+i*(w-.4)/Math.max(1,Math.ceil(w/.65)-1);
+      for(let k=0;k<3;k++)solid(g,unitSphere,materials.gardenLeaf_mondo,[px-14.8+k*.025,.10,8.35-y-.12],[.035,.12,.03],k);
+    }
+  }
+  for(const t of e.trees)makeEstateTree(g,t);
+  for(const b of e.benches)makeEstateBench(g,b.rect,b.facing);
+  makeEstateRamp(g,e.ramp);makeEstatePavilion(g,e.pavilion);
+}
+
+function makeArrivalLandscape(parent) {
+  const d=data.arrivalGarden;if(!d)return;
+  landscapePalette=d.species;
+  for(const[key,spec]of Object.entries(d.surfacePalette))makeSurfaceMaterial(materials[key],spec);
+  for(const [key,spec]of Object.entries(d.species)) {
+    mat('gardenLeaf_'+key,new THREE.Color(spec.leaf),{roughness:.95}).userData.seasonal=true;
+    if(spec.bloom)mat('gardenBloom_'+key,new THREE.Color(spec.bloom),{roughness:.95}).userData.seasonal=true;
+  }
+  const g=group(parent);arrivalGardenGroup=g;g.position.y=data.vertical.outdoorLevel;
+  siteRibbon(g,d.drive.points,d.drive.width,materials.arrivalConcrete,.020,6);
+  for(const rect of [d.forecourt,...d.sideCourts])siteRect(g,rect,materials.arrivalConcrete,.020);
+  for(const p of d.parking) {
+    const[x,y,w,h]=p.rect;siteRect(g,p.rect,materials.arrivalPaver,.021);
+    for(const r of [[x,y,w,.045],[x,y+h-.045,w,.045],[x,y,.045,h],[x+w-.045,y,.045,h]])siteRect(g,r,materials.estateTerrace,.022);
+    makeArrivalCar(g,p);
+  }
+  for(const rect of d.clearRoutes)siteRect(g,rect,materials.estateTerrace,.023);
+  for(const bed of d.beds) {
+    const[x,y,w,h]=bed.rect;block(g,x,y,w,h,.065,.018,materials.arrivalStone);
+    block(g,x+.045,y+.045,w-.09,h-.09,.015,.074,materials.gardenSoil);
+    for(let i=0;i<Math.max(4,Math.floor(w/.38));i++)makeGardenPlant(g,'mondo',x+.16+i*(w-.32)/(Math.max(4,Math.floor(w/.38))-1),y+.16,1,bed.id+'-edge-'+i);
+    if(bed.species.length>1)for(let i=0;i<5;i++) {
+      const species=bed.species[i%2],px=x+.38+(i%3)*(w-.76)/2,py=y+.42+Math.floor(i/3)*(h-.78);
+      makeGardenPlant(g,species,px,py,.85,bed.id+'-'+i);
+    }
+  }
+  for(const t of d.trees)makeGardenPlant(g,t.species,...t.point,1,t.id);
+  const[x,y,w,h]=d.bench;
+  block(g,x,y,w,h,.38,.02,materials.arrivalStone);block(g,x-.015,y-.015,w+.03,h+.03,.05,.40,materials.patioWood);
+  for(let xx=x+.08;xx<x+w;xx+=.11)block(g,xx,y,.008,h,.003,.45,materials.woodLine);
+  const drain=d.drain;siteRibbon(g,drain.points,drain.width,materials.patioFrame,.024,7);
+  if(courtyardTreeGroup) {
+    const flowers=group(courtyardTreeGroup);
+    for(let i=0;i<25;i++)solid(flowers,unitSphere,materials.gardenBloom_osmanthus,[Math.cos(i*2.4)*.88,2.9+i%3*.27,.35+Math.sin(i*2.4)*.88],[.055,.035,.05],i);
+    landscapePlants.push({species:'osmanthus',flowers});
+  }
+  if(d.estate)makeEstateGarden(g,d.estate);
+  updateLandscapeSeason(d.displayDay);
+}
+
+function siteRect(parent,[x,y,w,d],material,elev) {
+  sitePatch(parent,[[x,y],[x+w,y],[x+w,y+d],[x,y+d]],material,elev,6);
+}
 function sitePatch(parent,points,material,elev=-.25,order=2) {
   const shape=new THREE.Shape(points.map(([x,y])=>new THREE.Vector2(x,y)));
   const geometry=new THREE.ShapeGeometry(shape);geometry.rotateX(-Math.PI/2);geometry.translate(-14.8,elev,8.35);
@@ -758,7 +1022,7 @@ function makeSiteContext(parent,context) {
     siteRibbon(parent,[...field.points,field.points[0]],.25,materials.fieldEdge,-.242);
   }
   siteRibbon(parent,context.road.points,context.road.width,materials.villageRoad,-.235,4);
-  for(const path of context.accessPaths)siteRibbon(parent,path.points,path.width,materials.accessPaving,-.232,3.5);
+  if(!data.arrivalGarden)for(const path of context.accessPaths)siteRibbon(parent,path.points,path.width,materials.accessPaving,-.232,3.5);
   siteRibbon(parent,context.frontRoad.points,context.frontRoad.width,materials.villageRoad,-.235,4);
   sitePatch(parent,context.pond,materials.pond,-.23,5);
   sitePatch(parent,context.northPond,materials.pond,-.23,5);
@@ -813,7 +1077,7 @@ function makeLabel(room,parent) {
   el.textContent=room.name;
   if(room.bedLabel){const spec=document.createElement('span');spec.className='bed-size';spec.textContent=room.bedLabel;el.append(spec);}
   el.setAttribute('aria-label',room.name+(room.bedLabel?'，'+room.bedLabel:'')+'，查看说明');
-  el.addEventListener('click',e=>{if(e.detail===0)selectRoom(room);});$('#labels').append(el);
+  el.addEventListener('click',e=>{if(e.detail===0||room.id==='east-pavilion')selectRoom(room);});$('#labels').append(el);
   const [x,y,w,d]=room.rect;
   labels.push({el,room,parent,point:worldPoint(x+w/2,y+d/2,.82)});
 }
@@ -1104,6 +1368,10 @@ function makeInteriorLighting(parent,home,level) {
       block(g,x-.04,y-.03,.08,.06,.45,z-.45,materials.lampMetal);
       block(g,x-.07,y-.06,.14,.12,.035,z,materials.lampMetal);
       block(g,x-.055,y-.045,.11,.09,.008,z-.006,glow);
+    } else if(f.kind==='drive-marker') {
+      block(g,x-.09,y+.004,.18,.09,.27,z-.19,materials.lampMetal);
+      block(g,x-.105,y-.015,.21,.12,.025,z+.08,materials.lampMetal);
+      block(g,x-.065,y-.004,.13,.008,.035,z-.0175,glow);
     } else if(f.kind==='downlight') {
       const radius=.05;
       cylinder(g,x,y,radius,.035,z,materials.lampMetal);cylinder(g,x,y,radius*.87,.012,z-.008,glow);
@@ -1142,7 +1410,7 @@ function makeInteriorLighting(parent,home,level) {
       const [nx,ny]=f.normal,dx=nx?.08:.26,dy=nx?.26:.08;
       block(g,x-dx/2,y-dy/2,dx,dy,.14,z-.07,materials.lampMetal);
       block(g,x-dx*.42,y-dy*.42,dx*.84,dy*.84,.008,z-.075,glow);
-      block(g,x-dx*.42,y-dy*.42,dx*.84,dy*.84,.008,z+.067,glow);
+      if(!f.downOnly)block(g,x-dx*.42,y-dy*.42,dx*.84,dy*.84,.008,z+.067,glow);
     } else if(f.kind==='step') {
       const nx=f.normal?.[0],dx=nx?.02:.12,dy=nx?.12:.02;
       block(g,x-dx/2,y-dy/2,dx,dy,.06,z-.03,materials.lampMetal);
@@ -1156,7 +1424,7 @@ function makeInteriorLighting(parent,home,level) {
       const room=data.rooms.find(r=>r.id===f.room),[rx,ry,rw,rd]=room.rect,cx=rx+rw/2,cy=ry+rd/2;
       fixtureSources.push({spec:{...f,id:f.id+'b',kind:'indirect-fill',intensity:130,angle:Math.atan((Math.min(rw,rd)-.3)/2/(z-.15)),distance:z+2},parent,point:worldPoint(cx,cy,z),target:worldPoint(cx,cy,.15)});
     }
-    if(f.kind==='sconce'){const [nx,ny]=f.normal;fixtureSources.push({spec:{...f,id:f.id+'u',intensity:15,angle:.26,distance:1.4},parent,point:worldPoint(x,y,z+.08),target:worldPoint(x-nx*.08,y-ny*.08,z+.55)});}
+    if(f.kind==='sconce'&&!f.downOnly){const [nx,ny]=f.normal;fixtureSources.push({spec:{...f,id:f.id+'u',intensity:15,angle:.26,distance:1.4},parent,point:worldPoint(x,y,z+.08),target:worldPoint(x-nx*.08,y-ny*.08,z+.55)});}
   }
 }
 
@@ -1382,6 +1650,9 @@ function updateView(moveCamera=false) {
   const only=Number(state.floor);
   Object.entries(roots).forEach(([design,g])=>g.visible=design===state.design);
   if(siteScenery)siteScenery.visible=state.design==='original'&&state.floor==='all'&&state.home==='both';
+  if(arrivalGardenGroup)arrivalGardenGroup.visible=state.floor==='all'&&state.home==='both';
+  arrivalCarGroups.forEach(g=>g.visible=$('#show-cars').checked);
+  $('#car-option').hidden=!arrivalGardenGroup||state.floor!=='all'||state.home!=='both';
   if(siteNotes)siteNotes.visible=siteScenery.visible&&state.camera==='site';
   floors.forEach(({g,level})=>{g.visible=!only||only===level;g.position.y=base[level-1]+offsetFor(level);});
   homes.forEach(({g,home})=>{g.visible=state.home==='both'||state.home===home;});
@@ -1417,19 +1688,21 @@ function updateView(moveCamera=false) {
   requestFrame();
 }
 function setCamera(preset) {
-  if(preset==='site'&&(!siteContextInfo||state.floor!=='all'||state.home!=='both'))preset='bird';
+  if(['site','arrival','garden'].includes(preset)&&(!siteContextInfo||state.floor!=='all'||state.home!=='both'))preset='bird';
   state.camera=preset;
   const damping=controls.enableDamping;controls.enableDamping=false;controls.update();controls.enableDamping=damping;
   const width=host.clientWidth/host.clientHeight;
   if(siteNotes)siteNotes.visible=siteScenery.visible&&preset==='site';
-  if(preset==='site') {
+  if(['site','arrival','garden'].includes(preset)) {
     camera.near=1;
-    const xs=siteContextInfo.bounds.map(p=>p[0]),ys=siteContextInfo.bounds.map(p=>p[1]);
+    const angle=siteAngle(),c=Math.cos(angle),s=Math.sin(angle);
+    const bounds=preset!=='site'?(preset==='garden'?[[-10,-6],[57,-6],[57,34],[-10,34]]:[[-34,-8],[33,-8],[33,19],[-34,19]]).map(([x,y])=>[14.8+c*(x-14.8)-s*(y-8.35),8.35+s*(x-14.8)+c*(y-8.35)]):siteContextInfo.bounds;
+    const xs=bounds.map(p=>p[0]),ys=bounds.map(p=>p[1]);
     const x=(Math.min(...xs)+Math.max(...xs))/2-14.8,z=8.35-(Math.min(...ys)+Math.max(...ys))/2;
-    const direction=new THREE.Vector3(0,.84,.53).normalize(),right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),direction).normalize();
+    const direction=new THREE.Vector3(preset==='garden'?.52:preset==='arrival'?-.2:0,preset==='site'?.84:.63,preset==='site'?.53:.75).normalize(),right=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),direction).normalize();
     const up=new THREE.Vector3().crossVectors(direction,right),tan=Math.tan(camera.fov*Math.PI/360);
     let distance=0;
-    for(const p of siteContextInfo.bounds)for(const h of [-.27,20]) {
+    for(const p of bounds)for(const h of [-.45,preset!=='site'?14:20]) {
       const delta=new THREE.Vector3(p[0]-14.8-x,h-.8,8.35-p[1]-z),depth=delta.dot(direction);
       distance=Math.max(distance,depth+Math.abs(delta.dot(right))/(tan*width),depth+Math.abs(delta.dot(up))/tan);
     }
@@ -1460,7 +1733,8 @@ function setCamera(preset) {
 
 function setupSolar(config) {
   solarSite=config;$('#solar-controls').hidden=false;setupNightLighting();
-  Object.assign(sunLight.shadow.camera,{left:-42,right:42,top:42,bottom:-42,near:1,far:220});sunLight.shadow.camera.updateProjectionMatrix();sunLight.shadow.bias=-.00015;sunLight.shadow.normalBias=.025;
+  const range=arrivalGardenGroup?.userData.estate?65:42;
+  Object.assign(sunLight.shadow.camera,{left:-range,right:range,top:range,bottom:-range,near:1,far:220});sunLight.shadow.camera.updateProjectionMatrix();sunLight.shadow.bias=-.00015;sunLight.shadow.normalBias=.025;
   for(const [id,key]of [['sun-season','sunSeason'],['sun-hour','sunHour']]) {
     const input=$('#'+id);input.value=state[key];input.addEventListener('input',()=>{state[key]=Number(input.value);solarDirty=true;requestFrame();});
   }
@@ -1469,6 +1743,7 @@ function setupSolar(config) {
 }
 function updateSolarLight() {
   const sun=solarPosition({...solarSite,dayOfYear:seasonDay(state.sunSeason),hour:state.sunHour});
+  updateLandscapeSeason(seasonDay(state.sunSeason));
   const smooth=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);},day=smooth(-6,9,sun.altitude),direct=smooth(-.5,12,sun.altitude);
   sunLight.target.position.set(0,4,0);sunLight.position.set(90*sun.east,4+90*sun.up,-90*sun.north);sunLight.intensity=2.5*direct;sunLight.castShadow=direct>.01;
   sunLight.color.set(0xffc998).lerp(new THREE.Color(0xfff3df),smooth(0,30,sun.altitude));skyLight.intensity=.06+1.44*day;
@@ -1537,11 +1812,12 @@ function bindControls() {
     updateView(true);revealModel();
   }));
   $$('[data-camera]').forEach(b=>b.addEventListener('click',()=>{
-    if(b.dataset.camera==='site') {state.floor='all';state.home='both';state.selected=null;state.camera='site';updateView(true);}
+    if(['site','arrival','garden'].includes(b.dataset.camera)) {state.floor='all';state.home='both';state.selected=null;state.camera=b.dataset.camera;updateView(true);}
     else setCamera(b.dataset.camera);
   }));
   ['cutaway','show-roof','show-labels'].forEach(id=>$('#'+id).addEventListener('change',()=>updateView()));
   $('#reset').addEventListener('click',()=>setCamera('bird'));
+  $('#show-cars').addEventListener('change',()=>updateView());
   $$('[data-zoom]').forEach(b=>b.addEventListener('click',()=>{
     const offset=camera.position.clone().sub(controls.target);
     const distance=THREE.MathUtils.clamp(offset.length()*(b.dataset.zoom==='in'?.8:1.25),controls.minDistance,controls.maxDistance);
@@ -1597,9 +1873,9 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1031-v4-stair-windows-4');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1031-v4-estate-materials-8');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
-  if(['site','north'].includes(state.camera))url.searchParams.set('view',state.camera);
+  if(['site','north','arrival','garden'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
   try {
     if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案10/31 · v4 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
@@ -1626,7 +1902,7 @@ function render(time=performance.now()) {
   const occupied=[];
   const priority=l=>l.room.id===state.selected?0:['bath','laundry'].includes(l.room.kind)?1:['service','stairs'].includes(l.room.kind)?3:2;
   for(const l of [...labels].sort((a,b)=>priority(a)-priority(b))) {
-    const floorVisible=(state.floor==='all'?l.room.id==='court'||facadeStudy&&(l.room.id.endsWith('-terrace-door')||l.room.id.endsWith('-balcony-door')):state.floor==='explode'||Number(state.floor)===l.room.level);
+    const floorVisible=(state.floor==='all'?l.room.id==='court'||facadeStudy&&(l.room.id.endsWith('-terrace-door')||l.room.id.endsWith('-balcony-door')||l.room.id==='east-pavilion'):state.floor==='explode'||Number(state.floor)===l.room.level);
     const visible=state.camera!=='site'&&l.room.design===state.design&&$('#show-labels').checked&&floorVisible&&(state.home==='both'||l.room.home===state.home||l.room.home==='both');
     if(!visible){l.el.hidden=true;continue;}
     const p=l.point.clone();l.parent.localToWorld(p);p.project(camera);
