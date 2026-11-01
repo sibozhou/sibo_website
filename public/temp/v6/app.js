@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1101-v6-new-plans-1';
-import { createOpening } from './opening-motion.js?v=1101-v6-new-plans-1';
-import { loadBakedLighting } from './baked-lighting.js?v=1101-v6-new-plans-1';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1101-v6-no-bridge-2';
+import { createOpening } from './opening-motion.js?v=1101-v6-no-bridge-2';
+import { loadBakedLighting } from './baked-lighting.js?v=1101-v6-no-bridge-2';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -127,7 +127,7 @@ function fail(error) {
 }
 
 try {
-  const original = await (await fetch('./facade-model.json?v=1101-v6-new-plans-1')).json();
+  const original = await (await fetch('./facade-model.json?v=1101-v6-no-bridge-2')).json();
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -1694,12 +1694,6 @@ function buildV6Model(design,modelData) {
       }
     }
     const shared=group(f);homes.push({g:shared,home:'both',level});
-    if(level===2){
-      v6Rect(shared,data.southTerraceBridge.rect,0,.18,floorMaterials.outdoor);
-      for(const points of data.southTerraceBridge.guards)rail(shared,...points,1.2);
-      makeInteriorLighting(shared,'both',2);
-      const room=data.rooms.find(r=>r.id==='south-terrace-bridge');makeRoom({...room,design},shared);
-    }
     if(level===1){
       for(const w of data.walls.filter(w=>w.home==='both'&&w.level===1)){const full=group(shared),low=group(shared);wallSets.push({full,low});makeWall(w,full,heights[0],false);makeWall(w,low,1.08,true);}
       v6Rect(shared,[11.3,0,6.4,2.3],0,.45,materials.slab);
@@ -2155,7 +2149,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1101-v6-new-plans-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1101-v6-no-bridge-2');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north','arrival','garden'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
