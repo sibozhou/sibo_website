@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1101-v6-no-bridge-3';
-import { createOpening } from './opening-motion.js?v=1101-v6-no-bridge-3';
-import { loadBakedLighting } from './baked-lighting.js?v=1101-v6-no-bridge-3';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1101-v6-wall-joints-4';
+import { createOpening } from './opening-motion.js?v=1101-v6-wall-joints-4';
+import { loadBakedLighting } from './baked-lighting.js?v=1101-v6-wall-joints-4';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -127,7 +127,7 @@ function fail(error) {
 }
 
 try {
-  const original = await (await fetch('./facade-model.json?v=1101-v6-no-bridge-3')).json();
+  const original = await (await fetch('./facade-model.json?v=1101-v6-wall-joints-4')).json();
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -1632,6 +1632,12 @@ function v6Slab(parent,points,elevation,thickness,material,hole) {
 }
 function v6Rect(parent,[x,y,w,d],elevation,thickness,material){return v6Slab(parent,[[x,y],[x+w,y],[x+w,y+d],[x,y+d]],elevation,thickness,material);}
 function v6Mx(home,x,w=0){return home==='A'?x:29-x-w;}
+function makeV6WallJoint(parent,joint,height,cut){
+  const[x,y,w,d]=joint.rect,top=Math.min(height,joint.top),g=group(parent);g.userData.wallJoint=joint.id;
+  block(g,x,y,w,d,top,0,materials.wall);
+  if(joint.plinth){const bottom=data.vertical.outdoorLevel-.05;block(g,x,y,w,d,Math.min(.55,top)-bottom,bottom,materials.plinth);}
+  if(cut)block(g,x,y,w,d,.025,top-.025,materials.wallCap);
+}
 function buildV6Model(design,modelData) {
   data=modelData;currentDesign=design;joinedLayout=data.joinedLayout;
   const root=group(scene);roots[design]=root;
@@ -1662,6 +1668,9 @@ function buildV6Model(design,modelData) {
         block(column,x,y,w,d,.012,heights[level-1],materials.column);
         block(low,x,y,w,d,1.08-bottom,bottom,materials.wall);block(low,x,y,w,d,.012,1.08,materials.column);
         if(level===1)block(column,x-.004,y-.004,w+.008,d+.008,1.0,-.45,materials.plinth);
+      }
+      for(const joint of data.wallJoints.filter(j=>j.home===home&&j.level===level)){
+        makeV6WallJoint(full,joint,heights[level-1],false);makeV6WallJoint(low,joint,1.08,true);
       }
       for(const room of data.rooms.filter(r=>r.home===home&&r.level===level))makeRoom({...room,design},g);
       for(const b of data.beds.filter(b=>b.home===home&&b.level===level))makeOriginalBed(g,b);
@@ -2149,7 +2158,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1101-v6-no-bridge-3');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1101-v6-wall-joints-4');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north','arrival','garden'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
