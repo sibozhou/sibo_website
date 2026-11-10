@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1109-v7-facade-recheck-2';
-import { createOpening } from './opening-motion.js?v=1109-v7-facade-recheck-2';
-import { loadBakedLighting } from './baked-lighting.js?v=1109-v7-facade-recheck-2';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1110-v7-stone-grid-3';
+import { createOpening } from './opening-motion.js?v=1110-v7-stone-grid-3';
+import { loadBakedLighting } from './baked-lighting.js?v=1110-v7-stone-grid-3';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -56,13 +56,14 @@ mat('accessPaving',0xe1ddd2,{depthWrite:false});
 mat('seamRoof',0x8a6256,{roughness:.62,metalness:.25,side:THREE.DoubleSide});
 mat('roofInfill',0xf2e9d9,{side:THREE.DoubleSide});
 mat('column',0x777971);
+mat('facadeStoneJoint',0x68665c,{roughness:.96});
 mat('guardBase',0x8f9084);mat('guardJoint',0xa3a497);mat('guardMetal',0x786f61);
 mat('lampMetal',0x786f61,{roughness:.65,metalness:.35});mat('lampShade',0xe5d8c1,{roughness:.95,emissive:0xffdeb4,emissiveIntensity:0});
 mat('warmGlow',0xffefd0,{emissive:0xffd6a0,emissiveIntensity:0,roughness:.55});mat('taskGlow',0xfff0d9,{emissive:0xffe0bc,emissiveIntensity:0,roughness:.55});
 mat('entryDoor',0x806a55);mat('interiorDoor',0xb2a087);mat('bathDoor',0xb9b6aa);mat('serviceDoor',0x666c63);mat('doorGroove',0x65513f);
 if(facadeStudy) {
   document.body.classList.add('facade-study');
-  document.title=(strictOriginal?'严格原图版':'方案11/09 · v7')+' · 祁东双户住宅';
+  document.title=(strictOriginal?'严格原图版':'方案11/10 · v7')+' · 祁东双户住宅';
   if(strictOriginal)$('.brand small').textContent='平面核对 · 高度未核实';
   for(const [name,color] of Object.entries({wall:0xf2e9d9,wallCap:0x777a75,slab:0xe6e0d3,roof:0xb3b0a7,windowFrame:0x414944,metal:0x414944,wood:0xa57a48,glass:0xffffff,ground:0xd2d0c8,paving:0xe1ddd2,court:0xd2cebc}))materials[name].color.setHex(color);
   materials.glass.opacity=.12;
@@ -71,9 +72,9 @@ if(facadeStudy) {
   for(let i=0;i<900;i++) {const shade=165+i%55;textureContext.fillStyle=`rgb(${shade},${shade},${shade})`;textureContext.fillRect(i*37%128,i*61%128,1,1);}
   const stucco=new THREE.CanvasTexture(textureCanvas);stucco.wrapS=stucco.wrapT=THREE.RepeatWrapping;stucco.repeat.set(3,3);
   materials.wall.bumpMap=stucco;materials.wall.bumpScale=.0006;
-  $$('.brand strong').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案11/09 · v7');if(strictOriginal)$('.brand').href='./v2/';
+  $$('.brand strong').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案11/10 · v7');if(strictOriginal)$('.brand').href='./v2/';
   $('#original-model')?.style.setProperty('display','flex');
-  $$('[data-design="original"]').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案11/09 · v7');
+  $$('[data-design="original"]').forEach(el=>el.textContent=strictOriginal?'严格原图版':'方案11/10 · v7');
 }
 if(facadeChanges)materials.seamRoof.color.setHex(roofColors[state.roofColor].hex);
 const unitBox = new THREE.BoxGeometry(1,1,1);
@@ -127,7 +128,7 @@ function fail(error) {
 }
 
 try {
-  const original = await (await fetch('./facade-model.json?v=1109-v7-facade-recheck-2')).json();
+  const original = await (await fetch('./facade-model.json?v=1110-v7-stone-grid-3')).json();
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -1667,7 +1668,7 @@ function buildV7Model(design,modelData) {
         const column=group(full);column.userData.studyColumn=c;
         if(c.porch){
           block(column,x,y,w,d,top-bottom,bottom,materials.guardBase);
-          v7StoneGrid(column,[x,y,w,d],bottom,top,base[level-1]);
+          v7StoneGrid(column,[x,y,w],bottom,top,base[level-1],data.facadeDetails.stoneGrid.groups[c.id]);
         }else{
           block(column,x,y,w,d,top-bottom,bottom,materials.wall);
           block(column,x,y,w,d,.012,top,materials.column);
@@ -1717,9 +1718,12 @@ function buildV7Model(design,modelData) {
       v7Rect(shared,[11.3,0,7.6,2.4],0,.45,materials.slab);
       const stair=data.facadeDetails.frontStair;
       const [left,right]=stair.x;
+      const riserJoints=['1F-Z20','1F-Z29'].flatMap(id=>
+        data.facadeDetails.stoneGrid.groups[id].filter(([a,,b])=>a===b));
       for(const [i,edge] of stair.treadEdges.entries()){
         const next=stair.treadEdges[i-1]??0;
         v7Rect(shared,[left,edge,right-left,next-edge],-.15*i,.45-.15*i,materials.slab);
+        v7StoneGrid(shared,[left,edge,right-left],-.15*(i+1),-.15*i,base[0],riserJoints);
       }
       for(const [x,w] of [[stair.cheekX[0],left-stair.cheekX[0]],[right,stair.cheekX[1]-right]])
         v7Rect(shared,[x,stair.groundEdge,w,-stair.groundEdge],-.444,.025,floorMaterials.outdoor);
@@ -1727,13 +1731,15 @@ function buildV7Model(design,modelData) {
       makeLabel({id:'court',home:'both',level:1,name:'露天天井',kind:'terrace',rect:[11.3,2.4,7.6,8.9],description:'院地低于室内450毫米，北端两餐厅分别从天井内侧进入。'},shared);
     }
     if(level===2){
-      const canopy=v7Rect(shared,data.porchCanopy.rect,0,.20,floorMaterials.outdoor);
+      // Keep the upper course on the porch posts visible below the soffit.
+      const canopy=v7Rect(shared,data.porchCanopy.rect,0,.08,floorMaterials.outdoor);
       canopy.userData.v7PorchCanopy=true;
       for(const parent of [full,low]){
         const {x:[left,right],z:[bottom,top]}=data.facadeDetails.frontBand;
         const z=bottom-base[1];
-        block(parent,6.20,2.30,17.80,.21,z,0,materials.guardBase);
-        v7StoneGrid(parent,[6.20,2.30,17.80,.21],0,z,base[1],.60,.02,4.5);
+        // The facing covers the ends of the terrace return walls.
+        block(parent,6.20,2.298,17.80,.212,z,0,materials.guardBase);
+        v7StoneGrid(parent,[6.20,2.298,17.80],0,z,base[1],data.facadeDetails.stoneGrid.groups.band);
         block(parent,left,2.27,right-left,.27,top-bottom,z,materials.plinth);
       }
     }
@@ -1780,13 +1786,19 @@ function makeV7Fixtures(parent,home,level){
   }
 }
 
-function v7StoneGrid(parent,[x,y,w],bottom,top,elevation,module=.60,first=.40,firstCourse=.15){
-  // Sheet 35 uses a stacked, approximately 600 mm facing grid.
-  const yFace=y-.004;
-  for(let z=firstCourse-elevation;z<top-.01;z+=.60)
-    if(z>bottom+.008)block(parent,x,yFace,w,.004,.006,z,materials.guardJoint);
-  for(let t=first;t<w-.01;t+=module)
-    if(t>.01)block(parent,x+t-.003,yFace,.006,.004,top-bottom,bottom,materials.guardJoint);
+function v7StoneGrid(parent,[x,y,w],bottom,top,datum,lines){
+  const seam=data.facadeDetails.stoneGrid.width,half=seam/2,face=y-.004;
+  const material=materials.facadeStoneJoint;
+  for(const [a,z,b,Z] of lines){
+    if(z===Z){
+      const left=Math.max(x,a),right=Math.min(x+w,b),height=z-datum;
+      if(right>left&&height-half>=bottom&&height+half<=top)
+        block(parent,left,face,right-left,.004,seam,height-half,material);
+    }else if(a-half>=x&&a+half<=x+w){
+      const low=Math.max(bottom,z-datum),high=Math.min(top,Z-datum);
+      if(high>low)block(parent,a-half,face,seam,.004,high-low,low,material);
+    }
+  }
 }
 
 function makeV7FacadeDetails(parent,home,level,limit){
@@ -1795,11 +1807,12 @@ function makeV7FacadeDetails(parent,home,level,limit){
   for(const pier of data.facadeDetails.piers){
     const top=Math.min(max,pier.bodyTop);
     if(top-lower>.005){
-      const points=pier.outline.map(([x,y])=>[v7Mx(home,x),y]);
+      const outline=level>1&&pier.upperOutline?pier.upperOutline:pier.outline;
+      const points=outline.map(([x,y])=>[v7Mx(home,x),y]);
       v7Slab(parent,points,top-datum,top-lower,materials.guardBase);
       const x=Math.min(...points.map(p=>p[0])),y=Math.min(...points.map(p=>p[1]));
       const w=Math.max(...points.map(p=>p[0]))-x;
-      v7StoneGrid(parent,[x,y,w,.35],lower-datum,top-datum,datum,.60,home==='A'?.40:.60);
+      v7StoneGrid(parent,[x,y,w],lower-datum,top-datum,datum,data.facadeDetails.stoneGrid.groups[pier.id+'-'+home]);
     }
     if(pier.cap){
       const bottom=Math.max(lower,pier.bodyTop),top=Math.min(max,pier.capTop);
@@ -2350,12 +2363,12 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1109-v7-facade-recheck-2');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1110-v7-stone-grid-3');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north','arrival','garden'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
   try {
-    if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案11/09 · v7 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
+    if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案11/10 · v7 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
     else {await navigator.clipboard.writeText(url.href);toast('分享链接已复制，可以发给家人了');}
   }catch(e){if(e.name!=='AbortError')toast('请复制浏览器地址栏中的链接分享');}
 }
