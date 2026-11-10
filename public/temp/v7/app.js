@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1109-v7-round3-1';
-import { createOpening } from './opening-motion.js?v=1109-v7-round3-1';
-import { loadBakedLighting } from './baked-lighting.js?v=1109-v7-round3-1';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1109-v7-facade-recheck-2';
+import { createOpening } from './opening-motion.js?v=1109-v7-facade-recheck-2';
+import { loadBakedLighting } from './baked-lighting.js?v=1109-v7-facade-recheck-2';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -127,7 +127,7 @@ function fail(error) {
 }
 
 try {
-  const original = await (await fetch('./facade-model.json?v=1109-v7-round3-1')).json();
+  const original = await (await fetch('./facade-model.json?v=1109-v7-facade-recheck-2')).json();
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -1667,7 +1667,7 @@ function buildV7Model(design,modelData) {
         const column=group(full);column.userData.studyColumn=c;
         if(c.porch){
           block(column,x,y,w,d,top-bottom,bottom,materials.guardBase);
-          v7BrickFacing(column,[x,y,w,d],bottom,top);
+          v7StoneGrid(column,[x,y,w,d],bottom,top,base[level-1]);
         }else{
           block(column,x,y,w,d,top-bottom,bottom,materials.wall);
           block(column,x,y,w,d,.012,top,materials.column);
@@ -1676,6 +1676,8 @@ function buildV7Model(design,modelData) {
         block(low,x,y,w,d,1.08-bottom,bottom,materials.wall);
         block(low,x,y,w,d,.012,1.08,materials.column);
       }
+      makeV7FacadeDetails(full,home,level,heights[level-1]);
+      makeV7FacadeDetails(low,home,level,1.08);
       for(const joint of data.wallJoints.filter(j=>j.home===home&&j.level===level)){
         const [x,y,w,d]=joint.rect;
         makeV7WallJoint(full,joint,v7RoofWallTop(level,[x,y,x+w,y+d],0,heights[level-1]),false);makeV7WallJoint(low,joint,1.08,true);
@@ -1713,7 +1715,14 @@ function buildV7Model(design,modelData) {
     }
     if(level===1){
       v7Rect(shared,[11.3,0,7.6,2.4],0,.45,materials.slab);
-      for(let i=1;i<3;i++)v7Rect(shared,[6.9,-.3*i,16.4,.3],-.15*i,.45-.15*i,materials.slab);
+      const stair=data.facadeDetails.frontStair;
+      const [left,right]=stair.x;
+      for(const [i,edge] of stair.treadEdges.entries()){
+        const next=stair.treadEdges[i-1]??0;
+        v7Rect(shared,[left,edge,right-left,next-edge],-.15*i,.45-.15*i,materials.slab);
+      }
+      for(const [x,w] of [[stair.cheekX[0],left-stair.cheekX[0]],[right,stair.cheekX[1]-right]])
+        v7Rect(shared,[x,stair.groundEdge,w,-stair.groundEdge],-.444,.025,floorMaterials.outdoor);
       hallDaily=group(shared);hallFestival=group(shared);makeInteriorLighting(shared,'both',1);
       makeLabel({id:'court',home:'both',level:1,name:'露天天井',kind:'terrace',rect:[11.3,2.4,7.6,8.9],description:'院地低于室内450毫米，北端两餐厅分别从天井内侧进入。'},shared);
     }
@@ -1721,9 +1730,11 @@ function buildV7Model(design,modelData) {
       const canopy=v7Rect(shared,data.porchCanopy.rect,0,.20,floorMaterials.outdoor);
       canopy.userData.v7PorchCanopy=true;
       for(const parent of [full,low]){
-        block(parent,6.20,2.30,17.80,.21,1.20,0,materials.guardBase);
-        v7BrickFacing(parent,[6.20,2.30,17.80,.21],0,1.20);
-        block(parent,6.15,2.27,17.90,.27,.055,1.20,materials.plinth);
+        const {x:[left,right],z:[bottom,top]}=data.facadeDetails.frontBand;
+        const z=bottom-base[1];
+        block(parent,6.20,2.30,17.80,.21,z,0,materials.guardBase);
+        v7StoneGrid(parent,[6.20,2.30,17.80,.21],0,z,base[1],.60,.02,4.5);
+        block(parent,left,2.27,right-left,.27,top-bottom,z,materials.plinth);
       }
     }
     if(level>=2){
@@ -1769,13 +1780,35 @@ function makeV7Fixtures(parent,home,level){
   }
 }
 
-function v7BrickFacing(parent,[x,y,w,d],bottom,top){
-  for(const yy of [y-.004,y+d])for(let z=bottom+.17;z<top-.015;z+=.17)
-    block(parent,x,yy,w,.004,.006,z,materials.guardJoint);
-  for(const yy of [y-.004,y+d])for(let z=bottom;z<top-.02;z+=.17){
-    for(let xx=x+.31+((Math.round((z-bottom)/.17)%2)*.15);xx<x+w-.02;xx+=.31)
-      block(parent,xx,yy,.006,.004,Math.min(.17,top-z),z,materials.guardJoint);
+function v7StoneGrid(parent,[x,y,w],bottom,top,elevation,module=.60,first=.40,firstCourse=.15){
+  // Sheet 35 uses a stacked, approximately 600 mm facing grid.
+  const yFace=y-.004;
+  for(let z=firstCourse-elevation;z<top-.01;z+=.60)
+    if(z>bottom+.008)block(parent,x,yFace,w,.004,.006,z,materials.guardJoint);
+  for(let t=first;t<w-.01;t+=module)
+    if(t>.01)block(parent,x+t-.003,yFace,.006,.004,top-bottom,bottom,materials.guardJoint);
+}
+
+function makeV7FacadeDetails(parent,home,level,limit){
+  const datum=base[level-1],max=datum+limit;
+  const lower=level===1?data.vertical.outdoorLevel:datum;
+  for(const pier of data.facadeDetails.piers){
+    const top=Math.min(max,pier.bodyTop);
+    if(top-lower>.005){
+      const points=pier.outline.map(([x,y])=>[v7Mx(home,x),y]);
+      v7Slab(parent,points,top-datum,top-lower,materials.guardBase);
+      const x=Math.min(...points.map(p=>p[0])),y=Math.min(...points.map(p=>p[1]));
+      const w=Math.max(...points.map(p=>p[0]))-x;
+      v7StoneGrid(parent,[x,y,w,.35],lower-datum,top-datum,datum,.60,home==='A'?.40:.60);
+    }
+    if(pier.cap){
+      const bottom=Math.max(lower,pier.bodyTop),top=Math.min(max,pier.capTop);
+      const [x,y,w,d]=pier.cap;
+      if(top-bottom>.005)block(parent,v7Mx(home,x,w),y,w,d,top-bottom,bottom-datum,materials.plinth);
+    }
   }
+  if(level===3)for(const [x,y,w,d] of data.facadeDetails.thirdFloorSillBands)
+    block(parent,v7Mx(home,x,w),y,w,d,.118,.781,materials.plinth);
 }
 
 function makeV7TerraceAccess(parent,home){
@@ -2317,7 +2350,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1109-v7-round3-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1109-v7-facade-recheck-2');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north','arrival','garden'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
