@@ -17,10 +17,12 @@ export async function loadBakedLighting(root) {
       (mesh.geometry.index?.count??mesh.geometry.attributes.position.count)*(mesh.isInstancedMesh?mesh.count:1)!==spec.count)throw Error('模型与光照版本不匹配');
   }
   const loader=new HDRLoader(),textures=new Map();
-  await Promise.all(manifest.groups.map(async g=>{
-    const texture=await loader.loadAsync(asset(g.texture).href);
-    texture.channel=1;textures.set(g.id,texture);
-  }));
+  for(let start=0;start<manifest.groups.length;start+=4){
+    await Promise.all(manifest.groups.slice(start,start+4).map(async g=>{
+      const texture=await loader.loadAsync(asset(g.texture).href);
+      texture.channel=1;textures.set(g.id,texture);
+    }));
+  }
   const groups=new Map(manifest.groups.map(g=>[g.id,g])),materials=[];
   for(const spec of manifest.meshes) {
     const old=sources[spec.id],src=old.geometry,index=src.index,count=spec.count;
