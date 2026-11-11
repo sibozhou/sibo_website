@@ -71,7 +71,10 @@ export function createWalkLayout(model, openingEntries) {
       const entryX = level === 1 ? 9.25 : 7.45;
       const entryY = level === 1 ? 3.25 : 10.45;
       const entry = [home === 'A' ? entryX : model.joinedLayout.totalWidth - entryX, entryY];
-      const layout = {shell, obstacles, doors: doorways, entry, rooms: [], roomStarts: new Map()};
+      // Match the first-floor open shelf in makeV7Fixtures.
+      const shelfX = home === 'A' ? 6.68 : model.joinedLayout.totalWidth - 6.86;
+      const guideObstacles = level === 1 ? [[shelfX, 2.85, .18, 3.55]] : [];
+      const layout = {shell, obstacles, doors: doorways, entry, rooms: [], roomStarts: new Map(), guideObstacles};
       levels.set(`${level}:${home}`, layout);
 
       for (const room of model.rooms.filter(isLocal)) {
@@ -83,6 +86,7 @@ export function createWalkLayout(model, openingEntries) {
           ...model.bedroomDesks.filter(desk => desk.room === room.id).map(desk => desk.rect),
           ...model.bedsideTables.filter(table => table.room === room.id).map(table => table.rect),
         ];
+        guideObstacles.push(...furniture);
         const point = roomCandidates(room).find(([px, py]) =>
           inside(polygon, px, py) && allows(level, home, px, py) &&
           !furniture.some(rect => nearRect(rect, px, py)));
@@ -96,6 +100,10 @@ export function createWalkLayout(model, openingEntries) {
 
   return {
     allows,
+    allowsGuide(level, home, x, y) {
+      return allows(level, home, x, y) &&
+        !levels.get(`${level}:${home}`).guideObstacles.some(rect => nearRect(rect, x, y));
+    },
     start(level, home, roomId) {
       const layout = levels.get(`${level}:${home}`);
       return layout && (layout.roomStarts.get(roomId) ?? layout.entry);

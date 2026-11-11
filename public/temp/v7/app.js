@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1111-v7-walk-2';
-import { createOpening } from './opening-motion.js?v=1111-v7-walk-2';
-import { loadBakedLighting } from './baked-lighting.js?v=1111-v7-walk-2';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1111-v7-floor-arrows-1';
+import { createOpening } from './opening-motion.js?v=1111-v7-floor-arrows-1';
+import { loadBakedLighting } from './baked-lighting.js?v=1111-v7-floor-arrows-1';
 
-import { createWalkthrough } from './walkthrough.js?v=1111-v7-walk-2';
+import { createWalkthrough } from './walkthrough.js?v=1111-v7-floor-arrows-1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -131,7 +131,7 @@ function fail(error) {
 }
 
 try {
-  const original = await (await fetch('./facade-model.json?v=1111-v7-walk-2')).json();
+  const original = await (await fetch('./facade-model.json?v=1111-v7-floor-arrows-1')).json();
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -164,7 +164,7 @@ try {
       .catch(error=>{console.error(error);bakeLoading=false;bakeError=true;updateLightingNote();});
   }
   walkthrough=createWalkthrough({
-    model:original,openings:openingEntries,camera,controls,angle:siteAngle,requestFrame,
+    model:original,openings:openingEntries,scene,camera,controls,angle:siteAngle,requestFrame,
     onEnter(level,home,room){
       Object.assign(state,{floor:String(level),home,camera:'walk',selected:null});
       const url=new URL(location.href);
@@ -574,9 +574,10 @@ function toggleOpening(entry) {
   toast(type+(entry.target?' · 打开':' · 关闭'));requestFrame();
 }
 
-function pickOpening(raycaster) {
+function pickOpening(raycaster,walkthrough) {
   const visible=object=>{for(let p=object;p;p=p.parent)if(!p.visible)return false;return true;};
   const hit=raycaster.intersectObject(roots[state.design],true).find(h=>visible(h.object));
+  if(walkthrough?.pickArrow(raycaster,hit?.distance??Infinity))return true;
   for(let object=hit?.object;object;object=object.parent)if(object.userData.opening){toggleOpening(object.userData.opening);return true;}
   return false;
 }
@@ -2378,7 +2379,7 @@ function bindModelGestures() {
     const rect=renderer.domElement.getBoundingClientRect();
     pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);
     raycaster.setFromCamera(pointer,camera);
-    if(facadeChanges&&pickOpening(raycaster))return;
+    if(facadeChanges&&pickOpening(raycaster,walkthrough))return;
     if(walkthrough?.active)return;
     const visible=roomMeshes.filter(m=>m.userData.room.design===state.design&&m.parent.visible&&m.parent.parent.visible);
     const hit=raycaster.intersectObjects(visible,false)[0];if(hit)selectRoom(hit.object.userData.room);
@@ -2399,7 +2400,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1111-v7-walk-2');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1111-v7-floor-arrows-1');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north','arrival','garden'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(walkthrough?.active){
@@ -2429,6 +2430,7 @@ function render(time=performance.now()) {
     entry.variants.forEach(v=>v.setOpen(entry.value));moving=true;
   }
   if(moving){renderer.shadowMap.needsUpdate=true;scene.updateMatrixWorld();requestFrame();}
+  if(walkthrough?.active)walkthrough.updateArrows();
   if(facadeChanges)updateNightLighting();renderer.render(scene,camera);
   const width=host.clientWidth,height=host.clientHeight;
   const occupied=[];
