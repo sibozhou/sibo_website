@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1111-v7-matte-paving-1';
-import { createOpening } from './opening-motion.js?v=1111-v7-matte-paving-1';
-import { loadBakedLighting } from './baked-lighting.js?v=1111-v7-matte-paving-1';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1111-v7-walk-2';
+import { createOpening } from './opening-motion.js?v=1111-v7-walk-2';
+import { loadBakedLighting } from './baked-lighting.js?v=1111-v7-walk-2';
+
+import { createWalkthrough } from './walkthrough.js?v=1111-v7-walk-2';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -122,13 +124,14 @@ const floors = [], homes = [], roofGroups = [], wallSets = [], roomMeshes = [], 
 const openingEntries=new Map(),arrivalStairs=[],secondaryRoofGroups=[];
 let dailyFurniture, festivalFurniture, hallDaily, hallFestival, highlighted;
 let nextFrame = false;
+let walkthrough, previousView;
 function requestFrame() { if (!nextFrame) { nextFrame=true; requestAnimationFrame(render); } }
 function fail(error) {
   console.error(error); $('#loading').hidden=true; $('#fallback').hidden=false;
 }
 
 try {
-  const original = await (await fetch('./facade-model.json?v=1111-v7-matte-paving-1')).json();
+  const original = await (await fetch('./facade-model.json?v=1111-v7-walk-2')).json();
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -160,6 +163,31 @@ try {
     loadBakedLighting(roots.original).then(result=>{bakedLighting=result;bakeLoading=false;updateLightingNote();requestFrame();})
       .catch(error=>{console.error(error);bakeLoading=false;bakeError=true;updateLightingNote();});
   }
+  walkthrough=createWalkthrough({
+    model:original,openings:openingEntries,camera,controls,angle:siteAngle,requestFrame,
+    onEnter(level,home,room){
+      Object.assign(state,{floor:String(level),home,camera:'walk',selected:null});
+      const url=new URL(location.href);
+      for(const [key,value] of Object.entries({walk:'1',floor:level,home}))url.searchParams.set(key,value);
+      if(room)url.searchParams.set('room',room);else url.searchParams.delete('room');
+      history.replaceState(null,'',url);
+      updateView();
+    },
+    onExit(){
+      Object.assign(state,previousView);
+      const url=new URL(location.href);
+      url.searchParams.delete('walk');url.searchParams.delete('room');
+      url.searchParams.set('floor',state.floor);url.searchParams.set('home',state.home);
+      history.replaceState(null,'',url);
+      updateView(true);
+    },
+  });
+  const enterWalk=()=>{
+    previousView={floor:state.floor,home:state.home,camera:state.camera,selected:state.selected};
+    walkthrough.enter(Number(state.floor)||1,state.home==='B'?'B':'A',params.get('room')??'');
+  };
+  $('#walk-toggle').addEventListener('click',()=>walkthrough.active?walkthrough.exit():enterWalk());
+  if(params.get('walk')==='1')enterWalk();
   new ResizeObserver(resize).observe(host); resize();
   $('#loading').hidden=true;
   renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();fail('三维显示连接中断');});
@@ -2144,18 +2172,18 @@ function selectRoom(room) {
 function offsetFor(level) {return state.floor==='explode'?(level-1)*4.6:0;}
 function updateView(moveCamera=false) {
   renderer.shadowMap.needsUpdate=true;
-  const only=Number(state.floor);
+  const only=Number(state.floor),walking=walkthrough?.active;
   Object.entries(roots).forEach(([design,g])=>g.visible=design===state.design);
-  if(siteScenery)siteScenery.visible=state.design==='original'&&state.floor==='all'&&state.home==='both';
-  if(arrivalGardenGroup)arrivalGardenGroup.visible=state.floor==='all'&&state.home==='both';
+  if(siteScenery)siteScenery.visible=state.design==='original'&&(walking||state.floor==='all'&&state.home==='both');
+  if(arrivalGardenGroup)arrivalGardenGroup.visible=walking||state.floor==='all'&&state.home==='both';
   arrivalCarGroups.forEach(g=>g.visible=$('#show-cars').checked);
   $('#car-option').hidden=!arrivalGardenGroup||state.floor!=='all'||state.home!=='both';
   if(siteNotes)siteNotes.visible=siteScenery.visible&&state.camera==='site';
-  floors.forEach(({g,level})=>{g.visible=!only||only===level;g.position.y=base[level-1]+offsetFor(level);});
-  homes.forEach(({g,home})=>{g.visible=state.home==='both'||home==='both'||state.home===home;});
-  wallSets.forEach(({full,low})=>{full.visible=!$('#cutaway').checked;low.visible=$('#cutaway').checked;});
-  arrivalStairs.forEach(g=>{g.visible=state.floor===String(g.userData.stairArrival.fromLevel+1)||state.floor==='explode';});
-  roofGroups.forEach(g=>{g.visible=state.floor==='all'&&$('#show-roof').checked;});
+  floors.forEach(({g,level})=>{g.visible=walking||!only||only===level;g.position.y=base[level-1]+offsetFor(level);});
+  homes.forEach(({g,home})=>{g.visible=walking||state.home==='both'||home==='both'||state.home===home;});
+  wallSets.forEach(({full,low})=>{low.visible=!walking&&$('#cutaway').checked;full.visible=!low.visible;});
+  arrivalStairs.forEach(g=>{g.visible=!walking&&(state.floor===String(g.userData.stairArrival.fromLevel+1)||state.floor==='explode');});
+  roofGroups.forEach(g=>{g.visible=walking||state.floor==='all'&&$('#show-roof').checked;});
   secondaryRoofGroups.forEach(g=>{g.visible=state.floor!=='all'||$('#show-roof').checked;});
   if(dailyFurniture)dailyFurniture.visible=state.scene==='daily';
   if(festivalFurniture)festivalFurniture.visible=state.scene==='festival';
@@ -2252,7 +2280,7 @@ function updateSolarLight() {
 }
 
 function updateLightingNote() {
-  const cut=state.floor!=='all'||$('#cutaway').checked||!$('#show-roof').checked;
+  const cut=!walkthrough?.active&&(state.floor!=='all'||$('#cutaway').checked||!$('#show-roof').checked);
   $('#loading').hidden=!(nightStrength>.5&&bakeLoading);
   $('#solar-note').textContent='北京时间 · '+(nightStrength>.5?(bakeLoading?'夜景光照载入中…':bakeError?'夜景光照未载入，请刷新':cut?'剖切夜景示意':'夜景灯光预览'):cut?'剖切光影示意':'晴天日照示意');
 }
@@ -2351,6 +2379,7 @@ function bindModelGestures() {
     pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);
     raycaster.setFromCamera(pointer,camera);
     if(facadeChanges&&pickOpening(raycaster))return;
+    if(walkthrough?.active)return;
     const visible=roomMeshes.filter(m=>m.userData.room.design===state.design&&m.parent.visible&&m.parent.parent.visible);
     const hit=raycaster.intersectObjects(visible,false)[0];if(hit)selectRoom(hit.object.userData.room);
   },true);
@@ -2370,9 +2399,13 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1111-v7-matte-paving-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1111-v7-walk-2');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north','arrival','garden'].includes(state.camera))url.searchParams.set('view',state.camera);
+  if(walkthrough?.active){
+    url.searchParams.set('walk','1');
+    if(walkthrough.roomId)url.searchParams.set('room',walkthrough.roomId);
+  }
   if(facadeChanges){url.searchParams.set('season',state.sunSeason.toFixed(3));url.searchParams.set('hour',state.sunHour.toFixed(2));}
   try {
     if(navigator.share)await navigator.share({title:strictOriginal?'严格原图版 · 祁东双户住宅':facadeStudy?'方案11/11 · v7 · 祁东双户住宅':'祁东双户合院 · 一起看家',text:strictOriginal?'门窗平面按原始PDF核对，层高与门窗高度未核实。':state.camera==='site'?'看看新宅与周边道路、田地和水塘的关系。':facadeStudy?'看看当前门窗、卧室书桌和联厅布置。':'转一转模型，看看长辈房和20人团圆宴的布置。',url:url.href});
@@ -2383,10 +2416,12 @@ function resize() {
   const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;
   const ratio=Math.min(Math.max(devicePixelRatio,2),3,Math.sqrt(4_000_000/(w*h)));
   if(renderer.getPixelRatio()!==ratio)renderer.setPixelRatio(ratio);
-  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();requestFrame();
+  renderer.setSize(w,h,false);camera.aspect=w/h;
+  if(walkthrough?.active)walkthrough.resize();else camera.updateProjectionMatrix();
+  requestFrame();
 }
 function render(time=performance.now()) {
-  nextFrame=false;if(solarDirty)updateSolarLight();controls.update();scene.updateMatrixWorld();
+  nextFrame=false;if(solarDirty)updateSolarLight();if(walkthrough?.active)walkthrough.frame(time);else controls.update();scene.updateMatrixWorld();
   let moving=false;
   for(const entry of openingEntries.values())if(entry.value!==entry.target) {
     const progress=Math.min(1,Math.max(0,(time-entry.started)/360));
@@ -2400,7 +2435,7 @@ function render(time=performance.now()) {
   const priority=l=>l.room.id===state.selected?0:['bath','laundry'].includes(l.room.kind)?1:['service','stairs'].includes(l.room.kind)?3:2;
   for(const l of [...labels].sort((a,b)=>priority(a)-priority(b))) {
     const floorVisible=(state.floor==='all'?l.room.id==='court'||facadeStudy&&(l.room.id.endsWith('-terrace-door')||l.room.id.endsWith('-balcony-door')||l.room.id==='east-pavilion'):state.floor==='explode'||Number(state.floor)===l.room.level);
-    const visible=state.camera!=='site'&&l.room.design===state.design&&$('#show-labels').checked&&floorVisible&&(state.home==='both'||l.room.home===state.home||l.room.home==='both');
+    const visible=!walkthrough?.active&&state.camera!=='site'&&l.room.design===state.design&&$('#show-labels').checked&&floorVisible&&(state.home==='both'||l.room.home===state.home||l.room.home==='both');
     if(!visible){l.el.hidden=true;continue;}
     const p=l.point.clone();l.parent.localToWorld(p);p.project(camera);
     const x=(p.x*.5+.5)*width,y=(-p.y*.5+.5)*height;

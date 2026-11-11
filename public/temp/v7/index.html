@@ -8,7 +8,8 @@
   <meta name="description" content="祁东双户合院：依第三轮31—35号图重建。16间卧室、分层三维模型、五张图纸对照及日夜效果图。">
   <title>方案11/11 · v7 · 祁东双户住宅</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%233d6154'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css?v=1111-v7-matte-paving-1">
+  <link rel="stylesheet" href="./style.css?v=1111-v7-walk-2">
+  <link rel="stylesheet" href="./walkthrough.css?v=1111-v7-walk-2">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
 </head>
 <body>
@@ -16,7 +17,7 @@
     <div class="brand">
       <span><strong>方案11/11 · v7</strong><small>第三轮图纸 · v7</small></span>
     </div>
-    <div class="header-actions"><button id="share" class="primary-button">分享 <span aria-hidden="true">↗</span></button></div>
+    <div class="header-actions"><button id="walk-toggle" class="primary-button" type="button" aria-pressed="false">室内漫游</button><button id="share" class="primary-button">分享 <span aria-hidden="true">↗</span></button></div>
   </header>
   <main class="workspace">
     <aside class="sidebar" aria-label="方案与看房控制">
@@ -37,6 +38,23 @@
       <div class="view-options"><label id="car-option" hidden><input id="show-cars" type="checkbox" checked><span>车辆</span></label><label><input id="cutaway" type="checkbox"><span>降低墙体</span></label><label><input id="show-labels" type="checkbox" checked><span>房间名称</span></label><label id="roof-option"><input id="show-roof" type="checkbox" checked><span>显示屋顶</span></label></div>
       <div class="zoom-buttons" aria-label="缩放模型"><button data-zoom="in" aria-label="放大模型">＋</button><button data-zoom="out" aria-label="缩小模型">−</button></div>
       <div class="viewer-bottom"><div class="legend"><span><i class="elder"></i>长辈 / 卧室</span><span><i class="living"></i>起居 / 餐厨</span><span><i class="bath"></i>卫浴</span></div><span class="gesture-hint" id="gesture-hint">拖动旋转 · 滚轮缩放 · 右键平移</span></div>
+      <section class="walk-panel" id="walk-panel" aria-label="室内漫游控制" hidden>
+        <div>
+          <div class="walk-selects">
+            <label>户别<select id="walk-home"><option value="A">甲户</option><option value="B">乙户</option></select></label>
+            <label>楼层<select id="walk-floor"><option value="1">一层</option><option value="2">二层</option><option value="3">三层</option></select></label>
+            <label>前往房间<select id="walk-room"></select></label>
+          </div>
+          <p class="walk-hint">WASD 或方向键移动 · 拖动转头 · 点门开合</p>
+          <p class="walk-hint walk-touch-hint">按住方向键移动 · 单指拖动转头</p>
+        </div>
+        <div class="walk-keys" aria-label="行走方向">
+          <button data-walk-direction="forward" type="button" aria-label="向前">↑</button>
+          <button data-walk-direction="left" type="button" aria-label="向左">←</button>
+          <button data-walk-direction="back" type="button" aria-label="向后">↓</button>
+          <button data-walk-direction="right" type="button" aria-label="向右">→</button>
+        </div>
+      </section>
       <div class="loading" id="loading"><div class="spinner"></div><b>正在打开家里的三维模型…</b><span>首次打开稍等片刻</span></div>
       <div id="fallback" class="fallback" hidden><h2>当前设备暂未开启三维显示</h2><p>请尝试在系统浏览器中打开，也可以直接查看完整中文方案。</p><a class="primary-button" href="./plans/">查看图纸对照 ↗</a></div>
     </section>
@@ -48,11 +66,11 @@
         <input id="sun-hour" type="range" min="0" max="24" step="0.01" value="14" aria-label="平滑调整北京时间" aria-describedby="sun-time">
         <div class="solar-ticks" aria-hidden="true"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>
         <p id="solar-note">北京时间 · 四季植物与日照示意</p>
-        <a class="render-link" href="./renders/?v=1111-v7-matte-paving-1">专业效果图 ↗</a>
+        <a class="render-link" href="./renders/?v=1111-v7-walk-2">专业效果图 ↗</a>
       </section>
   </main>
   <div class="toast" id="toast" role="status"></div>
   <noscript><p class="no-script">请开启浏览器的JavaScript以查看三维模型。<a href="./plans/">查看图纸对照</a></p></noscript>
-  <script type="module" src="./app.js?v=1111-v7-matte-paving-1"></script>
+  <script type="module" src="./app.js?v=1111-v7-walk-2"></script>
 </body>
 </html>
