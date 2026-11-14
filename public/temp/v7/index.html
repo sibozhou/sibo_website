@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#f5f3ec">
-  <meta name="description" content="祁东双户合院：依第三轮31—35号图重建。16间卧室、分层三维模型、五张图纸对照及日夜效果图。">
-  <title>方案11/11 · v7 · 祁东双户住宅</title>
+  <meta name="description" content="祁东双户合院：依第三轮31—36号图重建。16间卧室、分层三维模型、六张图纸对照及日夜效果图。">
+  <title>方案11/13 · v7 · 祁东双户住宅</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%233d6154'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css?v=1111-v7-floor-arrows-1">
-  <link rel="stylesheet" href="./walkthrough.css?v=1111-v7-floor-arrows-1">
+  <link rel="stylesheet" href="./style.css?v=1113-v7-marble-1">
+  <link rel="stylesheet" href="./walkthrough.css?v=1113-v7-marble-1">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
 </head>
 <body>
   <header class="masthead">
     <div class="brand">
-      <span><strong>方案11/11 · v7</strong><small>第三轮图纸 · v7</small></span>
+      <span><strong>方案11/13 · v7</strong><small>第三轮图纸 · v7</small></span>
     </div>
     <div class="header-actions"><button id="walk-toggle" class="primary-button" type="button" aria-pressed="false">室内漫游</button><button id="share" class="primary-button">分享 <span aria-hidden="true">↗</span></button></div>
   </header>
@@ -25,9 +25,9 @@
       <section class="intro"><span class="stats-caption" id="stats-label">全屋统计</span><div class="stats"><div><b id="bedroom-stat">14</b><span>卧室</span></div><div><b id="bath-stat">14</b><span>卫浴</span></div><div><b id="kitchen-stat">2</b><span>厨房</span></div><div><b id="dining-stat">2</b><span>日常餐厅</span></div></div></section>
       <section class="controls-section"><h2>楼层</h2><div class="floor-grid" id="floors"><button data-floor="all">整体外观</button><button data-floor="1" class="active">一层</button><button data-floor="2">二层</button><button data-floor="3">三层</button><button data-floor="explode" class="wide">分层展开 <span aria-hidden="true">☷</span></button></div><div class="segmented home-filter" aria-label="选择家庭"><button data-home="both" class="active">两户</button><button data-home="A">甲户 · 8间</button><button data-home="B">乙户 · 8间</button></div></section>
       <section class="controls-section" id="scene-controls" hidden><h2>场景</h2><div class="scene-options"><button data-scene="daily" class="active"><b>平日布置</b><i aria-hidden="true"></i></button><button data-scene="festival"><b>春节 · 两桌</b><i aria-hidden="true"></i></button></div></section>
-      <section class="controls-section" id="roof-color-section" hidden><h2><label for="roof-color">屋顶颜色</label></h2><select id="roof-color"><option value="clay" selected>烟陶红 · 默认</option><option value="stone">暖石板灰</option><option value="charcoal">深炭灰</option><option value="olive">灰橄榄</option><option value="sand">砂岩褐</option></select></section>
+      <section class="controls-section" id="roof-color-section" hidden><h2><label for="roof-color">屋顶颜色</label></h2><select id="roof-color"><option value="stone" selected>板岩灰 · 默认</option><option value="clay">烟陶红</option><option value="charcoal">深炭灰</option><option value="olive">灰橄榄</option><option value="sand">砂岩褐</option></select></section>
       <section id="room-detail" class="room-detail" aria-live="polite" hidden></section>
-      <section class="downloads"><h2>图纸</h2><a href="../v4/materials/"><b>材质与配色</b><span aria-hidden="true">↗</span></a><a href="../v4/garden/"><b>庭院与四季花园</b><span aria-hidden="true">↗</span></a><a href="./plans/"><b>五张图纸对照</b><span aria-hidden="true">↗</span></a><a id="original-model" href="../v6/" style="display:none"><b>上一轮 · v6</b><span aria-hidden="true">↗</span></a><a id="original-drawing" href="./downloads/original-floor-1.pdf" target="_blank" rel="noopener"><b>本层新图</b><span aria-hidden="true">↗</span></a><p class="scope-note" id="model-note">第三轮图纸 · 16卧室 · 14卫浴。</p></section>
+      <section class="downloads"><h2>图纸</h2><a href="../v4/materials/"><b>材质与配色</b><span aria-hidden="true">↗</span></a><a href="../v4/garden/"><b>庭院与四季花园</b><span aria-hidden="true">↗</span></a><a href="./plans/"><b>六张图纸对照</b><span aria-hidden="true">↗</span></a><a id="original-model" href="../v6/" style="display:none"><b>上一轮 · v6</b><span aria-hidden="true">↗</span></a><a id="original-drawing" href="./downloads/original-floor-1.pdf" target="_blank" rel="noopener"><b>本层新图</b><span aria-hidden="true">↗</span></a><p class="scope-note" id="model-note">第三轮图纸 · 16卧室 · 14卫浴。</p></section>
     </aside>
     <section class="viewer" aria-label="可旋转的房屋三维模型">
       <div id="model-surface" aria-describedby="gesture-hint"><div id="canvas-host"></div><div id="labels" aria-label="房间标记"></div></div>
@@ -45,8 +45,8 @@
             <label>楼层<select id="walk-floor"><option value="1">一层</option><option value="2">二层</option><option value="3">三层</option></select></label>
             <label>前往房间<select id="walk-room"></select></label>
           </div>
-          <p class="walk-hint">点地面箭头前进 · 拖动转头 · 点门开合</p>
-          <p class="walk-hint walk-touch-hint">点地面箭头前进 · 单指拖动转头</p>
+          <p class="walk-hint">绿箭头切换房间 · 金色箭头走楼梯 · 拖动转头</p>
+          <p class="walk-hint walk-touch-hint">绿箭头切换房间 · 金色箭头走楼梯</p>
         </div>
         <div class="walk-keys" aria-label="行走方向">
           <button data-walk-direction="forward" type="button" aria-label="向前">↑</button>
@@ -66,11 +66,11 @@
         <input id="sun-hour" type="range" min="0" max="24" step="0.01" value="14" aria-label="平滑调整北京时间" aria-describedby="sun-time">
         <div class="solar-ticks" aria-hidden="true"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>
         <p id="solar-note">北京时间 · 四季植物与日照示意</p>
-        <a class="render-link" href="./renders/?v=1111-v7-floor-arrows-1">专业效果图 ↗</a>
+        <a class="render-link" href="./renders/?v=1113-v7-marble-1">专业效果图 ↗</a>
       </section>
   </main>
   <div class="toast" id="toast" role="status"></div>
   <noscript><p class="no-script">请开启浏览器的JavaScript以查看三维模型。<a href="./plans/">查看图纸对照</a></p></noscript>
-  <script type="module" src="./app.js?v=1111-v7-floor-arrows-1"></script>
+  <script type="module" src="./app.js?v=1113-v7-marble-1"></script>
 </body>
 </html>

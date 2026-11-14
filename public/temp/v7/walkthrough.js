@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {createWalkLayout} from './walk-layout.js?v=1111-v7-floor-arrows-1';
+import {createWalkLayout} from './walk-layout.js?v=1113-v7-marble-1';
 
 const movement = {
   KeyW:'forward', ArrowUp:'forward', KeyS:'back', ArrowDown:'back',
@@ -7,7 +7,7 @@ const movement = {
 };
 const up = new THREE.Vector3(0,1,0);
 
-export function createWalkthrough({model, openings, scene, camera, controls, angle, requestFrame, onEnter, onExit}) {
+export function createWalkthrough({model, openings, scene, camera, controls, angle, requestFrame, onEnter, onExit, openDoor}) {
   const layout = createWalkLayout(model,openings);
   const panel = document.querySelector('#walk-panel');
   const toggle = document.querySelector('#walk-toggle');
@@ -24,7 +24,15 @@ export function createWalkthrough({model, openings, scene, camera, controls, ang
   const arrow = new THREE.ShapeGeometry(shape).rotateX(-Math.PI/2);
   const outline = new THREE.MeshBasicMaterial({color:0x225e50,toneMapped:false});
   const arrowMaterial = new THREE.MeshBasicMaterial({color:0xa9f5cc,toneMapped:false});
-  const guides = [-.40,0,.40].map(offset=>{
+  const stairMaterial = new THREE.MeshBasicMaterial({color:0xffd69a,toneMapped:false});
+  const guides = [];
+  const stairFlights = new Map();
+  scene.traverse(object=>{
+    const stair = object.userData.v6Stair;
+    if(stair&&object.userData.stairFlight)stairFlights.set(`${stair.home}:${stair.level}`,stair);
+  });
+
+  function addGuide() {
     const marker = new THREE.Group();
     const hit = new THREE.Mesh(arrow,outline);
     const symbol = new THREE.Mesh(arrow,arrowMaterial);
@@ -33,20 +41,22 @@ export function createWalkthrough({model, openings, scene, camera, controls, ang
     marker.add(hit,symbol);
     marker.visible = false;
     scene.add(marker);
-    return {offset,marker,hit};
-  });
+    const guide = {marker,hit,symbol};
+    guides.push(guide);
+    return guide;
+  }
   let active = false, level = 1, home = 'A', roomId = '', x, y;
   let yaw = 0, pitch = 0, lastFrame = 0, drag, transition;
 
-  function orient() {
-    const eye = model.vertical.floorBases[level-1]+1.60;
+  function orient(floorHeight=model.vertical.floorBases[level-1]) {
+    const eye = floorHeight+1.60;
     camera.position.set(x-14.8,eye,8.35-y).applyAxisAngle(up,angle());
     const direction = new THREE.Vector3(Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch));
     camera.lookAt(direction.applyAxisAngle(up,angle()).add(camera.position));
     requestFrame();
   }
 
-  function go(nextLevel,nextHome,nextRoom='') {
+  function go(nextLevel,nextHome,nextRoom='',previousRoom='',travelDirection=0) {
     const roomList = layout.rooms(nextLevel,nextHome);
     const room = roomList.find(room=>room.id===nextRoom);
     roomId = room?.id??'';
@@ -56,13 +66,19 @@ export function createWalkthrough({model, openings, scene, camera, controls, ang
     home = nextHome;
     [x,y] = point;
     yaw = level===1?(home==='A'?-.58:.58):0;
-    pitch = -.36;
+    pitch = -.29;
     if(room){
       const [left,bottom,width,depth] = room.bedRect??room.rect;
       const dx = left+width/2-x, dy = bottom+depth/2-y;
       if(Math.hypot(dx,dy)>.15)yaw = Math.atan2(dx,dy);
-      pitch = -.34;
+      pitch = -.28;
     }
+    const region = layout.region(level,home,x,y);
+    const links = linksFor(region);
+    const next = links.find(link=>travelDirection&&link.toLevel===level+travelDirection)
+      ?? links.find(link=>link.to!==previousRoom&&link.to.endsWith('-stair-hall'))
+      ?? links.find(link=>link.to!==previousRoom)??links[0];
+    if(next)lookToward(next.point);
     homeSelect.value = home;
     floorSelect.value = String(level);
     roomSelect.replaceChildren(new Option('入口或楼梯厅',''),...roomList.map(room=>new Option(room.name,room.id)));
@@ -77,7 +93,6 @@ export function createWalkthrough({model, openings, scene, camera, controls, ang
     heldButtons.clear();
     lastFrame = 0;
     drag = undefined;
-    transition = undefined;
   }
 
   function resize() {
@@ -100,6 +115,7 @@ export function createWalkthrough({model, openings, scene, camera, controls, ang
   function exit() {
     if(!active)return;
     active = false;
+    transition = undefined;
     clearMovement();
     updateArrows();
     controls.enabled = true;
@@ -113,20 +129,21 @@ export function createWalkthrough({model, openings, scene, camera, controls, ang
 
   function frame(time) {
     if(transition){
-      const {start,fromX,fromY,toX,toY,fromYaw,toYaw} = transition;
-      const t = Math.min(1,Math.max(0,(time-start)/580));
-      const ease = t*t*(3-2*t);
-      const nextX = fromX+(toX-fromX)*ease, nextY = fromY+(toY-fromY)*ease;
-      const distance = Math.hypot(nextX-x,nextY-y);
-      if(distance>0 && reach(x,y,(nextX-x)/distance,(nextY-y)/distance,distance)<distance){
+      const {start,path,duration,toLevel,toRoom} = transition;
+      const progress = Math.min(1,Math.max(0,(time-start)/duration));
+      if(progress===1){
         transition = undefined;
+        go(toLevel,home,toRoom,'',Math.sign(toLevel-level));
         return;
       }
-      x = nextX;
-      y = nextY;
-      yaw = fromYaw+(toYaw-fromYaw)*ease;
-      if(t===1)transition = undefined;
-      orient();
+      const point = path.getPoint(progress);
+      const ahead = path.getPoint(Math.min(1,progress+.07));
+      x = point.x;
+      y = point.y;
+      const heading = Math.atan2(ahead.x-x,ahead.y-y);
+      yaw += Math.atan2(Math.sin(heading-yaw),Math.cos(heading-yaw))*.28;
+      pitch = -.30;
+      orient(point.z);
       return;
     }
     const directions = new Set([...heldKeys.values(),...heldButtons.values()]);
@@ -143,68 +160,103 @@ export function createWalkthrough({model, openings, scene, camera, controls, ang
     orient();
   }
 
-  function reach(fromX,fromY,dx,dy,limit) {
-    const samples = Math.ceil(limit/.10);
-    for(let index=1;index<=samples;index++){
-      const distance = limit*index/samples;
-      if(!layout.allowsGuide(level,home,fromX+dx*distance,fromY+dy*distance))return limit*(index-1)/samples;
-    }
-    return limit;
+  function lookToward([targetX,targetY]) {
+    const distance = Math.hypot(targetX-x,targetY-y);
+    if(distance<.15)return;
+    yaw = Math.atan2(targetX-x,targetY-y);
+    pitch = -THREE.MathUtils.clamp(Math.atan2(1.60,distance)-.24,.24,.70);
   }
 
-  function nextHeading(atX,atY,heading) {
-    let best = heading, score = -Infinity;
-    for(const offset of [0,-.5,.5,-1,1,-Math.PI/2,Math.PI/2,-2.2,2.2,Math.PI]){
-      const direction = heading+offset;
-      const distance = reach(atX,atY,Math.sin(direction),Math.cos(direction),2.5);
-      const rating = distance-.35*Math.abs(offset);
-      if(distance>=1.35 && rating>score){best=direction;score=rating;}
+  function linksFor(region) {
+    const links = layout.portals(level,home,region);
+    if(region!==`${home}${level}-stair-hall`)return links;
+    const side = home==='A'?1:-1;
+    const stairLinks = [];
+    for(const offset of [1,-1]){
+      const stair = stairFlights.get(`${home}:${level+Math.min(offset,0)}`);
+      if(!stair)continue;
+      const [stairX,stairY] = offset>0?stair.entry:stair.arrival;
+      stairLinks.push({
+        stair, toLevel:level+offset, to:`${home}${level+offset}-stair-hall`,
+        point:[stairX+side*.13,stairY], direction:[-side,0],
+      });
     }
-    return best;
+    return [...stairLinks,...links];
+  }
+
+  function climb(link) {
+    const {stair,toLevel,to} = link;
+    if(matchMedia('(prefers-reduced-motion:reduce)').matches){go(toLevel,home,to,'',Math.sign(toLevel-level));return;}
+    const [left,,width] = stair.footprint;
+    const [landing,,landingWidth] = stair.landing;
+    const side = home==='A'?1:-1;
+    const flightEnd = side>0?left+width:left;
+    const landingEdge = side>0?landing+landingWidth:landing;
+    const landingCenter = landing+landingWidth/2;
+    const [entryX,entryY] = stair.entry, [arrivalX,arrivalY] = stair.arrival;
+    const lower = model.vertical.floorBases[stair.level-1], middle = lower+stair.rise/2, upper = lower+stair.rise;
+    const points = [
+      [entryX+side*.13,entryY,lower],
+      [flightEnd,entryY,lower],
+      [landingEdge,entryY,middle],
+      [landingCenter,entryY,middle],
+      [landingCenter,arrivalY,middle],
+      [landingEdge,arrivalY,middle],
+      [flightEnd,arrivalY,upper],
+      [arrivalX+side*.13,arrivalY,upper],
+    ];
+    if(toLevel<level)points.reverse();
+    const [exitX,exitY] = layout.start(toLevel,home,to);
+    points.unshift([x,y,model.vertical.floorBases[level-1]]);
+    points.push([exitX,exitY,model.vertical.floorBases[toLevel-1]]);
+    const path = new THREE.CurvePath();
+    for(let i=1;i<points.length;i++){
+      const start = new THREE.Vector3(...points[i-1]), end = new THREE.Vector3(...points[i]);
+      if(start.distanceToSquared(end)>.0001)path.add(new THREE.LineCurve3(start,end));
+    }
+    transition = {start:performance.now(),path,duration:Math.max(2700,path.getLength()*270),toLevel,toRoom:to};
+    requestFrame();
   }
 
   function updateArrows() {
-    for(const {offset,marker,hit} of guides){
-      marker.visible = false;
-      if(!active||transition)continue;
-      const heading = yaw+offset, dx = Math.sin(heading), dy = Math.cos(heading);
-      const distance = Math.min(2.5,reach(x,y,dx,dy,2.75)-.20);
-      if(distance<1.2)continue;
-      const targetX = x+dx*distance, targetY = y+dy*distance;
+    for(const {marker} of guides)marker.visible=false;
+    if(!active||transition)return;
+    const region = layout.region(level,home,x,y);
+    linksFor(region).forEach((link,index)=>{
+      const {marker,hit,symbol} = guides[index]??addGuide();
+      const [targetX,targetY] = link.point;
+      const heading = Math.atan2(...link.direction);
       marker.position.set(targetX-14.8,model.vertical.floorBases[level-1]+.035,8.35-targetY).applyAxisAngle(up,angle());
       marker.rotation.y = angle()-heading;
+      marker.scale.setScalar(.85);
       marker.visible = true;
-      hit.userData.step = {x:targetX,y:targetY,heading};
-    }
+      symbol.material = link.stair?stairMaterial:arrowMaterial;
+      hit.userData.link = {...link,from:region};
+    });
   }
 
   function pickArrow(raycaster,obstacleDistance) {
     if(!active||transition)return false;
     const target = raycaster.intersectObjects(guides.filter(({marker})=>marker.visible).map(({hit})=>hit),false)[0];
     if(!target||target.distance>=obstacleDistance)return false;
-    const {x:toX,y:toY,heading} = target.object.userData.step;
-    const dx = toX-x, dy = toY-y, distance = Math.hypot(dx,dy);
-    if(reach(x,y,dx/distance,dy/distance,distance)<distance)return false;
-    const toYaw = nextHeading(toX,toY,heading);
+    const link = target.object.userData.link;
+    if(link.from!==layout.region(level,home,x,y))return false;
     clearMovement();
-    if(matchMedia('(prefers-reduced-motion:reduce)').matches){
-      x = toX;
-      y = toY;
-      yaw = toYaw;
-      orient();
-    }else{
-      transition = {start:performance.now(),fromX:x,fromY:y,toX,toY,fromYaw:yaw,toYaw};
-      requestFrame();
+    if(link.stair)climb(link);
+    else {
+      if(link.entry)openDoor(link.entry);
+      go(level,home,link.to,link.from);
     }
     return true;
   }
 
-  homeSelect.addEventListener('change',()=>{clearMovement();go(level,homeSelect.value);});
-  floorSelect.addEventListener('change',()=>{clearMovement();go(Number(floorSelect.value),home);});
-  roomSelect.addEventListener('change',()=>{clearMovement();go(level,home,roomSelect.value);});
+  homeSelect.addEventListener('change',()=>{transition=undefined;clearMovement();go(level,homeSelect.value);});
+  floorSelect.addEventListener('change',()=>{transition=undefined;clearMovement();go(Number(floorSelect.value),home);});
+  roomSelect.addEventListener('change',()=>{transition=undefined;clearMovement();go(level,home,roomSelect.value);});
   window.addEventListener('keydown',event=>{
     if(!active)return;
     if(event.key==='Escape'){exit();return;}
+    if(transition)return;
     const direction = movement[event.code];
     if(!direction||event.altKey||event.ctrlKey||event.metaKey||event.target.closest?.('select,input,textarea'))return;
     event.preventDefault();
@@ -216,7 +268,7 @@ export function createWalkthrough({model, openings, scene, camera, controls, ang
   document.addEventListener('visibilitychange',()=>{if(document.hidden)clearMovement();});
   for(const button of panel.querySelectorAll('[data-walk-direction]')){
     button.addEventListener('pointerdown',event=>{
-      if(event.button!==0)return;
+      if(event.button!==0||transition)return;
       button.setPointerCapture(event.pointerId);
       heldButtons.set(event.pointerId,button.dataset.walkDirection);
       requestFrame();
@@ -226,13 +278,12 @@ export function createWalkthrough({model, openings, scene, camera, controls, ang
     }
   }
   surface.addEventListener('pointerdown',event=>{
-    if(active&&event.button===0&&!drag)drag={id:event.pointerId,x:event.clientX,y:event.clientY,turning:false};
+    if(active&&!transition&&event.button===0&&!drag)drag={id:event.pointerId,x:event.clientX,y:event.clientY,turning:false};
   });
   surface.addEventListener('pointermove',event=>{
     if(!active||drag?.id!==event.pointerId)return;
     const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
     if(!drag.turning&&Math.hypot(dx,dy)<=8)return;
-    transition = undefined;
     drag={id:event.pointerId,x:event.clientX,y:event.clientY,turning:true};
     yaw += dx*.004;
     pitch = THREE.MathUtils.clamp(pitch-dy*.004,-1.12,1.12);
