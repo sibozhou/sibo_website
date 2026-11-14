@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/OrbitControls.js?v=mobile-2';
-import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1113-v7-marble-1';
-import { createOpening } from './opening-motion.js?v=1113-v7-marble-1';
-import { loadBakedLighting } from './baked-lighting.js?v=1113-v7-marble-1';
+import { seasonDay, seasonDate, solarPosition } from './solar-position.js?v=1113-v7-side-windows-1';
+import { createOpening } from './opening-motion.js?v=1113-v7-side-windows-1';
+import { loadBakedLighting } from './baked-lighting.js?v=1113-v7-side-windows-1';
 
-import { createWalkthrough } from './walkthrough.js?v=1113-v7-marble-1';
+import { createWalkthrough } from './walkthrough.js?v=1113-v7-side-windows-1';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -132,7 +132,7 @@ function fail(error) {
 }
 
 try {
-  const original = await (await fetch('./facade-model.json?v=1113-v7-marble-1')).json();
+  const original = await (await fetch('./facade-model.json?v=1113-v7-side-windows-1')).json();
   renderer = new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'default'});
   renderer.setClearColor(facadeStudy?0xe8e9e5:0xeaece3); renderer.shadowMap.enabled=true;renderer.shadowMap.autoUpdate=false;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -1707,7 +1707,15 @@ function buildV7Model(design,modelData) {
       if(level===1)v7Slab(g,data.floorPolygons[level][home],-.18,.27,materials.plinth);
       const full=group(g),low=group(g);wallSets.push({full,low});
       for(const w of data.walls.filter(w=>w.home===home&&w.level===level&&!w.projectionOnly&&!w.frontParapet)){
-        makeWall(w,full,v7RoofWallTop(level,w.points,w.width,heights[level-1]),false);makeWall(w,low,1.08,true);
+        const top=v7RoofWallTop(level,w.points,w.width,heights[level-1]);
+        if(w.sideElevationWindow){
+          makeV7SideWindow(w,full,top,false);
+          makeV7SideWindow(w,low,1.08,true);
+        }else{
+          const wall=w.sideElevationBlank?{...w,kind:'wall'}:w;
+          makeWall(wall,full,top,false);
+          makeWall(wall,low,1.08,true);
+        }
       }
       for(const c of data.columns.filter(c=>c.home===home&&c.level===level&&!c.projectionOnly)){
         const [x,y,w,d]=c.rect,bottom=level===1?-.45:-.18;
@@ -1901,6 +1909,46 @@ function makeV7SideMarble(parent,home,level,limit){
       if(top>bottom)block(parent,v7Mx(home,x-.10,depth+.15),start,depth+.15,finish-start,top-bottom,bottom-datum,marble);
     }
   }
+}
+
+function makeV7SideWindow(w,parent,limit,cut){
+  const [x,y,,end]=w.points;
+  const datum=base[w.level-1];
+  const side=data.facadeDetails.sideMarble;
+  const key=w.sideElevationWindow;
+  const openings=key.startsWith('stair')?['stair-1','stair-2','stair-3']:[key];
+  let bottom=datum;
+  const wallX=x-w.width/2;
+  const wallTop=datum+limit;
+  if(w.level===1){
+    const plinthBase=data.vertical.outdoorLevel-.05;
+    block(parent,x-w.width*.52,y,w.width*1.04,end-y,.55-plinthBase,plinthBase,materials.plinth);
+  }
+  for(const opening of openings){
+    const [,sill,,head]=side.windows[opening];
+    const cap=Math.min(wallTop,sill);
+    if(cap>bottom)block(parent,wallX,y,w.width,end-y,cap-bottom,bottom-datum,materials.wall);
+    bottom=Math.max(bottom,head);
+    if(bottom>=wallTop)break;
+  }
+  if(wallTop>bottom)block(parent,wallX,y,w.width,end-y,wallTop-bottom,bottom-datum,materials.wall);
+  if(cut)return;
+
+  // Place a single frame on the exterior side of the wall, even where a sash crosses floors.
+  const [,sill,,head]=side.windows[key];
+  const {glass:[left,glassSill,right,glassHead],rails,mullions}=side.windowDetails[key];
+  const frame=materials.windowFrame;
+  const frameDepth=.048;
+  const front=w.home==='A'?wallX:wallX+w.width-frameDepth;
+  const pane=front+(frameDepth-.016)/2;
+  const member=(start,low,finish,high)=>block(parent,front,start,frameDepth,finish-start,high-low,low-datum,frame);
+  member(y,sill,left,head);
+  member(right,sill,end,head);
+  member(left,sill,right,glassSill);
+  member(left,glassHead,right,head);
+  block(parent,pane,left,.016,right-left,glassHead-glassSill,glassSill-datum,materials.glass);
+  for(const [low,high] of rails)member(left,low,right,high);
+  for(const [position,low,high] of mullions)member(position-.0175,low,position+.0175,high);
 }
 
 function makeV7TerraceAccess(parent,home){
@@ -2443,7 +2491,7 @@ function changeRoofColor() {
 function toast(text) {$('#toast').textContent=text;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
 async function share() {
   const url=new URL(location.href);url.search='';url.searchParams.set('design',state.design);url.searchParams.set('floor',state.floor);url.searchParams.set('scene',state.scene);url.searchParams.set('home',state.home);
-  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1113-v7-marble-1');}
+  if(facadeStudy){url.searchParams.set('facade','1');url.searchParams.set('v',strictOriginal?'strict-1':'1113-v7-side-windows-1');}
   if(facadeStudy&&!strictOriginal&&state.roofColor)url.searchParams.set('roof',state.roofColor);
   if(['site','north','arrival','garden'].includes(state.camera))url.searchParams.set('view',state.camera);
   if(walkthrough?.active){

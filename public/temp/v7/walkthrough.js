@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {createWalkLayout} from './walk-layout.js?v=1113-v7-marble-1';
+import {createWalkLayout} from './walk-layout.js?v=1113-v7-side-windows-1';
 
 const movement = {
   KeyW:'forward', ArrowUp:'forward', KeyS:'back', ArrowDown:'back',
